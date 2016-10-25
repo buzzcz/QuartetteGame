@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <stdlib.h>
-#include "game.h"
+#include <malloc.h>
 
 int main(void) {
 	int server_socket;
@@ -16,7 +16,6 @@ int main(void) {
 	size_t to_read;
 	struct sockaddr_in server_addr, client_addr;
 	fd_set client_socks, tests;
-	struct game *game_list;
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&server_addr, 0, sizeof(struct sockaddr_in));
@@ -40,8 +39,6 @@ int main(void) {
 		return return_value;
 	}
 
-	game_list = NULL;
-
 	FD_ZERO(&client_socks);
 	FD_SET(server_socket, &client_socks);
 
@@ -58,16 +55,15 @@ int main(void) {
 				if (fd == server_socket) {
 					client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
 					FD_SET(client_socket, &client_socks);
-					if (game_list == NULL) {
-						game_list = (game *) malloc(sizeof(game));
-					}
 					printf("New connection accepted.\n");
 				} else {
 					ioctl(fd, FIONREAD, &to_read);
 					if (to_read > 0) {
 						char *buffer = (char *) malloc(to_read * sizeof(char));
 						recv(fd, buffer, to_read, 0);
-						printf("Client %d sent something\n", fd);
+						printf("Client %d sent %s\n", fd, buffer);
+						send(fd, buffer, to_read, 0);
+						free(buffer);
 					} else {
 						printf("Client %d disconnected.\n", fd);
 						close(fd);
