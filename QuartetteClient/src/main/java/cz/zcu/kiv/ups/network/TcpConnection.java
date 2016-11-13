@@ -1,36 +1,36 @@
-package cz.zcu.kiv.ups;
+package cz.zcu.kiv.ups.network;
 
-import java.io.*;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 
+@Service
+public class TcpConnection implements NetworkInterface {
 
-public class TcpClient implements NetworkInterface {
+	private Socket s;
+	private BufferedReader reader;
+	private PrintWriter writer;
+	private String host;
+	private int port;
 
-	Socket s;
-	BufferedReader reader;
-	PrintWriter writer;
-	int port;
-	String host;
-
-	public TcpClient() {
-	}
-
-	public TcpClient(String host, int port) {
-		open(host, port);
-	}
-
-	public void open(String ihost, int iport) {
-		host = ihost;
-		port = iport;
+	@Override
+	public void open(String host, int port) {
+		this.host = host;
+		this.port = port;
 		// create a socket to communicate to the specified host and port
 		try {
-			s = new Socket(host, port);
+			s = new Socket(this.host, this.port);
 		} catch (IOException e) {
-			System.out.println("Connection to " + host + ":" + port + " refused");
+			System.err.println("Connection to " + this.host + ":" + this.port + " refused");
 		} catch (IllegalArgumentException e) {
-			System.out.println("Illegal port - not in allowed range 0 - 65535");
+			System.err.println("Illegal port - not in allowed range 0 - 65535");
 		} catch (NullPointerException e) {
-			System.out.println("Hostname not supplied");
+			System.err.println("Hostname not supplied");
 		}
 
 		try {
@@ -39,21 +39,17 @@ public class TcpClient implements NetworkInterface {
 			writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 			// tell the user that we've connected
 			System.out.println("Connected to " + s.getInetAddress() + ":" + s.getPort());
-		}
-		// pouze java 1.7 funkcni
-		//catch( NullPointerException | IOException e ) { }
-		catch (Exception e) {
+		} catch (Exception e) {
+			System.err.println("Could not connect to " + s.getInetAddress() + ":" + s.getPort());
 		}
 	}
 
+	@Override
 	public void close() {
 		try {
 			reader.close();
 			writer.close();
-		}
-		// pouze java 1.7 funkcni
-		//catch (IOException | NullPointerException e) {
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println("Close error");
 		}
 		//always be sure to close the socket
@@ -65,6 +61,7 @@ public class TcpClient implements NetworkInterface {
 		}
 	}
 
+	@Override
 	public void putMessage(TcpMessage msg) {
 		try {
 			writer.println(msg.getMessage());
@@ -74,6 +71,7 @@ public class TcpClient implements NetworkInterface {
 		}
 	}
 
+	@Override
 	public TcpMessage getMessage() {
 		String line;
 		// read the response (a line) from the server
@@ -85,8 +83,5 @@ public class TcpClient implements NetworkInterface {
 			System.err.println("Read error");
 		}
 		return null;
-	}
-
-	protected void finalize() {
 	}
 }

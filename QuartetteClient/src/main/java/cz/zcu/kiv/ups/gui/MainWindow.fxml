@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane fx:controller="cz.zcu.kiv.ups.gui.MainWindowController" minHeight="400.0" minWidth="600.0"
+            xmlns:fx="http://javafx.com/fxml">
+	<VBox fx:id="mainWindowVBox" alignment="TOP_CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+	      AnchorPane.rightAnchor="0"
+	      AnchorPane.topAnchor="0" spacing="10">
+		<padding>
+			<Insets>
+				<top>10</top>
+				<bottom>10</bottom>
+				<left>10</left>
+				<right>10</right>
+			</Insets>
+		</padding>
+		<Label text="Quartette Game"/>
+	</VBox>
+</AnchorPane>
