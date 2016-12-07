@@ -2,10 +2,10 @@
 
 Player::Player(int fd, string name) : fd(fd), name(name) {}
 
-int Player::get_fd() {
+int Player::getFd() {
 	return fd;
 }
 
-string Player::get_name() {
+string Player::getName() {
 	return name;
 }

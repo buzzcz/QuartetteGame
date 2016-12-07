@@ -1,30 +1,30 @@
 #include "game.h"
 
-Game::Game(int id, int number_of_players, Player p) : id(id), number_of_players(number_of_players) {
-	add_player(p);
+Game::Game(int id, int numberOfPlayers, Player p) : id(id), numberOfPlayers(numberOfPlayers) {
+	addPlayer(p);
 //	TODO: create thread to handle players
 }
 
-int Game::get_id() {
+int Game::getId() {
 	return id;
 }
 
-int Game::getNumber_of_players() {
-	return number_of_players;
+int Game::getNumberOfPlayers() {
+	return numberOfPlayers;
 }
 
-list<Player> Game::get_players() {
+list<Player> Game::getPlayers() {
 	return players;
 }
 
-void Game::add_player(Player p) {
+void Game::addPlayer(Player p) {
 	players.push_back(p);
 }
 
-bool Game::remove_player(Player p) {
+bool Game::removePlayer(Player p) {
 	list<Player>::iterator iter;
 	for (iter = players.begin(); iter != players.end(); iter++) {
-		if ((*iter).get_name().compare(p.get_name()) == 0) {
+		if ((*iter).getName().compare(p.getName()) == 0) {
 			break;
 		}
 	}

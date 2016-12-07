@@ -17,7 +17,15 @@ public:
 
 	Message(int, string);
 
-	void receive_message(int, size_t);
+	int getType();
+
+	unsigned long getSize();
+
+	string getData();
+
+	void receiveMessage(int, size_t);
+
+	string getMessageToSend();
 };
 
 #endif //QUARTETTESERVER_MESSAGE_H

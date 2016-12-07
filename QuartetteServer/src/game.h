@@ -8,20 +8,20 @@ using std::list;
 
 class Game {
 	int id;
-	int number_of_players;
+	int numberOfPlayers;
 	list<Player> players;
 public:
 	Game(int, int, Player);
 
-	int get_id();
+	int getId();
 
-	int getNumber_of_players();
+	int getNumberOfPlayers();
 
-	list<Player> get_players();
+	list<Player> getPlayers();
 
-	void add_player(Player);
+	void addPlayer(Player);
 
-	bool remove_player(Player);
+	bool removePlayer(Player);
 };
 
 #endif //QUARTETTESERVER_GAME_H

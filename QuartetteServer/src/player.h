@@ -11,9 +11,9 @@ class Player {
 public:
 	Player(int, string);
 
-	int get_fd();
+	int getFd();
 
-	string get_name();
+	string getName();
 };
 
 #endif //QUARTETTESERVER_PLAYER_H

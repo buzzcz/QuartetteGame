@@ -18,24 +18,32 @@
 using std::list;
 
 class Server {
-	int server_socket;
-	int client_socket;
+	int serverSocket;
+	int clientSocket;
 	int fd;
-	socklen_t addr_len;
-	size_t to_read;
-	struct sockaddr_in server_addr;
-	struct sockaddr_in client_addr;
-	fd_set client_socks;
+	socklen_t addrLen;
+	size_t toRead;
+	struct sockaddr_in serverAddr;
+	struct sockaddr_in clientAddr;
+	fd_set clientSocks;
 	fd_set tests;
 	bool run;
-	int number_of_games;
+	int numberOfGames;
 	list<Game> games;
 
 	int create(string, uint16_t);
 
-public:
-	void add_game(int, Player);
+	void processMessage(Message);
 
+	void sendGameList();
+
+	void connectToGame(Message);
+
+	void createGame(Message);
+
+	Game getGameById(int);
+
+public:
 	int start(string, uint16_t);
 };
 
