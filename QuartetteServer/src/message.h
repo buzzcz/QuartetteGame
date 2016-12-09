@@ -12,7 +12,9 @@ class Message {
 	unsigned long size;
 	string data;
 
+	string getMessageToSend();
 public:
+
 	Message();
 
 	Message(int, string);
@@ -25,7 +27,7 @@ public:
 
 	void receiveMessage(int, size_t);
 
-	string getMessageToSend();
+	void sendMessage(int);
 };
 
 #endif //QUARTETTESERVER_MESSAGE_H

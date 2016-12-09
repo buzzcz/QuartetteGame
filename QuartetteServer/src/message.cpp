@@ -19,6 +19,7 @@ string Message::getData() {
 }
 
 void Message::receiveMessage(int fd, size_t to_read) {
+//	TODO: what if data incomplete or beginning is missing??
 	char buffer;
 	string sType = "", sSize = "";
 	int count = 0;
@@ -48,10 +49,20 @@ void Message::receiveMessage(int fd, size_t to_read) {
 		recv(fd, tmp, size, 0);
 		data.assign(tmp, size);
 		free(tmp);
-		printf("Client %d sent %d;%lu;%s\n", fd, type, size, data.c_str());
+		recv(fd, &buffer, 1, 0);
+		if (buffer == '\n') {
+			printf("Client %d sent %d;%lu;%s\n", fd, type, size, data.c_str());
+		} else {
+			printf("Error in receiveMessage");
+		}
 	}
 }
 
 string Message::getMessageToSend() {
-	return std::to_string(type) + ";" + std::to_string(size) + ";" + data + ";";
+	return std::to_string(type) + ";" + std::to_string(size) + ";" + data + "\n";
+}
+
+void Message::sendMessage(int fd) {
+	string data = getMessageToSend();
+	send(fd, data.c_str(), data.length(), 0);
 }

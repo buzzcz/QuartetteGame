@@ -59,6 +59,8 @@ int Server::start(string address, uint16_t port) {
 
 	numberOfGames = 0;
 
+//	TODO: statistics
+//	TODO: sigIntHandler (Ctrl + C)
 	while (run) {
 		tests = clientSocks;
 		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
@@ -77,7 +79,8 @@ int Server::start(string address, uint16_t port) {
 					toRead = 0;
 					ioctl(fd, FIONREAD, &toRead);
 					if (toRead > 0) {
-						Message m;
+						Message *mp = new Message();
+						Message m = *mp;
 						m.receiveMessage(fd, toRead);
 						processMessage(m);
 					} else {
@@ -88,7 +91,6 @@ int Server::start(string address, uint16_t port) {
 				}
 			}
 		}
-
 	}
 
 	return 0;
@@ -114,36 +116,88 @@ void Server::sendGameList() {
 	string data;
 	data += std::to_string(numberOfGames);
 
-	for (list<Game>::iterator iter = games.begin(); iter != games.end(); iter++) {
+	for (list<Game *>::iterator iter = games.begin(); iter != games.end(); iter++) {
+		Game g = *(*iter);
 		data += ",";
-		data += std::to_string((*iter).getId());
-		data += std::to_string((*iter).getPlayers().size());
-		data += std::to_string((*iter).getNumberOfPlayers());
+		data += std::to_string(g.getId());
+		data += std::to_string(g.getPlayers().size());
+		data += std::to_string(g.getCapacity());
 	}
 
 	Message m(2, data);
-	data = m.getMessageToSend();
-	send(fd, data.c_str(), data.length(), 0);
-}
-
-void Server::connectToGame(Message m) {
-//	TODO: connect to game and respond
-
+	m.sendMessage(fd);
 }
 
 void Server::createGame(Message m) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
 //	TODO: if i == string::npos error
-	string nick = data.substr(i);
-	Player p(fd, nick);
-	data.erase(i + 1);
-	int numberOfPlayers = strtol(data.substr(i).c_str(), NULL, 10);
+	string nick = data.substr(0, i);
+	Player *p = new Player(fd, nick);
+	data.erase(0, i + 1);
+	int capacity = strtol(data.c_str(), NULL, 10) + 1;
+	if (capacity <= 1) {
+		Message m1(6, "-1");
+		m1.sendMessage(fd);
+		return;
+	}
 
-	Game newGame(numberOfGames++, numberOfPlayers, p);
+	Game *newGame = new Game(numberOfGames++, capacity, p);
 	games.push_back(newGame);
 
-	Message m1(6, std::to_string(newGame.getId()));
-	data = m1.getMessageToSend();
-	send(fd, data.c_str(), data.length(), 0);
+	Message m1(6, std::to_string((*newGame).getId()));
+	m1.sendMessage(fd);
+}
+
+void Server::connectToGame(Message m) {
+	string data = m.getData();
+	unsigned long i = data.find(",");
+//	TODO: if == string::npos error
+	string nick = data.substr(0, i);
+	data.erase(0, i + 1);
+	int id = strtol(data.c_str(), NULL, 10);
+
+	Game *gp = getGameById(id);
+	if (gp == NULL) {
+		Message m1(4, "2");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	Game g = *gp;
+	if (g.getCapacity() == g.getPlayers().size()) {
+		Message m1(4, "1");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	if (g.isPlayerInGame(nick)) {
+		Message m1(4, "3");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	g.addPlayer(new Player(fd, nick));
+	Message m1(4, "0");
+	m1.sendMessage(fd);
+
+	if (g.shouldStart()) {
+		list<Player *>::iterator iter;
+		for (iter = g.getPlayers().begin(); iter != g.getPlayers().end(); iter++) {
+			Player p = *(*iter);
+			FD_CLR(p.getFd(), &clientSocks);
+		}
+
+//		TODO: make thread start the game
+	}
+}
+
+Game *Server::getGameById(int id) {
+	for (list<Game *>::iterator iter = games.begin(); iter != games.end(); iter++) {
+		Game g = *(*iter);
+		if (g.getId() == id) {
+			return (*iter);
+		}
+	}
+	return NULL;
 }

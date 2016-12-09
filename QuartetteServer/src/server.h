@@ -29,7 +29,7 @@ class Server {
 	fd_set tests;
 	bool run;
 	int numberOfGames;
-	list<Game> games;
+	list<Game *> games;
 
 	int create(string, uint16_t);
 
@@ -37,11 +37,11 @@ class Server {
 
 	void sendGameList();
 
-	void connectToGame(Message);
-
 	void createGame(Message);
 
-	Game getGameById(int);
+	void connectToGame(Message);
+
+	Game *getGameById(int);
 
 public:
 	int start(string, uint16_t);
