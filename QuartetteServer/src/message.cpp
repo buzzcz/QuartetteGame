@@ -41,8 +41,8 @@ void Message::receiveMessage(int fd, size_t to_read) {
 	}
 //	TODO: not 2 means error
 	if (count == 2) {
-		type = strtol(sType.c_str(), NULL, 10);
-		size = strtol(sSize.c_str(), NULL, 10);
+		type = std::stoi(sType.c_str(), NULL, 10);
+		size = std::stoul(sSize.c_str(), NULL, 10);
 //		TODO: 0 means no number was found
 
 		char *tmp = (char *) malloc(size * sizeof(char));

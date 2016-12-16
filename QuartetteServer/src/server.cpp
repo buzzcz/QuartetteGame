@@ -135,7 +135,7 @@ void Server::createGame(Message m) {
 	string nick = data.substr(0, i);
 	Player *p = new Player(fd, nick);
 	data.erase(0, i + 1);
-	int capacity = strtol(data.c_str(), NULL, 10) + 1;
+	int capacity = std::stoi(data.c_str(), NULL, 10) + 1;
 	if (capacity <= 1) {
 		Message m1(6, "-1");
 		m1.sendMessage(fd);
@@ -155,7 +155,7 @@ void Server::connectToGame(Message m) {
 //	TODO: if == string::npos error
 	string nick = data.substr(0, i);
 	data.erase(0, i + 1);
-	int id = strtol(data.c_str(), NULL, 10);
+	int id = std::stoi(data.c_str(), NULL, 10);
 
 	Game *gp = getGameById(id);
 	if (gp == NULL) {

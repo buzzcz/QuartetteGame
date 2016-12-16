@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <stdlib.h>
 #include <malloc.h>
 #include <arpa/inet.h>
 #include <list>
