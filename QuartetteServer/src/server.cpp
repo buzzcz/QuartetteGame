@@ -62,7 +62,7 @@ int Server::start(string address, uint16_t port) {
 //	TODO: statistics
 //	TODO: sigIntHandler (Ctrl + C)
 	while (run) {
-		tests = clientSocks;
+		fd_set tests = clientSocks;
 		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
 		if (returnValue < 0) {
 			printf("Select error.\n");
@@ -142,6 +142,7 @@ void Server::createGame(Message m) {
 		return;
 	}
 
+//	TODO: if numberOfGames == ULONG_MAX, send error
 	Game *newGame = new Game(numberOfGames++, capacity, p);
 	games.push_back(newGame);
 
@@ -181,7 +182,7 @@ void Server::connectToGame(Message m) {
 	Message m1(4, "0");
 	m1.sendMessage(fd);
 
-	if (g.shouldStart()) {
+	if (g.isFull()) {
 		list<Player *>::iterator iter;
 		for (iter = g.getPlayers().begin(); iter != g.getPlayers().end(); iter++) {
 			Player p = *(*iter);

@@ -10,10 +10,6 @@ int Message::getType() {
 	return type;
 }
 
-unsigned long Message::getSize() {
-	return size;
-}
-
 string Message::getData() {
 	return data;
 }

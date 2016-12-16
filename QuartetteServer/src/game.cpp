@@ -1,12 +1,12 @@
 #include "game.h"
 
-Game::Game(int id, int capacity, Player *p) : id(id), capacity(capacity) {
+Game::Game(unsigned long id, int capacity, Player *p) : id(id), capacity(capacity) {
 	addPlayer(p);
 	std::thread(start());
 //	TODO: wait for other players
 }
 
-int Game::getId() {
+unsigned long Game::getId() {
 	return id;
 }
 
@@ -45,7 +45,7 @@ bool Game::isPlayerInGame(string nick) {
 	return false;
 }
 
-bool Game::shouldStart() {
+bool Game::isFull() {
 	return players.size() == capacity;
 }
 
