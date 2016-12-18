@@ -80,12 +80,12 @@ class Server {
 	 * Creates server - checks input values, binds and listens on socket.
 	 * @return 0 if creating of server is successful, error number otherwise.
 	 */
-	int create(string, uint16_t);
+	int create(string address, uint16_t port);
 
 	/**
 	 * Processes incoming message.
 	 */
-	void processMessage(Message);
+	void processMessage(Message m);
 
 	/**
 	 * Send list of games.
@@ -95,18 +95,18 @@ class Server {
 	/**
 	 * Creates new game and adds first player into it.
 	 */
-	void createGame(Message);
+	void createGame(Message m);
 
 	/**
 	 * Connects player to game.
 	 */
-	void connectToGame(Message);
+	void connectToGame(Message m);
 
 	/**
 	 * Searches list of game for a game with specified id.
 	 * @return game with specified id or NULL if game wasn't found.
 	 */
-	Game *getGameById(int);
+	Game *getGameById(int id);
 
 public:
 
@@ -114,7 +114,7 @@ public:
 	 * Starts server.
 	 * @return 0 if everything is successful, error number otherwise.
 	 */
-	int start(string, uint16_t);
+	int start(string address, uint16_t port);
 
 };
 

@@ -34,11 +34,11 @@ bool Game::removePlayer(Player *p) {
 	return false;
 }
 
-bool Game::isPlayerInGame(string nick) {
+bool Game::isPlayerInGame(string name) {
 	list<Player *>::iterator iter;
 	for (iter = players.begin(); iter != players.end(); iter++) {
 		Player p = *(*iter);
-		if (p.getName().compare(nick) == 0) {
+		if (p.getName().compare(name) == 0) {
 			return true;
 		}
 	}
@@ -91,4 +91,12 @@ void Game::setupGame() {
 
 void Game::manageGame() {
 //	TODO: manage game as in Server::run
+}
+
+void Game::sendStartGame() {
+	list<Player *>::iterator iter;
+	for (iter = players.begin(); iter != players.end(); iter++) {
+		Message m(7, getStateOfGame(*iter));
+		m.sendMessage((*iter)->getFd());
+	}
 }

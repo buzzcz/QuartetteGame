@@ -14,13 +14,13 @@ string Message::getData() {
 	return data;
 }
 
-void Message::receiveMessage(int fd, size_t to_read) {
+void Message::receiveMessage(int fd, size_t toRead) {
 //	TODO: what if data incomplete or beginning is missing??
 	char buffer;
 	string sType = "", sSize = "";
 	int count = 0;
 
-	for (int i = 0; i < to_read; i++) {
+	for (int i = 0; i < toRead; i++) {
 		if (count == 2) {
 			break;
 		}

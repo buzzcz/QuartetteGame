@@ -25,7 +25,7 @@ public:
 	/**
 	 * Constructor for player with file descriptor and nickname.
 	 */
-	Player(int, string);
+	Player(int fd, string name);
 
 	/**
 	 * Getter for file descriptor.

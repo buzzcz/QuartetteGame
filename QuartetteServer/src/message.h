@@ -43,7 +43,7 @@ public:
 	/**
 	 * Constructor to create message with type and data.
 	 */
-	Message(int, string);
+	Message(int type, string data);
 
 	/**
 	 * Getter for type of message.
@@ -60,12 +60,12 @@ public:
 	/**
 	 * Receives new message from specified file descriptor and maximal size.
 	 */
-	void receiveMessage(int, size_t);
+	void receiveMessage(int fd, size_t toRead);
 
 	/**
 	 * Sends message to specified file descriptor.
 	 */
-	void sendMessage(int);
+	void sendMessage(int fd);
 
 };
 

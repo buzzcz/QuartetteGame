@@ -33,7 +33,7 @@ class Game {
 	 * card counts of opponents.
 	 * @return state of game according to the specified player.
 	 */
-	string getStateOfGame(Player *);
+	string getStateOfGame(Player *p);
 
 	/**
 	 * Setups game before start.
@@ -45,12 +45,14 @@ class Game {
 	 */
 	void manageGame();
 
+	void sendStartGame();
+
 public:
 
 	/**
 	 * Constructor to create new game with id, capacity and first player.
 	 */
-	Game(unsigned long, int, Player *);
+	Game(unsigned long id, int capacity, Player *p);
 
 	/**
 	 * Getter for id of game.
@@ -73,19 +75,19 @@ public:
 	/**
 	 * Adds player to game.
 	 */
-	void addPlayer(Player *);
+	void addPlayer(Player *p);
 
 	/**
 	 * Removes player from game.
 	 * @return true if success, false otherwise.
 	 */
-	bool removePlayer(Player *);
+	bool removePlayer(Player *p);
 
 	/**
 	 * Searches for player with nickname in game.
 	 * @return true if player with nickname was found in game, false otherwise.
 	 */
-	bool isPlayerInGame(string);
+	bool isPlayerInGame(string name);
 
 	/**
 	 * Indicates whether number of players in game is same as maximum number of players in game.
@@ -96,7 +98,7 @@ public:
 	/**
 	 * Broadcasts message to all players in game. If player is specified, message is not sent to him.
 	 */
-	void broadcast(Message, Player * = NULL);
+	void broadcast(Message m, Player *p = NULL);
 
 	/**
 	 * Starts game thread.

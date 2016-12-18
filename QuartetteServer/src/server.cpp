@@ -136,7 +136,7 @@ void Server::createGame(Message m) {
 	Player *p = new Player(fd, nick);
 	data.erase(0, i + 1);
 	int capacity = std::stoi(data.c_str(), NULL, 10) + 1;
-	if (capacity <= 1) {
+	if (capacity <= 2) {
 		Message m1(6, "-1");
 		m1.sendMessage(fd);
 		return;
