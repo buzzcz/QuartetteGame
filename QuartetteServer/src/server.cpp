@@ -183,8 +183,7 @@ void Server::connectToGame(Message m) {
 	m1.sendMessage(fd);
 
 	if (g.isFull()) {
-		list<Player *>::iterator iter;
-		for (iter = g.getPlayers().begin(); iter != g.getPlayers().end(); iter++) {
+		for (list<Player *>::iterator iter = g.getPlayers().begin(); iter != g.getPlayers().end(); iter++) {
 			Player p = *(*iter);
 			FD_CLR(p.getFd(), &clientSocks);
 		}

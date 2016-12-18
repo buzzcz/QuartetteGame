@@ -23,8 +23,7 @@ void Game::addPlayer(Player *p) {
 }
 
 bool Game::removePlayer(Player *p) {
-	list<Player *>::iterator iter;
-	for (iter = players.begin(); iter != players.end(); iter++) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		Player p1 = *(*iter);
 		if (p1.getName().compare((*p).getName()) == 0) {
 			players.erase(iter);
@@ -35,8 +34,7 @@ bool Game::removePlayer(Player *p) {
 }
 
 bool Game::isPlayerInGame(string name) {
-	list<Player *>::iterator iter;
-	for (iter = players.begin(); iter != players.end(); iter++) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		Player p = *(*iter);
 		if (p.getName().compare(name) == 0) {
 			return true;
@@ -50,8 +48,7 @@ bool Game::isFull() {
 }
 
 void Game::broadcast(Message m, Player *p) {
-	list<Player *>::iterator iter;
-	for (iter = players.begin(); iter != players.end(); iter++) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		if (p == NULL || p != (*iter)) {
 			Player p1 = *(*iter);
 			m.sendMessage(p1.getFd());
@@ -61,22 +58,21 @@ void Game::broadcast(Message m, Player *p) {
 
 string Game::getStateOfGame(Player *p) {
 	string state = std::to_string(capacity - 1);
-	string playerState;
-	list<Player *>::iterator iter;
-	for (iter = players.begin(); iter != players.end(); iter++) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		if (p != (*iter)) {
 			Player p1 = *(*iter);
 			state += ",";
 			state += p1.getName();
 			state += ",";
-//		    TODO: add cards count
-		} else {
-			Player p1 = *(*iter);
-//		    TODO: add cards count and list of cards
+			state += std::to_string(p1.getCards().size());
 		}
 	}
 	state += ",";
-	state += playerState;
+	state += std::to_string(p->getCards().size());
+	for (list<Card>::iterator iter = p->getCards().begin(); iter != p->getCards().end(); iter++) {
+		state += ",";
+		state += cardNames[*iter];
+	}
 	return state;
 }
 
@@ -87,6 +83,11 @@ void Game::start() {
 
 void Game::setupGame() {
 //	TODO: setup game as in Server::create
+	for (int i = 0; i < numberOfCards; i++) {
+		Card c = static_cast<Card>(i);
+		allCards.push_back(c);
+	}
+	std::random_shuffle(allCards.begin(), allCards.end());
 }
 
 void Game::manageGame() {
@@ -94,9 +95,21 @@ void Game::manageGame() {
 }
 
 void Game::sendStartGame() {
-	list<Player *>::iterator iter;
-	for (iter = players.begin(); iter != players.end(); iter++) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		Message m(7, getStateOfGame(*iter));
 		m.sendMessage((*iter)->getFd());
+	}
+}
+
+void Game::sendYourTurn(Player *p) {
+	Message m(8, "");
+	m.sendMessage(p->getFd());
+
+	Message m1(9, p->getName());
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
+		Player p1 = *(*iter);
+		if (p1.getName().compare(p->getName()) != 0) {
+			m1.sendMessage(p1.getFd());
+		}
 	}
 }

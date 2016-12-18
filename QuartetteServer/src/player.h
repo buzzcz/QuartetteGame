@@ -1,9 +1,12 @@
 #ifndef QUARTETTESERVER_PLAYER_H
 #define QUARTETTESERVER_PLAYER_H
 
+#include <list>
 #include <string>
+#include "card.h"
 
 using std::string;
+using std::list;
 
 /**
  * Represents player in game.
@@ -11,14 +14,19 @@ using std::string;
 class Player {
 
 	/**
-	 * Players file descriptor.
+	 * Player's file descriptor.
 	 */
 	int fd;
 
 	/**
-	 * Players nickname.
+	 * Player's nickname.
 	 */
 	string name;
+
+	/**
+	 * Player's cards.
+	 */
+	list<Card> cards;
 
 public:
 
@@ -38,6 +46,12 @@ public:
 	 * @return nickname.
 	 */
 	string getName();
+
+	/**
+	 * Getter for cards.
+	 * @return list of cards.
+	 */
+	list<Card> getCards();
 
 };
 

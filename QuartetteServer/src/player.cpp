@@ -9,3 +9,7 @@ int Player::getFd() {
 string Player::getName() {
 	return name;
 }
+
+list<Card> Player::getCards() {
+	return cards;
+}
