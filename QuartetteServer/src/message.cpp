@@ -15,7 +15,6 @@ string Message::getData() {
 }
 
 void Message::receiveMessage(int fd, size_t toRead) {
-//	TODO: what if data incomplete or beginning is missing??
 	char buffer;
 	string sType = "", sSize = "";
 	int count = 0;
@@ -37,19 +36,27 @@ void Message::receiveMessage(int fd, size_t toRead) {
 	}
 //	TODO: not 2 means error
 	if (count == 2) {
-		type = std::stoi(sType.c_str(), NULL, 10);
-		size = std::stoul(sSize.c_str(), NULL, 10);
-//		TODO: 0 means no number was found
+		try {
+			type = std::stoi(sType.c_str(), NULL, 10);
+			size = std::stoul(sSize.c_str(), NULL, 10);
+		} catch (std::invalid_argument e) {
+
+		}
 
 		char *tmp = (char *) malloc(size * sizeof(char));
-		recv(fd, tmp, size, 0);
+		ssize_t read;
+		read = recv(fd, tmp, size, 0);
+		if (read != size) {
+//			TODO: error
+		}
 		data.assign(tmp, size);
 		free(tmp);
-		recv(fd, &buffer, 1, 0);
-		if (buffer == '\n') {
+		read = recv(fd, &buffer, 1, 0);
+		if (read == 1 && buffer == '\n') {
 			printf("Client %d sent %d;%lu;%s\n", fd, type, size, data.c_str());
 		} else {
 			printf("Error in receiveMessage");
+//			TODO: error
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <sys/socket.h>
 #include <malloc.h>
+#include <stdexcept>
 
 using std::string;
 
