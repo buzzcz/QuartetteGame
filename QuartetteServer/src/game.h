@@ -3,12 +3,13 @@
 
 #include <list>
 #include <thread>
-#include <vector>
+#include <deque>
 #include <algorithm>
 #include "player.h"
 #include "message.h"
 
 using std::list;
+using std::deque;
 
 /**
  * Represents game.
@@ -31,9 +32,14 @@ class Game {
 	list<Player *> players;
 
 	/**
-	 * Vector of all cards shuffled at the beginning of the game and then redistributed to players.
+	 * Deque of all cards shuffled at the beginning of the game and then redistributed to players.
 	 */
-	std::vector<Card> allCards;
+	deque<Card> allCards;
+
+	/**
+	 * Indicates whether game thread should run.
+	 */
+	bool run;
 
 	/**
 	 * Creates string with game state according to the specified player - number of opponents, names of opponent and
@@ -62,6 +68,38 @@ class Game {
 	 * @param p player whose turn it is.
 	 */
 	void sendYourTurn(Player *p);
+
+	/**
+	 * Finds player with specified name in game.
+	 * @param name name of the player to find.
+	 * @return player with specified name or NULL if not found.
+	 */
+	Player *findPlayerByName(string name);
+
+	/**
+	 * Finds player with specified file descriptor.
+	 * @param fd file descriptor of the player to find.
+	 * @return player with specified file descriptor or NULL if not found.
+	 */
+	Player *findPlayerByFd(int fd);
+
+	/**
+	 * Moves card from one player to another one.
+	 * @param c card to move.
+	 * @param from player from whom the card should be moved.
+	 * @param to player to whom the card should be moved.
+	 */
+	void moveCard(Card c, Player *from, Player *to);
+
+	/**
+	 * Shuffles cards to be dealt to players.
+	 */
+	void shuffleCards();
+
+	/**
+	 * Deals cards to player.
+	 */
+	void dealCards();
 
 public:
 
@@ -95,9 +133,8 @@ public:
 
 	/**
 	 * Removes player from game.
-	 * @return true if success, false otherwise.
 	 */
-	bool removePlayer(Player *p);
+	void removePlayer(Player *p);
 
 	/**
 	 * Searches for player with nickname in game.

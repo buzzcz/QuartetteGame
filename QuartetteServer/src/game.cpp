@@ -3,7 +3,6 @@
 Game::Game(unsigned long id, int capacity, Player *p) : id(id), capacity(capacity) {
 	addPlayer(p);
 	std::thread(start());
-//	TODO: wait for other players
 }
 
 unsigned long Game::getId() {
@@ -22,15 +21,8 @@ void Game::addPlayer(Player *p) {
 	players.push_back(p);
 }
 
-bool Game::removePlayer(Player *p) {
-	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
-		Player p1 = *(*iter);
-		if (p1.getName().compare((*p).getName()) == 0) {
-			players.erase(iter);
-			return true;
-		}
-	}
-	return false;
+void Game::removePlayer(Player *p) {
+	players.remove(p);
 }
 
 bool Game::isPlayerInGame(string name) {
@@ -77,21 +69,24 @@ string Game::getStateOfGame(Player *p) {
 }
 
 void Game::start() {
+	run = true;
 	setupGame();
 	manageGame();
 }
 
 void Game::setupGame() {
 //	TODO: setup game as in Server::create
-	for (int i = 0; i < numberOfCards; i++) {
-		Card c = static_cast<Card>(i);
-		allCards.push_back(c);
+	shuffleCards();
+	while (run) {
+		if (isFull()) {
+			manageGame();
+		}
 	}
-	std::random_shuffle(allCards.begin(), allCards.end());
 }
 
 void Game::manageGame() {
 //	TODO: manage game as in Server::run
+	dealCards();
 }
 
 void Game::sendStartGame() {
@@ -110,6 +105,67 @@ void Game::sendYourTurn(Player *p) {
 		Player p1 = *(*iter);
 		if (p1.getName().compare(p->getName()) != 0) {
 			m1.sendMessage(p1.getFd());
+		}
+	}
+}
+
+Player *Game::findPlayerByName(string name) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
+		Player p = *(*iter);
+		if (p.getName().compare(name) == 0) {
+			return *iter;
+		}
+	}
+	return NULL;
+}
+
+Player *Game::findPlayerByFd(int fd) {
+	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
+		Player p = *(*iter);
+		if (p.getFd() == fd) {
+			return *iter;
+		}
+	}
+	return NULL;
+}
+
+void Game::moveCard(Card c, Player *from, Player *to) {
+	from->removeCard(c);
+	to->addCard(c);
+
+	if (from->getCards().size() == 0) {
+		Message m(15, "");
+		m.sendMessage(from->getFd());
+		Message m1(16, from->getName());
+		broadcast(m1, from);
+	}
+
+	if (to->hasQuartette()) {
+		Message m(13, "");
+		m.sendMessage(to->getFd());
+		Message m1(14, to->getName());
+		broadcast(m1, to);
+	}
+}
+
+void Game::shuffleCards() {
+	for (int i = 0; i < numberOfCards; i++) {
+		Card c = static_cast<Card>(i);
+		allCards.push_back(c);
+	}
+	std::random_shuffle(allCards.begin(), allCards.end());
+}
+
+void Game::dealCards() {
+	list<Player *>::iterator playerIter = players.begin();
+	for (int i = 0; i < numberOfCards; i++) {
+		Card c = *allCards.begin();
+		allCards.pop_front();
+		Player p = *(*playerIter);
+		p.addCard(c);
+		playerIter++;
+		if (playerIter == players.end()) {
+			playerIter = players.begin();
 		}
 	}
 }
