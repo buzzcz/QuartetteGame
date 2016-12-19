@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include "card.h"
+#include "status.h"
 
 using std::string;
 using std::list;
@@ -22,6 +23,11 @@ class Player {
 	 * Player's nickname.
 	 */
 	string name;
+
+	/**
+	 * Player's status.
+	 */
+	Status status;
 
 	/**
 	 * Player's cards.
@@ -46,6 +52,12 @@ public:
 	 * @return nickname.
 	 */
 	string getName();
+
+	/**
+	 * Getter for status.
+	 * @return status.
+	 */
+	Status getStatus();
 
 	/**
 	 * Getter for cards.

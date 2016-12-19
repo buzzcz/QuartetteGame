@@ -70,13 +70,6 @@ class Game {
 	void sendYourTurn(Player *p);
 
 	/**
-	 * Finds player with specified name in game.
-	 * @param name name of the player to find.
-	 * @return player with specified name or NULL if not found.
-	 */
-	Player *findPlayerByName(string name);
-
-	/**
 	 * Finds player with specified file descriptor.
 	 * @param fd file descriptor of the player to find.
 	 * @return player with specified file descriptor or NULL if not found.
@@ -100,6 +93,11 @@ class Game {
 	 * Deals cards to player.
 	 */
 	void dealCards();
+
+	/**
+	 * Broadcasts message due to unresponsive player or due to player correctly exiting.
+	 */
+	void failGame(Player *p);
 
 public:
 
@@ -137,10 +135,11 @@ public:
 	void removePlayer(Player *p);
 
 	/**
-	 * Searches for player with nickname in game.
-	 * @return true if player with nickname was found in game, false otherwise.
+	 * Finds player with specified name in game.
+	 * @param name name of the player to find.
+	 * @return player with specified name or NULL if not found.
 	 */
-	bool isPlayerInGame(string name);
+	Player *findPlayerByName(string name);
 
 	/**
 	 * Indicates whether number of players in game is same as maximum number of players in game.

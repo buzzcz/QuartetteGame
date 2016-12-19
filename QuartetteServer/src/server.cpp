@@ -158,37 +158,35 @@ void Server::connectToGame(Message m) {
 	data.erase(0, i + 1);
 	int id = std::stoi(data.c_str(), NULL, 10);
 
-	Game *gp = getGameById(id);
-	if (gp == NULL) {
-		Message m1(4, "2");
-		m1.sendMessage(fd);
-		return;
-	}
-
-	Game g = *gp;
-	if (g.getCapacity() == g.getPlayers().size()) {
-		Message m1(4, "1");
-		m1.sendMessage(fd);
-		return;
-	}
-
-	if (g.isPlayerInGame(nick)) {
+	Game *g = getGameById(id);
+	if (g == NULL) {
 		Message m1(4, "3");
 		m1.sendMessage(fd);
 		return;
 	}
 
-	g.addPlayer(new Player(fd, nick));
+	if (g->getCapacity() == g->getPlayers().size()) {
+		Message m1(4, "1");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	Player *p = g->findPlayerByName(nick);
+	if (p == NULL) {
+		Message m1(4, "2");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	g->addPlayer(new Player(fd, nick));
 	Message m1(4, "0");
 	m1.sendMessage(fd);
 
-	if (g.isFull()) {
-		for (list<Player *>::iterator iter = g.getPlayers().begin(); iter != g.getPlayers().end(); iter++) {
+	if (g->isFull()) {
+		for (list<Player *>::iterator iter = g->getPlayers().begin(); iter != g->getPlayers().end(); iter++) {
 			Player p = *(*iter);
 			FD_CLR(p.getFd(), &clientSocks);
 		}
-
-//		TODO: make thread start the game
 	}
 }
 
@@ -200,4 +198,35 @@ Game *Server::getGameById(int id) {
 		}
 	}
 	return NULL;
+}
+
+void Server::reconnectToGame(Message m) {
+	string data = m.getData();
+	unsigned long i = data.find(",");
+//	TODO: if == string::npos error
+	string nick = data.substr(0, i);
+	data.erase(0, i + 1);
+	int id = std::stoi(data.c_str(), NULL, 10);
+
+	Game *g = getGameById(id);
+	if (g == NULL) {
+		Message m1(19, "3");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	Player *p = g->findPlayerByName(nick);
+	if (p == NULL) {
+		Message m1(19, "1");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	if (p->getStatus() == ACTIVE) {
+		Message m1(19, "2");
+		m1.sendMessage(fd);
+		return;
+	}
+
+//	TODO: modify player and resume game
 }

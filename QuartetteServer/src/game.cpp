@@ -19,20 +19,11 @@ list<Player *> Game::getPlayers() {
 
 void Game::addPlayer(Player *p) {
 	players.push_back(p);
+//	TODO: add fd into fd_set for listening
 }
 
 void Game::removePlayer(Player *p) {
 	players.remove(p);
-}
-
-bool Game::isPlayerInGame(string name) {
-	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
-		Player p = *(*iter);
-		if (p.getName().compare(name) == 0) {
-			return true;
-		}
-	}
-	return false;
 }
 
 bool Game::isFull() {
@@ -168,4 +159,10 @@ void Game::dealCards() {
 			playerIter = players.begin();
 		}
 	}
+}
+
+void Game::failGame(Player *p) {
+	Message m(17, p->getName());
+	broadcast(m, p);
+	run = false;
 }

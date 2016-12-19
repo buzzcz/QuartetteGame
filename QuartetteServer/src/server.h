@@ -108,6 +108,12 @@ class Server {
 	 */
 	Game *getGameById(int id);
 
+	/**
+	 * Reconnects player to game.
+	 * @param m message with data.
+	 */
+	void reconnectToGame(Message m);
+
 public:
 
 	/**

@@ -10,6 +10,10 @@ string Player::getName() {
 	return name;
 }
 
+Status Player::getStatus() {
+	return status;
+}
+
 list<Card> Player::getCards() {
 	return cards;
 }
