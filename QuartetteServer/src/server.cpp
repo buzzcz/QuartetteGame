@@ -172,7 +172,7 @@ void Server::connectToGame(Message m) {
 	}
 
 	Player *p = g->findPlayerByName(nick);
-	if (p == NULL) {
+	if (p != NULL) {
 		Message m1(4, "2");
 		m1.sendMessage(fd);
 		return;
@@ -184,8 +184,8 @@ void Server::connectToGame(Message m) {
 
 	if (g->isFull()) {
 		for (list<Player *>::iterator iter = g->getPlayers().begin(); iter != g->getPlayers().end(); iter++) {
-			Player p = *(*iter);
-			FD_CLR(p.getFd(), &clientSocks);
+			Player p1 = *(*iter);
+			FD_CLR(p1.getFd(), &clientSocks);
 		}
 	}
 }
