@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <VBox fx:controller="cz.zcu.kiv.ups.gui.MenuController" VBox.vgrow="SOMETIMES" alignment="CENTER" spacing="10"
       xmlns:fx="http://javafx.com/fxml">
-	<HBox spacing="10">
+	<HBox spacing="10" alignment="CENTER">
 		<Button text="List of games" onAction="#listOfGamesRequest" />
 		<Button text="Create game" onAction="#createGameRequest" />
 		<Button text="Reconnect to game" onAction="#reconnectRequest" />

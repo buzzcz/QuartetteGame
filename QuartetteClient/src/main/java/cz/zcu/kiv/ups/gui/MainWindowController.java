@@ -5,6 +5,7 @@ import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.network.Message;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +42,19 @@ public class MainWindowController implements Initializable {
 	}
 
 	public void createConnection(String hostname, int port, String nickname) {
-		if (connection.open(hostname, port)) {
+		String error = connection.open(hostname, port);
+		if (error == null) {
 			this.nickname = nickname;
 			mainWindowVBox.getChildren().remove(content);
 			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Menu.fxml");
 			mainWindowVBox.getChildren().add(content);
 		} else {
 			log.error("Could not open connection.");
-//			TODO: Show dialog with error
+			Alert alert = new Alert(Alert.AlertType.ERROR);
+			alert.setTitle("Connection Error");
+			alert.setHeaderText("Could not open connection.");
+			alert.setContentText(error);
+			alert.showAndWait();
 		}
 	}
 

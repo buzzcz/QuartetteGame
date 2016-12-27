@@ -19,18 +19,21 @@ public class Connection implements NetworkInterface {
 	private PrintWriter writer;
 
 	@Override
-	public boolean open(String host, int port) {
+	public String open(String host, int port) {
 		try {
 			s = new Socket(host, port);
 		} catch (IOException e) {
-			log.error("Connection to " + host + ":" + port + " refused.", e);
-			return false;
+			String error = String.format("Connection to %s:%d refused.", host, port);
+			log.error(error, e);
+			return error;
 		} catch (IllegalArgumentException e) {
-			log.error("Illegal port - not in allowed range 0 - 65535.", e);
-			return false;
+			String error = "Illegal port - not in allowed range 0 - 65535.";
+			log.error(error, e);
+			return error;
 		} catch (NullPointerException e) {
-			log.error("Hostname not supplied.", e);
-			return false;
+			String error = "Hostname not supplied.";
+			log.error(error, e);
+			return error;
 		}
 
 		try {
@@ -38,10 +41,11 @@ public class Connection implements NetworkInterface {
 			writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 			log.info("Connected to " + s.getInetAddress() + ":" + s.getPort());
 		} catch (Exception e) {
-			log.error("Could not connect to " + s.getInetAddress() + ":" + s.getPort(), e);
-			return false;
+			String error = String.format("Could not connect to %s:%d.", s.getInetAddress(), s.getPort());
+			log.error(error, e);
+			return error;
 		}
-		return true;
+		return null;
 	}
 
 	@Override

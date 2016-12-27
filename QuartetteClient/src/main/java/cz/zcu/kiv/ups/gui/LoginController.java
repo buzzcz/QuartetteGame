@@ -46,6 +46,7 @@ public class LoginController implements Initializable {
 
 	@FXML
 	public void logIn() {
+//		TODO: Check nickname for unsupported characters
 		mainWindowController.createConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()),
 				nicknameTextField.getText());
 	}
