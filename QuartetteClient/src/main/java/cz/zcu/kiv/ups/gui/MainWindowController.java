@@ -2,6 +2,7 @@ package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.SpringFxmlLoader;
 import cz.zcu.kiv.ups.network.Connection;
+import cz.zcu.kiv.ups.network.Message;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.VBox;
@@ -28,6 +29,9 @@ public class MainWindowController implements Initializable {
 
 	@FXML
 	private VBox mainWindowVBox;
+
+	private String nickname;
+
 	private VBox content;
 
 	@Override
@@ -36,7 +40,29 @@ public class MainWindowController implements Initializable {
 		mainWindowVBox.getChildren().add(content);
 	}
 
-	public void createConnection(String hostname, int port) {
-		connection.open(hostname, port);
+	public void createConnection(String hostname, int port, String nickname) {
+		if (connection.open(hostname, port)) {
+			this.nickname = nickname;
+			mainWindowVBox.getChildren().remove(content);
+			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Menu.fxml");
+			mainWindowVBox.getChildren().add(content);
+		} else {
+			log.error("Could not open connection.");
+//			TODO: Show dialog with error
+		}
 	}
+
+	public void listOfGamesRequest() {
+		Message m = new Message("");
+		connection.putMessage(m);
+	}
+
+	public void createGameRequest() {
+//		TODO: Create dialog to enter number of opponents.
+	}
+
+	public void reconnectRequest() {
+//		TODO: How to get game id??
+	}
+
 }

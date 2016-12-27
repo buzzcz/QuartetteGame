@@ -19,27 +19,29 @@ public class Connection implements NetworkInterface {
 	private PrintWriter writer;
 
 	@Override
-	public void open(String host, int port) {
-		// create a socket to communicate to the specified host and port
+	public boolean open(String host, int port) {
 		try {
 			s = new Socket(host, port);
 		} catch (IOException e) {
 			log.error("Connection to " + host + ":" + port + " refused.", e);
+			return false;
 		} catch (IllegalArgumentException e) {
 			log.error("Illegal port - not in allowed range 0 - 65535.", e);
+			return false;
 		} catch (NullPointerException e) {
 			log.error("Hostname not supplied.", e);
+			return false;
 		}
 
 		try {
-			// create streams for reading and writing
 			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-			// tell the user that we've connected
 			log.info("Connected to " + s.getInetAddress() + ":" + s.getPort());
 		} catch (Exception e) {
 			log.error("Could not connect to " + s.getInetAddress() + ":" + s.getPort(), e);
+			return false;
 		}
+		return true;
 	}
 
 	@Override
@@ -49,9 +51,7 @@ public class Connection implements NetworkInterface {
 			writer.close();
 		} catch (Exception e) {
 			log.error("Could not close streams.", e);
-		}
-		//always be sure to close the socket
-		finally {
+		} finally {
 			try {
 				if (s != null) {
 					s.close();
@@ -75,10 +75,8 @@ public class Connection implements NetworkInterface {
 	@Override
 	public Message getMessage() {
 		String line;
-		// read the response (a line) from the server
 		try {
 			line = reader.readLine();
-			// write the line to console
 			return new Message(line);
 		} catch (IOException e) {
 			log.error("Read error.", e);

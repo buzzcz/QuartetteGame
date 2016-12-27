@@ -46,6 +46,7 @@ public class LoginController implements Initializable {
 
 	@FXML
 	public void logIn() {
-		mainWindowController.createConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()));
+		mainWindowController.createConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()),
+				nicknameTextField.getText());
 	}
 }
