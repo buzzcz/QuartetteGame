@@ -4,12 +4,19 @@ import lombok.Getter;
 
 public class Message {
 
-	@Getter
+	private int type;
+
 	private String data;
+
 	private int size;
 
-	public Message(String data) {
+	public Message(int type, String data) {
+		this.type = type;
 		this.data = data;
 		size = data.length();
+	}
+
+	public String getMessageToSend() {
+		return type + ";" + size + ";" + data + "\n";
 	}
 }

@@ -65,7 +65,7 @@ public class Connection implements NetworkInterface {
 	@Override
 	public void putMessage(Message msg) {
 		try {
-			writer.println(msg.getData());
+			writer.println(msg.getMessageToSend());
 			writer.flush();
 		} catch (Exception e) {
 			log.error("Write error.", e);
@@ -77,7 +77,8 @@ public class Connection implements NetworkInterface {
 		String line;
 		try {
 			line = reader.readLine();
-			return new Message(line);
+//			TODO: Parse message correctly
+			return new Message(0, line);
 		} catch (IOException e) {
 			log.error("Read error.", e);
 		}

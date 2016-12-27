@@ -53,7 +53,7 @@ public class MainWindowController implements Initializable {
 	}
 
 	public void listOfGamesRequest() {
-		Message m = new Message("");
+		Message m = new Message(1, "");
 		connection.putMessage(m);
 	}
 

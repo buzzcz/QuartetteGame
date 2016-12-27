@@ -20,10 +20,10 @@ public class SpringFxmlLoader {
 	}
 
 	public Object load(Class<?> cl, String url) {
-		FXMLLoader loader = getLoader(cl, url);
+		FXMLLoader loader = getLoader();
 		if (loader != null) {
-			try {
-				return loader.load();
+			try (InputStream fxmlStream = cl.getResourceAsStream(url)) {
+				return loader.load(fxmlStream);
 			} catch (IOException e) {
 				log.error("Cannot load " + url, e);
 			}
@@ -31,14 +31,9 @@ public class SpringFxmlLoader {
 		return null;
 	}
 
-	public FXMLLoader getLoader(Class<?> cl, String url) {
-		try (InputStream fxmlStream = cl.getResourceAsStream(url)) {
-			FXMLLoader loader = new FXMLLoader();
-			loader.setControllerFactory(clazz -> context.getBean(clazz));
-			return loader;
-		} catch (IOException e) {
-			log.error("Cannot open " + url, e);
-		}
-		return null;
+	public FXMLLoader getLoader() {
+		FXMLLoader loader = new FXMLLoader();
+		loader.setControllerFactory(clazz -> context.getBean(clazz));
+		return loader;
 	}
 }
