@@ -7,7 +7,7 @@
       xmlns:fx="http://javafx.com/fxml">
 	<HBox spacing="10" alignment="CENTER">
 		<Button text="List of games" onAction="#listOfGamesRequest" />
-		<Button text="Create game" onAction="#createGameRequest" />
+		<Button text="Create new game" onAction="#createGameRequest" />
 		<Button text="Reconnect to game" onAction="#reconnectRequest" />
 	</HBox>
 </VBox>
