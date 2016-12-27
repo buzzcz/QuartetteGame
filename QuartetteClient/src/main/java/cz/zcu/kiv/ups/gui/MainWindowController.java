@@ -45,7 +45,7 @@ public class MainWindowController implements Initializable {
 		mainWindowVBox.getChildren().add(content);
 	}
 
-	public void createConnection(String hostname, int port, String nickname) {
+	public void openConnection(String hostname, int port, String nickname) {
 		String error = connection.open(hostname, port);
 		if (error == null) {
 			this.nickname = nickname;
@@ -85,6 +85,14 @@ public class MainWindowController implements Initializable {
 
 	public void reconnectRequest() {
 //		TODO: How to remember game id??
+	}
+
+	public void showListOfGames(Message message) {
+
+	}
+
+	public void connectedToGame(Message message) {
+
 	}
 
 }

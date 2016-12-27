@@ -81,8 +81,12 @@ public class Connection implements NetworkInterface {
 		String line;
 		try {
 			line = reader.readLine();
-//			TODO: Parse message correctly
-			return new Message(0, line);
+			String[] parts = line.split(";");
+			if (Integer.parseInt(parts[1]) == parts[2].length()) {
+				return new Message(Integer.parseInt(parts[0]), parts[2]);
+			} else {
+				log.error("Received data size mismatch.");
+			}
 		} catch (IOException e) {
 			log.error("Read error.", e);
 		}

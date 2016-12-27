@@ -1,7 +1,8 @@
 package cz.zcu.kiv.ups.network;
 
-import lombok.Getter;
+import lombok.Data;
 
+@Data
 public class Message {
 
 	private int type;

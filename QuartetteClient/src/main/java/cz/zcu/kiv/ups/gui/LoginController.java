@@ -4,11 +4,9 @@ import cz.zcu.kiv.ups.ParseCmdLine;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -47,7 +45,7 @@ public class LoginController implements Initializable {
 	@FXML
 	public void logIn() {
 //		TODO: Check nickname for unsupported characters
-		mainWindowController.createConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()),
+		mainWindowController.openConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()),
 				nicknameTextField.getText());
 	}
 }
