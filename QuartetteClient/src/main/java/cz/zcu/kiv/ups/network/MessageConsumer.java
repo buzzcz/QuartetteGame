@@ -21,7 +21,7 @@ public class MessageConsumer implements ConsumerInterface {
 
 	@Override
 	public void consumeMessage() {
-		Message message = connection.getMessage();
+		Message message = connection.receiveMessage();
 		if (message == null) {
 			return;
 		}

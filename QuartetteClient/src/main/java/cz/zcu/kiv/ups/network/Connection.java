@@ -69,7 +69,7 @@ public class Connection implements NetworkInterface {
 	}
 
 	@Override
-	public void putMessage(Message msg) {
+	public void sendMessage(Message msg) {
 		try {
 			writer.println(msg.getMessageToSend());
 			writer.flush();
@@ -79,7 +79,7 @@ public class Connection implements NetworkInterface {
 	}
 
 	@Override
-	public Message getMessage() {
+	public Message receiveMessage() {
 		String line;
 		try {
 			if (s.getInputStream().available() > 0) {

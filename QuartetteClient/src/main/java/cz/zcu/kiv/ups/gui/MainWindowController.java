@@ -75,7 +75,7 @@ public class MainWindowController implements Initializable {
 
 	public void listOfGamesRequest() {
 		Message m = new Message(1, "");
-		connection.putMessage(m);
+		connection.sendMessage(m);
 	}
 
 	public void createGameRequest() {
@@ -87,7 +87,7 @@ public class MainWindowController implements Initializable {
 				" new game.", "Select number of desired opponents:");
 		result.ifPresent(number -> {
 			Message m = new Message(5, nickname + "," + number);
-			connection.putMessage(m);
+			connection.sendMessage(m);
 		});
 	}
 
@@ -117,7 +117,9 @@ public class MainWindowController implements Initializable {
 		int code = Integer.parseInt(message.getData());
 		switch (code) {
 			case 0:
-//				TODO: Show game table and wait for players
+				mainWindowVBox.getChildren().remove(content);
+				content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
+				mainWindowVBox.getChildren().add(content);
 				break;
 			case 1:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Capacity Error", "Could not connect to game"
@@ -139,11 +141,19 @@ public class MainWindowController implements Initializable {
 	public void createGameAnswer(Message message) {
 		int code = Integer.parseInt(message.getData());
 		if (code >= 0) {
-//		    TODO: Show game table and wait for players
+			mainWindowVBox.getChildren().remove(content);
+			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
+			mainWindowVBox.getChildren().add(content);
 		} else {
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
 					"game.", "Creating new game is impossible due to number of opponents lower then 2.");
 		}
+	}
+
+	public void exitGame() {
+		Message message = new Message(20, "");
+		connection.sendMessage(message);
+		showMenu();
 	}
 
 }

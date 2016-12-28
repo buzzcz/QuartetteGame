@@ -6,7 +6,7 @@ public interface NetworkInterface {
 
 	void close();
 
-	void putMessage(Message msg);
+	void sendMessage(Message msg);
 
-	Message getMessage();
+	Message receiveMessage();
 }
