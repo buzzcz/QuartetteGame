@@ -1,6 +1,6 @@
 package cz.zcu.kiv.ups.gui;
 
-import cz.zcu.kiv.ups.ParseCmdLine;
+import cz.zcu.kiv.ups.utils.ParseCmdLine;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;

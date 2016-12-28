@@ -1,8 +1,6 @@
-package cz.zcu.kiv.ups;
+package cz.zcu.kiv.ups.network;
 
 import cz.zcu.kiv.ups.gui.MainWindowController;
-import cz.zcu.kiv.ups.network.Connection;
-import cz.zcu.kiv.ups.network.Message;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,10 @@ public class MessageConsumer implements ConsumerInterface {
 				Platform.runLater(() -> mainWindowController.showListOfGames(message));
 				break;
 			case 4:
-				
+				Platform.runLater(() -> mainWindowController.connectRequestAnswer(message));
+				break;
+			case 6:
+				Platform.runLater(() -> mainWindowController.createGameAnswer(message));
 				break;
 		}
 	}

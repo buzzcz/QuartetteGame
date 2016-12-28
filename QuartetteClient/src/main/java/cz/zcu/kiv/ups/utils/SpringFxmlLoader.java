@@ -1,4 +1,4 @@
-package cz.zcu.kiv.ups;
+package cz.zcu.kiv.ups.utils;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;

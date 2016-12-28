@@ -1,4 +1,4 @@
-package cz.zcu.kiv.ups;
+package cz.zcu.kiv.ups.network;
 
 /**
  * @author Jaroslav Klaus

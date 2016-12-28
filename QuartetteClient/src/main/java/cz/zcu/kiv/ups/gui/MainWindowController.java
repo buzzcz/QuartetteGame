@@ -1,14 +1,14 @@
 package cz.zcu.kiv.ups.gui;
 
-import cz.zcu.kiv.ups.MessageConsumer;
-import cz.zcu.kiv.ups.SpringFxmlLoader;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.network.Message;
+import cz.zcu.kiv.ups.network.MessageConsumer;
+import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
+import cz.zcu.kiv.ups.utils.SpringFxmlLoader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,11 +62,8 @@ public class MainWindowController implements Initializable {
 			scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50);
 		} else {
 			log.error("Could not open connection.");
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.setTitle("Connection Error");
-			alert.setHeaderText("Could not open connection.");
-			alert.setContentText(error);
-			alert.showAndWait();
+			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Connection Error", "Could not open connection.",
+					error);
 		}
 	}
 
@@ -87,11 +83,8 @@ public class MainWindowController implements Initializable {
 		for (int i = 2; i < 32; i++) {
 			numbers.add(i);
 		}
-		ChoiceDialog<Integer> dialog = new ChoiceDialog<>(3, numbers);
-		dialog.setTitle("Create New Game");
-		dialog.setHeaderText("Create new game.");
-		dialog.setContentText("Select number of desired opponents:");
-		Optional<Integer> result = dialog.showAndWait();
+		Optional<Integer> result = AlertsAndDialogs.showAndWaitChoiceDialog(3, numbers, "Create New Game", "Create" +
+				" new game.", "Select number of desired opponents:");
 		result.ifPresent(number -> {
 			Message m = new Message(5, nickname + "," + number);
 			connection.putMessage(m);
@@ -112,25 +105,45 @@ public class MainWindowController implements Initializable {
 			games.add(game);
 		}
 		mainWindowVBox.getChildren().remove(content);
-		FXMLLoader loader = new SpringFxmlLoader(context).getLoader();
-		try {
-			content = loader.load(getClass().getResourceAsStream("ListOfGames.fxml"));
-		} catch (IOException e) {
-			log.error("Error loading ListOfGames.fxml", e);
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.setTitle("Load Error");
-			alert.setHeaderText("Could not load resource.");
-			alert.setContentText("Resource ListOfGames.fxml could not be loaded.");
-			alert.showAndWait();
-			return;
-		}
+		SpringFxmlLoader springFxmlLoaderLoader = new SpringFxmlLoader(context);
+		FXMLLoader loader = springFxmlLoaderLoader.getLoader();
+		content = (VBox) springFxmlLoaderLoader.load(loader, getClass(), "ListOfGames.fxml");
 		ListOfGamesController ctrl = loader.getController();
 		ctrl.fillGames(games);
 		mainWindowVBox.getChildren().add(content);
 	}
 
-	public void connectedToGame(Message message) {
+	public void connectRequestAnswer(Message message) {
+		int code = Integer.parseInt(message.getData());
+		switch (code) {
+			case 0:
+//				TODO: Show game table and wait for players
+				break;
+			case 1:
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Capacity Error", "Could not connect to game"
+						+ ".", "Connecting " + "to game is impossible due to full capacity of the game.");
+				break;
+			case 2:
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Could not connect to game"
+						+ ".", "Connecting " + "to game is impossible due to player with the same nickname.");
+				break;
+			case 3:
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Game Error", "Could not connect to game.",
+						"Connecting to" + " game is impossible due to no longer existing game.");
+				break;
+			default:
+				break;
+		}
+	}
 
+	public void createGameAnswer(Message message) {
+		int code = Integer.parseInt(message.getData());
+		if (code >= 0) {
+//		    TODO: Show game table and wait for players
+		} else {
+			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
+					"game.", "Creating new game is impossible due to number of opponents lower then 2.");
+		}
 	}
 
 }
