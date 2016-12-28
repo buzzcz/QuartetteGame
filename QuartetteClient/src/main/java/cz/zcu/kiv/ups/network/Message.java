@@ -18,6 +18,6 @@ public class Message {
 	}
 
 	public String getMessageToSend() {
-		return type + ";" + size + ";" + data + "\n";
+		return type + ";" + size + ";" + data;
 	}
 }

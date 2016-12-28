@@ -1,8 +1,8 @@
 package cz.zcu.kiv.ups;
 
 
+import cz.zcu.kiv.ups.network.Connection;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.io.IOException;
 
@@ -33,6 +34,12 @@ public class QuartetteClient extends Application {
 	@Override
 	public void start(Stage primaryStage) throws IOException {
 		ApplicationContext context = SpringApplication.run(QuartetteClient.class, parameters);
+		primaryStage.setOnCloseRequest(event -> {
+			ThreadPoolTaskScheduler scheduler = context.getBean(ThreadPoolTaskScheduler.class);
+			scheduler.shutdown();
+			Connection connection = context.getBean(Connection.class);
+			connection.close();
+		});
 		ParseCmdLine parseCmdLine = context.getBean(ParseCmdLine.class);
 
 		SpringFxmlLoader loader = new SpringFxmlLoader(context);
@@ -45,5 +52,10 @@ public class QuartetteClient extends Application {
 	@Bean
 	public ParseCmdLine getParseCmdLine() {
 		return new ParseCmdLine(parameters);
+	}
+
+	@Bean
+	public ThreadPoolTaskScheduler getTaskScheduler() {
+		return new ThreadPoolTaskScheduler();
 	}
 }

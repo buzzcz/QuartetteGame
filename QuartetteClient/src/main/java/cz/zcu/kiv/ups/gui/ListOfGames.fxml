@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
 <VBox fx:controller="cz.zcu.kiv.ups.gui.ListOfGamesController" VBox.vgrow="SOMETIMES" alignment="CENTER" spacing="10"
       xmlns:fx="http://javafx.com/fxml">
-	<ListView fx:id="gamesListView" />
+	<ListView fx:id="gamesListView" VBox.vgrow="SOMETIMES"/>
+	<Button text="Back" onAction="#back"/>
 </VBox>

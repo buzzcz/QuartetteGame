@@ -33,7 +33,7 @@ public class SpringFxmlLoader {
 
 	public FXMLLoader getLoader() {
 		FXMLLoader loader = new FXMLLoader();
-		loader.setControllerFactory(clazz -> context.getBean(clazz));
+		loader.setControllerFactory(context::getBean);
 		return loader;
 	}
 }

@@ -1,14 +1,16 @@
 package cz.zcu.kiv.ups.gui;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -23,8 +25,7 @@ public class ListOfGamesController implements Initializable {
 	@FXML
 	private ListView<String> gamesListView;
 
-	@Setter
-	private ObservableList<String> games;
+	private ObservableList<String> games = FXCollections.observableList(new LinkedList<>());
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -32,5 +33,15 @@ public class ListOfGamesController implements Initializable {
 		gamesListView.setOnMouseClicked(event -> {
 //			TODO: Handle connect to game
 		});
+	}
+
+	public void fillGames(List<String> games) {
+		this.games.clear();
+		this.games.addAll(games);
+	}
+
+	@FXML
+	public void back() {
+		mainWindowController.showMenu();
 	}
 }

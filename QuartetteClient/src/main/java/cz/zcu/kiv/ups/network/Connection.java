@@ -15,7 +15,9 @@ import java.net.Socket;
 public class Connection implements NetworkInterface {
 
 	private Socket s;
+
 	private BufferedReader reader;
+
 	private PrintWriter writer;
 
 	@Override
@@ -80,12 +82,15 @@ public class Connection implements NetworkInterface {
 	public Message getMessage() {
 		String line;
 		try {
-			line = reader.readLine();
-			String[] parts = line.split(";");
-			if (Integer.parseInt(parts[1]) == parts[2].length()) {
-				return new Message(Integer.parseInt(parts[0]), parts[2]);
-			} else {
-				log.error("Received data size mismatch.");
+			if (s.getInputStream().available() > 0) {
+				line = reader.readLine();
+				log.info("Received: " + line);
+				String[] parts = line.split(";");
+				if (Integer.parseInt(parts[1]) == parts[2].length()) {
+					return new Message(Integer.parseInt(parts[0]), parts[2]);
+				} else {
+					log.error("Received data size mismatch.");
+				}
 			}
 		} catch (IOException e) {
 			log.error("Read error.", e);
