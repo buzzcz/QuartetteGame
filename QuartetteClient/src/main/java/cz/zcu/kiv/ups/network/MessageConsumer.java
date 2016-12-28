@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * Implementation of Consumer Interface. Receives and consumes messages.
+ *
  * @author Jaroslav Klaus
  */
 @Service

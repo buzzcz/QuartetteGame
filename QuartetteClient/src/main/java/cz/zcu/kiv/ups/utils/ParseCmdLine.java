@@ -3,15 +3,29 @@ package cz.zcu.kiv.ups.utils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Utility to parse and check input values.
+ *
+ * @author buzzcz
+ */
 @Slf4j
 public class ParseCmdLine {
 
+	/**
+	 * Hostname.
+	 */
 	@Getter
 	private String hostname = "localhost";
 
+	/**
+	 * Port.
+	 */
 	@Getter
 	private int port = 10000;
 
+	/**
+	 * Nickname.
+	 */
 	@Getter
 	private String nickname = "";
 
@@ -59,6 +73,9 @@ public class ParseCmdLine {
 		}
 	}
 
+	/**
+	 * Prints usage of application.
+	 */
 	public void usage() {
 		log.info("Usage: QuartetteClient [-host hostname] [-port port] [-nick nickname].");
 	}

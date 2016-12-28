@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
+ * Controller of Main Window and other supporting stuff.
+ *
  * @author Jaroslav Klaus
  */
 @Component
@@ -41,11 +43,20 @@ public class MainWindowController implements Initializable {
 	@Autowired
 	private MessageConsumer consumer;
 
+	/**
+	 * VBox in Main Window.
+	 */
 	@FXML
 	private VBox mainWindowVBox;
 
+	/**
+	 * User's nickname.
+	 */
 	private String nickname;
 
+	/**
+	 * Content in Main Window to show desired screen.
+	 */
 	private VBox content;
 
 	@Override
@@ -54,6 +65,12 @@ public class MainWindowController implements Initializable {
 		mainWindowVBox.getChildren().add(content);
 	}
 
+	/**
+	 * Opens connection to specified server, sets nickname and starts scheduled reading of messages.
+	 * @param hostname hostname.
+	 * @param port port.
+	 * @param nickname nickname.
+	 */
 	public void openConnection(String hostname, int port, String nickname) {
 		String error = connection.open(hostname, port);
 		if (error == null) {
@@ -67,17 +84,26 @@ public class MainWindowController implements Initializable {
 		}
 	}
 
+	/**
+	 * Shows menu.
+	 */
 	public void showMenu() {
 		mainWindowVBox.getChildren().remove(content);
 		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Menu.fxml");
 		mainWindowVBox.getChildren().add(content);
 	}
 
+	/**
+	 * Sends list of games request.
+	 */
 	public void listOfGamesRequest() {
 		Message m = new Message(1, "");
 		connection.sendMessage(m);
 	}
 
+	/**
+	 * Shows choice dialog and sends create game request.
+	 */
 	public void createGameRequest() {
 		List<Integer> numbers = new LinkedList<>();
 		for (int i = 2; i < 32; i++) {
@@ -91,10 +117,17 @@ public class MainWindowController implements Initializable {
 		});
 	}
 
+	/**
+	 * Sends reconnect request.
+	 */
 	public void reconnectRequest() {
 //		TODO: How to remember game id??
 	}
 
+	/**
+	 * Shows list of games screen.
+	 * @param message message with list of game.
+	 */
 	public void showListOfGames(Message message) {
 		String[] parts = message.getData().split(",");
 		int numberOfGames = Integer.parseInt(parts[0]);
@@ -109,10 +142,14 @@ public class MainWindowController implements Initializable {
 		FXMLLoader loader = springFxmlLoaderLoader.getLoader();
 		content = (VBox) springFxmlLoaderLoader.load(loader, getClass(), "ListOfGames.fxml");
 		ListOfGamesController ctrl = loader.getController();
-		ctrl.fillGames(games);
+		ctrl.setGames(games);
 		mainWindowVBox.getChildren().add(content);
 	}
 
+	/**
+	 * Processes connect request answer and shows wait screen or error dialog.
+	 * @param message message with answer.
+	 */
 	public void connectRequestAnswer(Message message) {
 		int code = Integer.parseInt(message.getData());
 		switch (code) {
@@ -138,6 +175,10 @@ public class MainWindowController implements Initializable {
 		}
 	}
 
+	/**
+	 * Processes create game answer and shows wait schreen or error dialog.
+	 * @param message message with answer.
+	 */
 	public void createGameAnswer(Message message) {
 		int code = Integer.parseInt(message.getData());
 		if (code >= 0) {
@@ -150,6 +191,9 @@ public class MainWindowController implements Initializable {
 		}
 	}
 
+	/**
+	 * Sends exit game message and shows menu.
+	 */
 	public void exitGame() {
 		Message message = new Message(20, "");
 		connection.sendMessage(message);

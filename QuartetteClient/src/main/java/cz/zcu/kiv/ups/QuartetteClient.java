@@ -19,6 +19,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import java.io.IOException;
 
 /**
+ * Main class of application. Starts Spring and JavaFX.
+ *
  * @author Jaroslav Klaus
  */
 @SpringBootApplication
@@ -26,8 +28,15 @@ import java.io.IOException;
 @EnableScheduling
 public class QuartetteClient extends Application {
 
+	/**
+	 * Command line arguments.
+	 */
 	private static String[] parameters;
 
+	/**
+	 * Main method of application. Launches Spring and JavaFX.
+	 * @param args command line arguments.
+	 */
 	public static void main(String[] args) {
 		parameters = args;
 		launch(args);
@@ -51,11 +60,19 @@ public class QuartetteClient extends Application {
 		primaryStage.show();
 	}
 
+	/**
+	 * Creates Parse Cmd Line bean.
+	 * @return new Parse Cmd Line.
+	 */
 	@Bean
 	public ParseCmdLine getParseCmdLine() {
 		return new ParseCmdLine(parameters);
 	}
 
+	/**
+	 * Creates Thread Pool Task Scheduler bean.
+	 * @return new Thread Pool Task Scheduler.
+	 */
 	@Bean
 	public ThreadPoolTaskScheduler getTaskScheduler() {
 		return new ThreadPoolTaskScheduler();

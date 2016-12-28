@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
+ * Controller of Game Table screen.
+ *
  * @author Jaroslav Klaus
  */
 @Component
@@ -22,18 +24,36 @@ public class GameTableController implements Initializable {
 	@Autowired
 	private MainWindowController mainWindowController;
 
+	/**
+	 * List of my cards.
+	 */
 	private ObservableList<String> cards = FXCollections.observableList(new LinkedList<>());
 
+	/**
+	 * List View of my cards.
+	 */
 	@FXML
 	private ListView<String> cardsListView;
 
+	/**
+	 * List of my opponents.
+	 */
 	private ObservableList<String> opponents = FXCollections.observableList(new LinkedList<>());
 
+	/**
+	 * List View of my opponents.
+	 */
 	@FXML
 	private ListView<String> opponentsListView;
 
+	/**
+	 * History of game.
+	 */
 	private ObservableList<String> history = FXCollections.observableList(new LinkedList<>());
 
+	/**
+	 * List View of game history.
+	 */
 	@FXML
 	public ListView<String> historyListView;
 
@@ -44,16 +64,27 @@ public class GameTableController implements Initializable {
 		historyListView.setItems(history);
 	}
 
-	public void fillCards(List<String> cards) {
+	/**
+	 * Sets new cards to list.
+	 * @param cards new cards to set.
+	 */
+	public void setCards(List<String> cards) {
 		this.cards.clear();
 		this.cards.addAll(cards);
 	}
 
-	public void fillOpponents(List<String> opponents) {
+	/**
+	 * Sets new opponents to list.
+	 * @param opponents new opponents to set.
+	 */
+	public void setOpponents(List<String> opponents) {
 		this.opponents.clear();
 		this.opponents.addAll(opponents);
 	}
 
+	/**
+	 * Exits game and shows menu.
+	 */
 	@FXML
 	public void exit() {
 		mainWindowController.exitGame();

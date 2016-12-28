@@ -10,14 +10,28 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Represents connection to server and implements its opening, closing, sending and receiving messages.
+ *
+ * @author buzzcz
+ */
 @Service
 @Slf4j
 public class Connection implements NetworkInterface {
 
+	/**
+	 * Socket used for communication.
+	 */
 	private Socket s;
 
+	/**
+	 * Buffered Reader for receiving messages.
+	 */
 	private BufferedReader reader;
 
+	/**
+	 * Print Writer for sending messages.
+	 */
 	private PrintWriter writer;
 
 	@Override
