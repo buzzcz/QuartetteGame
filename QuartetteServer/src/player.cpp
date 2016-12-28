@@ -36,8 +36,12 @@ void Player::removeCard(Card c) {
 }
 
 bool Player::hasQuartette() {
-	return (hasCard(card1A) && hasCard(card2A) && hasCard(card3A) && hasCard(card4A)) ||
-	       (hasCard(card1B) && hasCard(card2B) && hasCard(card3B) && hasCard(card4B)) ||
-	       (hasCard(card1C) && hasCard(card2C) && hasCard(card3C) && hasCard(card4C)) ||
-	       (hasCard(card1D) && hasCard(card2D) && hasCard(card3D) && hasCard(card4D));
+	return (hasCard(card1A) && hasCard(card1B) && hasCard(card1C) && hasCard(card1D)) ||
+	       (hasCard(card2A) && hasCard(card2B) && hasCard(card2C) && hasCard(card2D)) ||
+	       (hasCard(card3A) && hasCard(card3B) && hasCard(card3C) && hasCard(card3D)) ||
+	       (hasCard(card4A) && hasCard(card4B) && hasCard(card4C) && hasCard(card4D)) ||
+	       (hasCard(card5A) && hasCard(card5B) && hasCard(card5C) && hasCard(card5D)) ||
+	       (hasCard(card6A) && hasCard(card6B) && hasCard(card6C) && hasCard(card6D)) ||
+	       (hasCard(card7A) && hasCard(card7B) && hasCard(card7C) && hasCard(card7D)) ||
+	       (hasCard(card8A) && hasCard(card8B) && hasCard(card8C) && hasCard(card8D));
 }
