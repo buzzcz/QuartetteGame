@@ -1,6 +1,10 @@
 #ifndef QUARTETTESERVER_CARD_H
 #define QUARTETTESERVER_CARD_H
 
+#include <string>
+
+using std::string;
+
 /**
  * Represents cards.
  */
@@ -45,7 +49,7 @@ enum Card {
 /**
  * Card string representations.
  */
-std::string cardNames[] = {
+const string cardNames[] = {
 		"1A",
 		"2A",
 		"3A",

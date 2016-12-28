@@ -2,7 +2,6 @@
 #define QUARTETTESERVER_PLAYER_H
 
 #include <list>
-#include <string>
 #include "card.h"
 #include "status.h"
 

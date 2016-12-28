@@ -12,7 +12,6 @@
 #include <arpa/inet.h>
 #include <list>
 #include "game.h"
-#include "message.h"
 
 using std::list;
 
