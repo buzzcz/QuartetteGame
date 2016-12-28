@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * Represents message to be sent or received.
  *
- * @author buzzcz
+ * @author Jaroslav Klaus
  */
 @Data
 public class Message {

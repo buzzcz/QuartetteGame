@@ -37,6 +37,14 @@ public class MessageConsumer implements ConsumerInterface {
 			case 6:
 				Platform.runLater(() -> mainWindowController.createGameAnswer(message));
 				break;
+			case 7:
+				Platform.runLater(() -> mainWindowController.startGame(message));
+				break;
+			case 8:
+				Platform.runLater(mainWindowController::yourTurn);
+				break;
+			default:
+				break;
 		}
 	}
 }

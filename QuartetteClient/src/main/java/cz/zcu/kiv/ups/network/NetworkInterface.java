@@ -3,7 +3,7 @@ package cz.zcu.kiv.ups.network;
 /**
  * Implement this interface to enable connecting to server and communication.
  *
- * @author buzzcz
+ * @author Jaroslav Klaus
  */
 public interface NetworkInterface {
 

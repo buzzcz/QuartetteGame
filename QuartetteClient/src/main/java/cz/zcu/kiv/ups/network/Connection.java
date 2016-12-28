@@ -13,7 +13,7 @@ import java.net.Socket;
 /**
  * Represents connection to server and implements its opening, closing, sending and receiving messages.
  *
- * @author buzzcz
+ * @author Jaroslav Klaus
  */
 @Service
 @Slf4j

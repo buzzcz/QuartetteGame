@@ -17,13 +17,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
- * Controller of Main Window and other supporting stuff.
+ * Controller of Main Window and handler of most of the logic.
  *
  * @author Jaroslav Klaus
  */
@@ -48,6 +49,11 @@ public class MainWindowController implements Initializable {
 	 */
 	@FXML
 	private VBox mainWindowVBox;
+
+	/**
+	 * Controller of the Game Table screen.
+	 */
+	private GameTableController gameTableController;
 
 	/**
 	 * User's nickname.
@@ -138,9 +144,9 @@ public class MainWindowController implements Initializable {
 			games.add(game);
 		}
 		mainWindowVBox.getChildren().remove(content);
-		SpringFxmlLoader springFxmlLoaderLoader = new SpringFxmlLoader(context);
-		FXMLLoader loader = springFxmlLoaderLoader.getLoader();
-		content = (VBox) springFxmlLoaderLoader.load(loader, getClass(), "ListOfGames.fxml");
+		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(context);
+		FXMLLoader loader = springFxmlLoader.getLoader();
+		content = (VBox) springFxmlLoader.load(loader, getClass(), "ListOfGames.fxml");
 		ListOfGamesController ctrl = loader.getController();
 		ctrl.setGames(games);
 		mainWindowVBox.getChildren().add(content);
@@ -195,9 +201,47 @@ public class MainWindowController implements Initializable {
 	 * Sends exit game message and shows menu.
 	 */
 	public void exitGame() {
+		gameTableController = null;
 		Message message = new Message(20, "");
 		connection.sendMessage(message);
 		showMenu();
+	}
+
+	/**
+	 * Shows Game Table screen.
+	 * @param message message with info about game.
+	 */
+	public void startGame(Message message) {
+		String[] parts = message.getData().split(",");
+		int numberOfOpponents = Integer.parseInt(parts[0]);
+		List<String> opponents = new LinkedList<>();
+		int index = 1;
+		for (int i = 0; i < numberOfOpponents; i++, index += 2) {
+			String opponent = String.format("Name: %s, number of cards: %d", parts[index], Integer
+					.parseInt(parts[index + 1]));
+			opponents.add(opponent);
+		}
+
+		int numberOfCards = Integer.parseInt(parts[index]);
+		index++;
+		List<String> cards = new LinkedList<>();
+		cards.addAll(Arrays.asList(parts).subList(index, index + numberOfCards));
+
+		mainWindowVBox.getChildren().remove(content);
+		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(context);
+		FXMLLoader loader = springFxmlLoader.getLoader();
+		content = (VBox) springFxmlLoader.load(loader, getClass(), "GameTable.fxml");
+		GameTableController ctrl = loader.getController();
+		ctrl.setCards(cards);
+		ctrl.setOpponents(opponents);
+		gameTableController = ctrl;
+		mainWindowVBox.getChildren().addAll(content);
+	}
+
+	public void yourTurn() {
+		if (gameTableController != null) {
+
+		}
 	}
 
 }

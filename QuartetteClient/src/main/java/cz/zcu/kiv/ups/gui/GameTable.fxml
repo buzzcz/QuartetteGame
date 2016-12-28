@@ -9,14 +9,14 @@
       spacing="10"
       xmlns:fx="http://javafx.com/fxml">
 	<HBox VBox.vgrow="SOMETIMES" alignment="CENTER" spacing="10">
-		<VBox HBox.hgrow="SOMETIMES" alignment="CENTER" spacing="10">
+		<VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="10">
 			<ListView fx:id="opponentsListView" VBox.vgrow="SOMETIMES"/>
 			<HBox alignment="CENTER" spacing="10">
 				<Label text="My Cards:"/>
 				<ListView fx:id="cardsListView" HBox.hgrow="SOMETIMES" orientation="HORIZONTAL"/>
 			</HBox>
 		</VBox>
-		<ListView fx:id="historyListView" HBox.hgrow="NEVER"/>
+		<ListView fx:id="historyListView" HBox.hgrow="SOMETIMES"/>
 	</HBox>
 	<Button text="Exit Game" onAction="#exit"/>
 </VBox>

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Utility to parse and check input values.
  *
- * @author buzzcz
+ * @author Jaroslav Klaus
  */
 @Slf4j
 public class ParseCmdLine {
