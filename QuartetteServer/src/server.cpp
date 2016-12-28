@@ -120,7 +120,9 @@ void Server::sendGameList() {
 		Game g = *(*iter);
 		data += ",";
 		data += std::to_string(g.getId());
+		data += ",";
 		data += std::to_string(g.getPlayers().size());
+		data += ",";
 		data += std::to_string(g.getCapacity());
 	}
 
