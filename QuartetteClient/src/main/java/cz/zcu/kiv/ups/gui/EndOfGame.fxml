@@ -3,9 +3,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-<VBox fx:controller="cz.zcu.kiv.ups.gui.WaitRoomController" VBox.vgrow="SOMETIMES" alignment="CENTER"
+<VBox fx:controller="cz.zcu.kiv.ups.gui.EndOfGameController" VBox.vgrow="SOMETIMES" alignment="CENTER"
       spacing="10"
       xmlns:fx="http://javafx.com/fxml">
-	<Label VBox.vgrow="SOMETIMES" text="Waiting for other players."/>
-	<Button text="Exit Game" onAction="#exit"/>
+	<Label fx:id="infoLabel" VBox.vgrow="SOMETIMES"/>
+	<Button text="Menu" onAction="#menu"/>
 </VBox>

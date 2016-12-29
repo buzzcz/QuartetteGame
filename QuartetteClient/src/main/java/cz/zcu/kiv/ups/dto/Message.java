@@ -1,4 +1,4 @@
-package cz.zcu.kiv.ups.network;
+package cz.zcu.kiv.ups.dto;
 
 import lombok.Data;
 
@@ -27,6 +27,7 @@ public class Message {
 
 	/**
 	 * Constructor to create message.
+	 *
 	 * @param type type of message.
 	 * @param data message data.
 	 */
@@ -38,6 +39,7 @@ public class Message {
 
 	/**
 	 * Creates String to be sent.
+	 *
 	 * @return String to be sent.
 	 */
 	public String getMessageToSend() {

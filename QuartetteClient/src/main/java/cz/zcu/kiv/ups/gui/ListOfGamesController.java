@@ -45,6 +45,7 @@ public class ListOfGamesController implements Initializable {
 
 	/**
 	 * Sets new games to list.
+	 *
 	 * @param games new games to set.
 	 */
 	public void setGames(List<String> games) {

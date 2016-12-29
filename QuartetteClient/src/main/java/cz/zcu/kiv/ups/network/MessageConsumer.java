@@ -1,5 +1,6 @@
 package cz.zcu.kiv.ups.network;
 
+import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.gui.MainWindowController;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,33 @@ public class MessageConsumer implements ConsumerInterface {
 				break;
 			case 8:
 				Platform.runLater(mainWindowController::yourTurn);
+				break;
+			case 9:
+				Platform.runLater(() -> mainWindowController.someonesTurn(message));
+				break;
+			case 11:
+				Platform.runLater(() -> mainWindowController.moveAnswer(message));
+				break;
+			case 12:
+				Platform.runLater(() -> mainWindowController.someonesMoveAnswer(message));
+				break;
+			case 13:
+				Platform.runLater(mainWindowController::youWon);
+				break;
+			case 14:
+				Platform.runLater(() -> mainWindowController.someoneWon(message));
+				break;
+			case 15:
+				Platform.runLater(mainWindowController::youLost);
+				break;
+			case 16:
+				Platform.runLater(() -> mainWindowController.someoneLost(message));
+				break;
+			case 17:
+				Platform.runLater(() -> mainWindowController.playerUnreachable(message));
+				break;
+			case 18:
+				Platform.runLater(() -> mainWindowController.reconnectAnswer(message));
 				break;
 			default:
 				break;

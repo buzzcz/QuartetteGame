@@ -22,9 +22,10 @@ public class AlertsAndDialogs {
 
 	/**
 	 * Creates alert with specified attributes.
-	 * @param type type of alert.
-	 * @param title title of alert.
-	 * @param header header of alert.
+	 *
+	 * @param type    type of alert.
+	 * @param title   title of alert.
+	 * @param header  header of alert.
 	 * @param content content of alert.
 	 * @return created alert.
 	 */
@@ -38,22 +39,25 @@ public class AlertsAndDialogs {
 
 	/**
 	 * Creates, shows alert and waits for alert to be dismissed.
-	 * @param type type of alert.
-	 * @param title title of alert.
-	 * @param header header of alert.
+	 *
+	 * @param type    type of alert.
+	 * @param title   title of alert.
+	 * @param header  header of alert.
 	 * @param content content of alert.
 	 * @return result of showAndWait.
 	 */
-	public static Optional<ButtonType> showAndWaitAlert(Alert.AlertType type, String title, String header, String content) {
+	public static Optional<ButtonType> showAndWaitAlert(Alert.AlertType type, String title, String header, String
+			content) {
 		Alert alert = createAlert(type, title, header, content);
 		return alert.showAndWait();
 	}
 
 	/**
 	 * Creates and shows alert.
-	 * @param type type of alert.
-	 * @param title title of alert.
-	 * @param header header of alert.
+	 *
+	 * @param type    type of alert.
+	 * @param title   title of alert.
+	 * @param header  header of alert.
 	 * @param content content of alert.
 	 */
 	public static void showAlert(Alert.AlertType type, String title, String header, String content) {
@@ -63,11 +67,12 @@ public class AlertsAndDialogs {
 
 	/**
 	 * Creates, shows Choice Dialog and waits for dialog to be dismissed.
+	 *
 	 * @param defaultValue default value to select.
-	 * @param choices choices to select from.
-	 * @param title title of dialog.
-	 * @param header header of dialog.
-	 * @param content content of dialog.
+	 * @param choices      choices to select from.
+	 * @param title        title of dialog.
+	 * @param header       header of dialog.
+	 * @param content      content of dialog.
 	 * @return result of showAndWait.
 	 */
 	public static <T> Optional<T> showAndWaitChoiceDialog(T defaultValue, List<T> choices, String title, String

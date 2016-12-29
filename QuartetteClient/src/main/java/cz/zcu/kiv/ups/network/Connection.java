@@ -1,5 +1,6 @@
 package cz.zcu.kiv.ups.network;
 
+import cz.zcu.kiv.ups.dto.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

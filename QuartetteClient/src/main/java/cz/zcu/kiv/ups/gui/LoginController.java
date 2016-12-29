@@ -49,8 +49,9 @@ public class LoginController implements Initializable {
 
 	/**
 	 * Sets parameters into screen.
+	 *
 	 * @param hostname hostname.
-	 * @param port port.
+	 * @param port     port.
 	 * @param nickname nickname.
 	 */
 	private void setParams(String hostname, int port, String nickname) {

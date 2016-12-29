@@ -35,6 +35,7 @@ public class QuartetteClient extends Application {
 
 	/**
 	 * Main method of application. Launches Spring and JavaFX.
+	 *
 	 * @param args command line arguments.
 	 */
 	public static void main(String[] args) {
@@ -62,6 +63,7 @@ public class QuartetteClient extends Application {
 
 	/**
 	 * Creates Parse Cmd Line bean.
+	 *
 	 * @return new Parse Cmd Line.
 	 */
 	@Bean
@@ -71,6 +73,7 @@ public class QuartetteClient extends Application {
 
 	/**
 	 * Creates Thread Pool Task Scheduler bean.
+	 *
 	 * @return new Thread Pool Task Scheduler.
 	 */
 	@Bean

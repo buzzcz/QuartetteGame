@@ -23,6 +23,7 @@ public class SpringFxmlLoader {
 
 	/**
 	 * Constructor to create utility.
+	 *
 	 * @param context application context.
 	 */
 	public SpringFxmlLoader(ApplicationContext context) {
@@ -31,7 +32,8 @@ public class SpringFxmlLoader {
 
 	/**
 	 * Loads resource from specified url.
-	 * @param cl class from which to get resource.
+	 *
+	 * @param cl  class from which to get resource.
 	 * @param url url of resource to load.
 	 * @return loaded resource.
 	 */
@@ -42,9 +44,10 @@ public class SpringFxmlLoader {
 
 	/**
 	 * Loads resource from specified url with given FXML Loader.
+	 *
 	 * @param loader FXML Loader to use for loading.
-	 * @param cl class from which to get resource.
-	 * @param url url of resource to load.
+	 * @param cl     class from which to get resource.
+	 * @param url    url of resource to load.
 	 * @return loaded resource.
 	 */
 	public Object load(FXMLLoader loader, Class<?> cl, String url) {
@@ -65,6 +68,7 @@ public class SpringFxmlLoader {
 
 	/**
 	 * Creates FXML Loader managed by Spring.
+	 *
 	 * @return FXML Loader managed by Spring.
 	 */
 	public FXMLLoader getLoader() {
