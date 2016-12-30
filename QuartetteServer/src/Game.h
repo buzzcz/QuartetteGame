@@ -5,7 +5,9 @@
 #include <thread>
 #include <deque>
 #include <algorithm>
+#include <unistd.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
 #include "Player.h"
 #include "Message.h"
 
@@ -48,19 +50,9 @@ class Game {
 	Player *whosTurn;
 
 	/**
-	 * Client Socket of last client.
-	 */
-	int clientSocket;
-
-	/**
 	 * File Descriptor of last client.
 	 */
 	int fd;
-
-	/**
-	 * Length of client address.
-	 */
-	socklen_t addrLen;
 
 	/**
 	 * Indicates how many byte are in socket to read.
@@ -68,14 +60,19 @@ class Game {
 	size_t toRead;
 
 	/**
-	 * Client Address of last client.
-	 */
-	struct sockaddr_in clientAddr;
-
-	/**
 	 * Set of client sockets.
 	 */
 	fd_set clientSocks;
+
+	/**
+	 * Runs select and receives new messages.
+	 */
+	void checkForMessages();
+
+	/**
+	 * Processes received message.
+	 */
+	void processMessage(Message m);
 
 	/**
 	 * Setups game before start.
@@ -142,9 +139,9 @@ class Game {
 public:
 
 	/**
-	 * Constructor to create new game with id, capacity and first player.
+	 * Constructor to create new game with id and capacity.
 	 */
-	Game(unsigned long id, int capacity, Player *p);
+	Game(unsigned long id, int capacity);
 
 	/**
 	 * Getter for id of game.

@@ -79,10 +79,9 @@ int Server::start(string address, uint16_t port) {
 					toRead = 0;
 					ioctl(fd, FIONREAD, &toRead);
 					if (toRead > 0) {
-						Message *mp = new Message();
-						Message m = *mp;
-						m.receiveMessage(fd, toRead);
-						processMessage(m);
+						Message *m = new Message();
+						m->receiveMessage(fd, toRead);
+						processMessage(*m);
 					} else {
 						printf("Client %d disconnected.\n", fd);
 						close(fd);
@@ -120,6 +119,10 @@ void Server::sendGameList() {
 	data += std::to_string(numberOfGames);
 
 	for (Game *g : games) {
+		if (g->getPlayers().size() == 0) {
+//			TODO: Remove game.
+			continue;
+		}
 		data += ",";
 		data += std::to_string(g->getId());
 		data += ",";
@@ -147,7 +150,8 @@ void Server::createGame(Message m) {
 	}
 
 //	TODO: if numberOfGames == ULONG_MAX, send error
-	Game *newGame = new Game(numberOfGames++, capacity, p);
+	Game *newGame = new Game(numberOfGames++, capacity);
+	newGame->addPlayer(p);
 	games.push_back(newGame);
 
 	Message m1(CREATE_GAME_ANSWER, std::to_string((*newGame).getId()));

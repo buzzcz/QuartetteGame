@@ -1,7 +1,6 @@
 #include "Game.h"
 
-Game::Game(unsigned long id, int capacity, Player *p) : id(id), capacity(capacity) {
-	addPlayer(p);
+Game::Game(unsigned long id, int capacity) : id(id), capacity(capacity) {
 	std::thread(start());
 }
 
@@ -23,12 +22,12 @@ Player *Game::getWhosTurn() {
 
 void Game::addPlayer(Player *p) {
 	players.push_back(p);
-//	TODO: add fd into fd_set for listening
+	FD_SET(p->getFd(), &clientSocks);
 }
 
 void Game::removePlayer(Player *p) {
+	FD_CLR(p->getFd(), &clientSocks);
 	players.remove(p);
-//	TODO: Remove fd from fd_set
 }
 
 bool Game::isFull() {
@@ -65,17 +64,54 @@ string Game::getStateOfGame(Player *p) {
 void Game::start() {
 	run = true;
 	setupGame();
-	manageGame();
+}
+
+void Game::checkForMessages() {
+	fd_set tests = clientSocks;
+	int returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
+	if (returnValue < 0) {
+		printf("Select error.\n");
+//		TODO: error
+	}
+	// exclude stdin, stdout, stderr
+	for (fd = 3; fd < FD_SETSIZE; fd++) {
+		if (FD_ISSET(fd, &tests)) {
+			toRead = 0;
+			ioctl(fd, FIONREAD, &toRead);
+			if (toRead > 0) {
+				Message *m = new Message();
+				m->receiveMessage(fd, toRead);
+				processMessage(*m);
+			} else {
+//				TODO: Is this block necessary??
+				printf("Client %d disconnected.\n", fd);
+				close(fd);
+				FD_CLR(fd, &clientSocks);
+			}
+		}
+	}
+}
+
+void Game::processMessage(Message m) {
+	switch (m.getType()) {
+		case MOVE:
+			if (isFull()) {
+				sendMoveAnswer(m, findPlayerByFd(fd));
+			}
+			break;
+		case DISCONNECTING:
+			failGame(findPlayerByFd(fd));
+			break;
+		default:
+			break;
+	}
 }
 
 void Game::setupGame() {
-//	TODO: setup game as in Server::create
 	FD_ZERO(&clientSocks);
-	for (Player *p : players) {
-
-	}
 	shuffleCards();
 	while (run) {
+		checkForMessages();
 		if (isFull()) {
 			manageGame();
 		}
@@ -85,7 +121,10 @@ void Game::setupGame() {
 void Game::manageGame() {
 	dealCards();
 	sendStartGame();
+	Player *p = players.front();
+	sendYourTurn(p);
 	while (run) {
+		checkForMessages();
 //	    TODO: manage game as in Server::run
 	}
 }
@@ -169,6 +208,7 @@ void Game::dealCards() {
 void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
+	removePlayer(p);
 	run = false;
 }
 
@@ -187,7 +227,7 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	if (from->hasCard(card)) {
 		has = 0;
 	}
-	Message m1(YOUR_MOVE_ANSWER, std::to_string(has));
+	Message m1(MOVE_ANSWER, std::to_string(has));
 	m1.sendMessage(to->getFd());
 	data = std::to_string(has);
 	data += ",";
