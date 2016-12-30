@@ -47,6 +47,12 @@ public:
 	int getFd();
 
 	/**
+	 * Setter for file descriptor.
+	 * @param newFd file descriptor.
+	 */
+	void setFd(int newFd);
+
+	/**
 	 * Getter for nickname.
 	 * @return nickname.
 	 */
@@ -57,6 +63,12 @@ public:
 	 * @return status.
 	 */
 	Status getStatus();
+
+	/**
+	 * Setter for status.
+	 * @param s status.
+	 */
+	void setStatus(Status s);
 
 	/**
 	 * Getter for cards.

@@ -42,11 +42,9 @@ class Game {
 	bool run;
 
 	/**
-	 * Creates string with game state according to the specified player - number of opponents, names of opponent and
-	 * card counts of opponents.
-	 * @return state of game according to the specified player.
+	 * Player who's turn it is.
 	 */
-	string getStateOfGame(Player *p);
+	Player *whosTurn;
 
 	/**
 	 * Setups game before start.
@@ -99,6 +97,17 @@ class Game {
 	 */
 	void failGame(Player *p);
 
+	/**
+	 * Broadcasts message to all players in game. If player is specified, message is not sent to him.
+	 */
+	void broadcast(Message m, Player *p = NULL);
+
+	/**
+	 * Validates move, sends answer and info to others.
+	 * @param m message with info about move.
+	 */
+	void sendMoveAnswer(Message m, Player *to);
+
 public:
 
 	/**
@@ -125,6 +134,12 @@ public:
 	list<Player *> getPlayers();
 
 	/**
+	 * Getter for player who's turn it is.
+	 * @return player who's turn it is.
+	 */
+	Player *getWhosTurn();
+
+	/**
 	 * Adds player to game.
 	 */
 	void addPlayer(Player *p);
@@ -148,9 +163,11 @@ public:
 	bool isFull();
 
 	/**
-	 * Broadcasts message to all players in game. If player is specified, message is not sent to him.
+	 * Creates string with game state according to the specified player - number of opponents, names of opponent and
+	 * card counts of opponents.
+	 * @return state of game according to the specified player.
 	 */
-	void broadcast(Message m, Player *p = NULL);
+	string getStateOfGame(Player *p);
 
 	/**
 	 * Starts game thread.

@@ -6,12 +6,20 @@ int Player::getFd() {
 	return fd;
 }
 
+void Player::setFd(int newFd) {
+	fd = newFd;
+}
+
 string Player::getName() {
 	return name;
 }
 
 Status Player::getStatus() {
 	return status;
+}
+
+void Player::setStatus(Status s) {
+	status = s;
 }
 
 list<Card> Player::getCards() {

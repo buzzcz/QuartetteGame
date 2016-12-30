@@ -17,6 +17,10 @@ list<Player *> Game::getPlayers() {
 	return players;
 }
 
+Player *Game::getWhosTurn() {
+	return whosTurn;
+}
+
 void Game::addPlayer(Player *p) {
 	players.push_back(p);
 //	TODO: add fd into fd_set for listening
@@ -88,16 +92,12 @@ void Game::sendStartGame() {
 }
 
 void Game::sendYourTurn(Player *p) {
+	whosTurn = p;
 	Message m(YOUR_TURN, "");
 	m.sendMessage(p->getFd());
 
 	Message m1(SOMEONES_TURN, p->getName());
-	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
-		Player p1 = *(*iter);
-		if (p1.getName().compare(p->getName()) != 0) {
-			m1.sendMessage(p1.getFd());
-		}
-	}
+	broadcast(m1, p);
 }
 
 Player *Game::findPlayerByName(string name) {
@@ -125,10 +125,11 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 	to->addCard(c);
 
 	if (from->getCards().size() == 0) {
-		Message m(YOUR_MOVE_ANSWER, "");
+		Message m(YOU_LOST, "");
 		m.sendMessage(from->getFd());
-		Message m1(SOMEONES_MOVE, from->getName());
+		Message m1(SOMEONE_LOST, from->getName());
 		broadcast(m1, from);
+		removePlayer(from);
 	}
 
 	if (to->hasQuartette()) {
@@ -165,4 +166,34 @@ void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
 	run = false;
+}
+
+void Game::sendMoveAnswer(Message m, Player *to) {
+	string data = m.getData();
+	unsigned long i = data.find(",");
+//	TODO: if == string::npos error
+	string fromNick = data.substr(0, i);
+	data.erase(0, i + 1);
+	string cardName = data;
+	Card card = static_cast<Card>(std::find(cardNames, cardNames + cardNames->size(), cardName));
+	Player *from = findPlayerByName(fromNick);
+
+	int has = 1;
+	if (from->hasCard(card)) {
+		has = 0;
+	}
+	Message m1(YOUR_MOVE_ANSWER, std::to_string(has));
+	m1.sendMessage(to->getFd());
+	data = std::to_string(has);
+	data += ",";
+	data += to->getName();
+	data += ",";
+	data += cardNames[card];
+	data += ",";
+	data += from->getName();
+	Message m2(SOMEONES_MOVE, data);
+	broadcast(m2, to);
+	if (has == 0) {
+		moveCard(card, from, to);
+	}
 }

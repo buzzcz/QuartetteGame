@@ -107,6 +107,9 @@ void Server::processMessage(Message m) {
 		case CREATE_GAME_REQUEST:
 			createGame(m);
 			break;
+		case RECONNECT_REQUEST:
+			reconnectToGame(m);
+			break;
 		default:
 			break;
 	}
@@ -230,5 +233,24 @@ void Server::reconnectToGame(Message m) {
 		return;
 	}
 
-//	TODO: modify player and resume game
+	if (!g->isFull()) {
+		Message m1(RECONNECT_ANSWER, "4");
+		m1.sendMessage(fd);
+		return;
+	}
+
+	Message m1(RECONNECT_ANSWER, g->getStateOfGame(p));
+	m1.sendMessage(fd);
+
+	if (g->getWhosTurn() == p) {
+		Message m2(YOUR_TURN, "");
+		m.sendMessage(fd);
+	} else {
+		Message m2(SOMEONES_TURN, g->getWhosTurn()->getName());
+		m2.sendMessage(fd);
+	}
+
+	p->setFd(fd);
+	p->setStatus(ACTIVE);
+//	TODO: Solve locking - what if in between messages someone makes move??
 }
