@@ -1,7 +1,10 @@
 package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.dto.Card;
+import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.Opponent;
+import cz.zcu.kiv.ups.network.Connection;
+import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -29,6 +33,9 @@ public class GameTableController implements Initializable {
 
 	@Autowired
 	private MainWindowController mainWindowController;
+
+	@Autowired
+	private Connection connection;
 
 	/**
 	 * List of my cards.
@@ -101,14 +108,24 @@ public class GameTableController implements Initializable {
 				if (empty || item == null) {
 					setText(null);
 				} else {
-					setText(String.format("Name: %s, number of cards: %d", item.getName(), item.getNumberOfCards()));
+					setText(String.format("%s has %d cards.", item.getName(), item.getNumberOfCards()));
 				}
 			}
 		});
 		opponentsListView.setOnMouseClicked(event -> {
 			if (myTurn) {
-//				TODO: Show dialog with cards and send move.
-				myTurn = false;
+				List<String> choices = new LinkedList<>();
+				for (Card c : Card.values()) {
+					choices.add(c.getName());
+				}
+				Optional<String> result = AlertsAndDialogs.showAndWaitChoiceDialog("1A", choices, "Your Move",
+						"Select a card.", "Select a card you want to get from selected player.");
+				result.ifPresent(s -> {
+					Opponent o = opponentsListView.getSelectionModel().getSelectedItem();
+					Message m = new Message(10, String.format("%s,%s", o.getName(), s));
+					connection.sendMessage(m);
+					myTurn = false;
+				});
 			}
 		});
 

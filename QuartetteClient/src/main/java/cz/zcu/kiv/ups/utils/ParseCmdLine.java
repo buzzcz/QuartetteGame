@@ -67,7 +67,7 @@ public class ParseCmdLine {
 					}
 					break;
 				default:
-					log.error("QuartetteClient: illegal option " + arg);
+					log.error(String.format("QuartetteClient: illegal option %s.", arg));
 					break;
 			}
 		}

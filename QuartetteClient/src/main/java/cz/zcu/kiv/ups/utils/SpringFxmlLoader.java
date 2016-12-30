@@ -55,11 +55,11 @@ public class SpringFxmlLoader {
 			try (InputStream fxmlStream = cl.getResourceAsStream(url)) {
 				return loader.load(fxmlStream);
 			} catch (IOException e) {
-				log.error("Cannot load " + url, e);
+				log.error(String.format("Cannot load %s.", url), e);
 				Alert alert = new Alert(Alert.AlertType.ERROR);
 				alert.setTitle("Load Error");
 				alert.setHeaderText("Could not load resource.");
-				alert.setContentText("Resource " + url + " could not be loaded.");
+				alert.setContentText(String.format("Resource %s could not be loaded.", url));
 				alert.showAndWait();
 			}
 		}

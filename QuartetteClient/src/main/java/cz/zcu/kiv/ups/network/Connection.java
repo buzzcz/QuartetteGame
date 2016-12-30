@@ -56,7 +56,7 @@ public class Connection implements NetworkInterface {
 		try {
 			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-			log.info("Connected to " + s.getInetAddress() + ":" + s.getPort());
+			log.info(String.format("Connected to %s:%d.", s.getInetAddress(), s.getPort()));
 		} catch (Exception e) {
 			String error = String.format("Could not connect to %s:%d.", s.getInetAddress(), s.getPort());
 			log.error(error, e);
@@ -99,7 +99,7 @@ public class Connection implements NetworkInterface {
 		try {
 			if (s.getInputStream().available() > 0) {
 				line = reader.readLine();
-				log.info("Received: " + line);
+				log.info(String.format("Received: %s.", line));
 				String[] parts = line.split(";");
 				if (Integer.parseInt(parts[1]) == parts[2].length()) {
 					return new Message(Integer.parseInt(parts[0]), parts[2]);

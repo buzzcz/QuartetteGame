@@ -43,6 +43,6 @@ public class Message {
 	 * @return String to be sent.
 	 */
 	public String getMessageToSend() {
-		return type + ";" + size + ";" + data;
+		return String.format("%d;%d;%s", type, size, data);
 	}
 }
