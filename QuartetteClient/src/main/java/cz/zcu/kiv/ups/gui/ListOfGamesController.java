@@ -2,6 +2,7 @@ package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.dto.Game;
 import cz.zcu.kiv.ups.dto.Message;
+import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import javafx.collections.FXCollections;
@@ -63,12 +64,12 @@ public class ListOfGamesController implements Initializable {
 			}
 		});
 		gamesListView.setOnMouseClicked(event -> {
-//			TODO: Handle connect to game
-			Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to" +
-					" Game", "Do you want to connect to selected game?", null);
+			Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to"
+					+ " Game", "Do you want to connect to selected game?", null);
 			if (result.get() == ButtonType.OK) {
 				Game game = gamesListView.getSelectionModel().getSelectedItem();
-				Message m = new Message(3, String.format("%s,%d", mainWindowController.getNickname(), game.getId()));
+				Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%d", mainWindowController
+						.getNickname(), game.getId()));
 				connection.sendMessage(m);
 			}
 		});

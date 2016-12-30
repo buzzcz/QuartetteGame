@@ -2,6 +2,7 @@ package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.dto.Card;
 import cz.zcu.kiv.ups.dto.Message;
+import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.dto.Opponent;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
@@ -122,7 +123,7 @@ public class GameTableController implements Initializable {
 						"Select a card.", "Select a card you want to get from selected player.");
 				result.ifPresent(s -> {
 					Opponent o = opponentsListView.getSelectionModel().getSelectedItem();
-					Message m = new Message(10, String.format("%s,%s", o.getName(), s));
+					Message m = new Message(MessageType.YOUR_MOVE, String.format("%s,%s", o.getName(), s));
 					connection.sendMessage(m);
 					myTurn = false;
 				});

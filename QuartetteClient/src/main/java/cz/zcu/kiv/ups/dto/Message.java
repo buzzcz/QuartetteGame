@@ -13,7 +13,7 @@ public class Message {
 	/**
 	 * Type of message.
 	 */
-	private int type;
+	private MessageType type;
 
 	/**
 	 * Message data.
@@ -31,7 +31,7 @@ public class Message {
 	 * @param type type of message.
 	 * @param data message data.
 	 */
-	public Message(int type, String data) {
+	public Message(MessageType type, String data) {
 		this.type = type;
 		this.data = data;
 		size = data.length();
@@ -43,6 +43,6 @@ public class Message {
 	 * @return String to be sent.
 	 */
 	public String getMessageToSend() {
-		return String.format("%d;%d;%s", type, size, data);
+		return String.format("%d;%d;%s", type.ordinal(), size, data);
 	}
 }

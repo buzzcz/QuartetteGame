@@ -1,6 +1,7 @@
 package cz.zcu.kiv.ups.network;
 
 import cz.zcu.kiv.ups.dto.Message;
+import cz.zcu.kiv.ups.dto.MessageType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -102,7 +103,7 @@ public class Connection implements NetworkInterface {
 				log.info(String.format("Received: %s.", line));
 				String[] parts = line.split(";");
 				if (Integer.parseInt(parts[1]) == parts[2].length()) {
-					return new Message(Integer.parseInt(parts[0]), parts[2]);
+					return new Message(MessageType.values()[Integer.parseInt(parts[0])], parts[2]);
 				} else {
 					log.error("Received data size mismatch.");
 				}

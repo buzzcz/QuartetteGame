@@ -1,0 +1,34 @@
+package cz.zcu.kiv.ups.dto;
+
+import lombok.Getter;
+
+/**
+ * Represents message type and it's value.
+ *
+ * @author Jaroslav Klaus
+ */
+public enum MessageType {
+
+	KEEP_ALIVE,
+	LIST_OF_GAMES_REQUEST,
+	LIST_OF_GAMES_ANSWER,
+	CONNECT_REQUEST,
+	CONNECT_ANSWER,
+	CREATE_GAME_REQUEST,
+	CREATE_GAME_ANSWER,
+	START_OF_GAME,
+	YOUR_TURN,
+	SOMEONES_TURN,
+	YOUR_MOVE,
+	YOUR_MOVE_ANSWER,
+	SOMEONES_MOVE,
+	YOU_WON,
+	SOMEONE_WON,
+	YOU_LOST,
+	SOMEONE_LOST,
+	PLAYER_UNREACHABLE,
+	RECONNECT_REQUEST,
+	RECONNECT_ANSWER,
+	DISCONNECTING
+
+}

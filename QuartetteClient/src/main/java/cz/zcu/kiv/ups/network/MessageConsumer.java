@@ -29,46 +29,46 @@ public class MessageConsumer implements ConsumerInterface {
 			return;
 		}
 		switch (message.getType()) {
-			case 2:
+			case LIST_OF_GAMES_ANSWER:
 				Platform.runLater(() -> mainWindowController.showListOfGames(message));
 				break;
-			case 4:
+			case CONNECT_ANSWER:
 				Platform.runLater(() -> mainWindowController.connectRequestAnswer(message));
 				break;
-			case 6:
+			case CREATE_GAME_ANSWER:
 				Platform.runLater(() -> mainWindowController.createGameAnswer(message));
 				break;
-			case 7:
+			case START_OF_GAME:
 				Platform.runLater(() -> mainWindowController.startGame(message));
 				break;
-			case 8:
+			case YOUR_TURN:
 				Platform.runLater(mainWindowController::yourTurn);
 				break;
-			case 9:
+			case SOMEONES_TURN:
 				Platform.runLater(() -> mainWindowController.someonesTurn(message));
 				break;
-			case 11:
-				Platform.runLater(() -> mainWindowController.moveAnswer(message));
+			case YOUR_MOVE_ANSWER:
+				Platform.runLater(() -> mainWindowController.yourMoveAnswer(message));
 				break;
-			case 12:
-				Platform.runLater(() -> mainWindowController.someonesMoveAnswer(message));
+			case SOMEONES_MOVE:
+				Platform.runLater(() -> mainWindowController.someonesMove(message));
 				break;
-			case 13:
+			case YOU_WON:
 				Platform.runLater(mainWindowController::youWon);
 				break;
-			case 14:
+			case SOMEONE_WON:
 				Platform.runLater(() -> mainWindowController.someoneWon(message));
 				break;
-			case 15:
+			case YOU_LOST:
 				Platform.runLater(mainWindowController::youLost);
 				break;
-			case 16:
+			case SOMEONE_LOST:
 				Platform.runLater(() -> mainWindowController.someoneLost(message));
 				break;
-			case 17:
+			case PLAYER_UNREACHABLE:
 				Platform.runLater(() -> mainWindowController.playerUnreachable(message));
 				break;
-			case 18:
+			case RECONNECT_ANSWER:
 				Platform.runLater(() -> mainWindowController.reconnectAnswer(message));
 				break;
 			default:

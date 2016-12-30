@@ -3,6 +3,7 @@ package cz.zcu.kiv.ups.gui;
 import cz.zcu.kiv.ups.dto.Card;
 import cz.zcu.kiv.ups.dto.Game;
 import cz.zcu.kiv.ups.dto.Message;
+import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.dto.Opponent;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.network.MessageConsumer;
@@ -108,7 +109,7 @@ public class MainWindowController implements Initializable {
 	 * Sends list of games request.
 	 */
 	public void listOfGamesRequest() {
-		Message m = new Message(1, "");
+		Message m = new Message(MessageType.LIST_OF_GAMES_REQUEST, "");
 		connection.sendMessage(m);
 	}
 
@@ -123,7 +124,7 @@ public class MainWindowController implements Initializable {
 		Optional<Integer> result = AlertsAndDialogs.showAndWaitChoiceDialog(3, numbers, "Create New Game", "Create" +
 				" new game.", "Select number of desired opponents:");
 		result.ifPresent(number -> {
-			Message m = new Message(5, String.format("%s,%d", nickname, number));
+			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, number));
 			connection.sendMessage(m);
 		});
 	}
@@ -210,7 +211,7 @@ public class MainWindowController implements Initializable {
 	 */
 	public void exitGame() {
 		gameTableController = null;
-		Message message = new Message(20, "");
+		Message message = new Message(MessageType.DISCONNECTING, "");
 		connection.sendMessage(message);
 		showMenu();
 	}
@@ -252,7 +253,7 @@ public class MainWindowController implements Initializable {
 	 *
 	 * @param message message with result of player's move.
 	 */
-	public void moveAnswer(Message message) {
+	public void yourMoveAnswer(Message message) {
 		int result = Integer.parseInt(message.getData());
 		if (gameTableController != null && result == 0) {
 			gameTableController.moveSuccessful();
@@ -264,7 +265,7 @@ public class MainWindowController implements Initializable {
 	 *
 	 * @param message message with result
 	 */
-	public void someonesMoveAnswer(Message message) {
+	public void someonesMove(Message message) {
 		String[] parts = message.getData().split(",");
 		int result = Integer.parseInt(parts[0]);
 		if (gameTableController != null) {
