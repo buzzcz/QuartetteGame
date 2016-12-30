@@ -37,7 +37,7 @@ void Message::receiveMessage(int fd, size_t toRead) {
 //	TODO: not 2 means error
 	if (count == 2) {
 		try {
-			type = static_cast<MessageType>(std::stoi(sType.c_str(), NULL, 10));
+			type = static_cast<MessageType>(std::stoi(sType, NULL, 10));
 			size = std::stoul(sSize.c_str(), NULL, 10);
 		} catch (std::invalid_argument e) {
 
