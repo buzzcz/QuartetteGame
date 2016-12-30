@@ -2,8 +2,8 @@
 #define QUARTETTESERVER_PLAYER_H
 
 #include <list>
-#include "card.h"
-#include "status.h"
+#include "Card.h"
+#include "Status.h"
 
 using std::string;
 using std::list;

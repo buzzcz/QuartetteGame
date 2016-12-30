@@ -11,7 +11,7 @@
 #include <malloc.h>
 #include <arpa/inet.h>
 #include <list>
-#include "game.h"
+#include "Game.h"
 
 using std::list;
 

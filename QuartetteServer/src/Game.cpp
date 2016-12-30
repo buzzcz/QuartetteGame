@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 
 Game::Game(unsigned long id, int capacity, Player *p) : id(id), capacity(capacity) {
 	addPlayer(p);
@@ -140,7 +140,7 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 }
 
 void Game::shuffleCards() {
-	for (int i = 0; i < numberOfCards; i++) {
+	for (int i = 0; i < NUMBER_OF_CARDS; i++) {
 		Card c = static_cast<Card>(i);
 		allCards.push_back(c);
 	}
@@ -149,7 +149,7 @@ void Game::shuffleCards() {
 
 void Game::dealCards() {
 	list<Player *>::iterator playerIter = players.begin();
-	for (int i = 0; i < numberOfCards; i++) {
+	for (int i = 0; i < NUMBER_OF_CARDS; i++) {
 		Card c = *allCards.begin();
 		allCards.pop_front();
 		Player p = *(*playerIter);

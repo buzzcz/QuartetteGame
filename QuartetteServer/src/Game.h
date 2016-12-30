@@ -5,8 +5,8 @@
 #include <thread>
 #include <deque>
 #include <algorithm>
-#include "player.h"
-#include "message.h"
+#include "Player.h"
+#include "Message.h"
 
 using std::list;
 using std::deque;
