@@ -1,6 +1,7 @@
 package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.dto.Card;
+import cz.zcu.kiv.ups.dto.Game;
 import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.Opponent;
 import cz.zcu.kiv.ups.network.Connection;
@@ -142,10 +143,10 @@ public class MainWindowController implements Initializable {
 	public void showListOfGames(Message message) {
 		String[] parts = message.getData().split(",");
 		int numberOfGames = Integer.parseInt(parts[0]);
-		List<String> games = new LinkedList<>();
+		List<Game> games = new LinkedList<>();
 		for (int i = 0, index = 1; i < numberOfGames; i++, index += 3) {
-			String game = String.format("Id: %s, connected: %d, capacity: %d", parts[index], Integer.parseInt
-					(parts[index + 1]), Integer.parseInt(parts[index + 2]));
+			Game game = new Game(Integer.parseInt(parts[index]), Integer.parseInt(parts[index + 1]), Integer.parseInt
+					(parts[index + 2]));
 			games.add(game);
 		}
 		mainWindowVBox.getChildren().remove(content);
