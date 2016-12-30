@@ -27,8 +27,8 @@ list<Card> Player::getCards() {
 }
 
 bool Player::hasCard(Card c) {
-	for (list<Card>::iterator iter = cards.begin(); iter != cards.end(); iter++) {
-		if (c == *iter) {
+	for (Card c1 : cards) {
+		if (c == c1) {
 			return true;
 		}
 	}

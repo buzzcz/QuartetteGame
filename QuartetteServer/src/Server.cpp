@@ -119,14 +119,13 @@ void Server::sendGameList() {
 	string data;
 	data += std::to_string(numberOfGames);
 
-	for (list<Game *>::iterator iter = games.begin(); iter != games.end(); iter++) {
-		Game g = *(*iter);
+	for (Game *g : games) {
 		data += ",";
-		data += std::to_string(g.getId());
+		data += std::to_string(g->getId());
 		data += ",";
-		data += std::to_string(g.getPlayers().size());
+		data += std::to_string(g->getPlayers().size());
 		data += ",";
-		data += std::to_string(g.getCapacity());
+		data += std::to_string(g->getCapacity());
 	}
 
 	Message m(LIST_OF_GAMES_ANSWER, data);
@@ -188,18 +187,16 @@ void Server::connectToGame(Message m) {
 	m1.sendMessage(fd);
 
 	if (g->isFull()) {
-		for (list<Player *>::iterator iter = g->getPlayers().begin(); iter != g->getPlayers().end(); iter++) {
-			Player p1 = *(*iter);
-			FD_CLR(p1.getFd(), &clientSocks);
+		for (Player *p1 : g->getPlayers()) {
+			FD_CLR(p1->getFd(), &clientSocks);
 		}
 	}
 }
 
 Game *Server::getGameById(int id) {
-	for (list<Game *>::iterator iter = games.begin(); iter != games.end(); iter++) {
-		Game g = *(*iter);
-		if (g.getId() == id) {
-			return (*iter);
+	for (Game *g : games) {
+		if (g->getId() == id) {
+			return g;
 		}
 	}
 	return NULL;
@@ -250,6 +247,8 @@ void Server::reconnectToGame(Message m) {
 		m2.sendMessage(fd);
 	}
 
+	int oldFd = p->getFd();
+//	TODO: Remove old fd from fd_set and add new
 	p->setFd(fd);
 	p->setStatus(ACTIVE);
 //	TODO: Solve locking - what if in between messages someone makes move??

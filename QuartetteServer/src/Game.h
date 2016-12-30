@@ -5,6 +5,7 @@
 #include <thread>
 #include <deque>
 #include <algorithm>
+#include <netinet/in.h>
 #include "Player.h"
 #include "Message.h"
 
@@ -45,6 +46,36 @@ class Game {
 	 * Player who's turn it is.
 	 */
 	Player *whosTurn;
+
+	/**
+	 * Client Socket of last client.
+	 */
+	int clientSocket;
+
+	/**
+	 * File Descriptor of last client.
+	 */
+	int fd;
+
+	/**
+	 * Length of client address.
+	 */
+	socklen_t addrLen;
+
+	/**
+	 * Indicates how many byte are in socket to read.
+	 */
+	size_t toRead;
+
+	/**
+	 * Client Address of last client.
+	 */
+	struct sockaddr_in clientAddr;
+
+	/**
+	 * Set of client sockets.
+	 */
+	fd_set clientSocks;
 
 	/**
 	 * Setups game before start.
