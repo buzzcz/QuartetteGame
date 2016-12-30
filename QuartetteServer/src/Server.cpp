@@ -98,13 +98,13 @@ int Server::start(string address, uint16_t port) {
 
 void Server::processMessage(Message m) {
 	switch (m.getType()) {
-		case 1:
+		case LIST_OF_GAMES_REQUEST:
 			sendGameList();
 			break;
-		case 3:
+		case CONNECT_REQUEST:
 			connectToGame(m);
 			break;
-		case 5:
+		case CREATE_GAME_REQUEST:
 			createGame(m);
 			break;
 		default:
@@ -126,7 +126,7 @@ void Server::sendGameList() {
 		data += std::to_string(g.getCapacity());
 	}
 
-	Message m(2, data);
+	Message m(LIST_OF_GAMES_ANSWER, data);
 	m.sendMessage(fd);
 }
 
@@ -139,7 +139,7 @@ void Server::createGame(Message m) {
 	data.erase(0, i + 1);
 	int capacity = std::stoi(data.c_str(), NULL, 10) + 1;
 	if (capacity <= 2) {
-		Message m1(6, "-1");
+		Message m1(CREATE_GAME_ANSWER, "-1");
 		m1.sendMessage(fd);
 		return;
 	}
@@ -148,7 +148,7 @@ void Server::createGame(Message m) {
 	Game *newGame = new Game(numberOfGames++, capacity, p);
 	games.push_back(newGame);
 
-	Message m1(6, std::to_string((*newGame).getId()));
+	Message m1(CREATE_GAME_ANSWER, std::to_string((*newGame).getId()));
 	m1.sendMessage(fd);
 }
 
@@ -162,26 +162,26 @@ void Server::connectToGame(Message m) {
 
 	Game *g = getGameById(id);
 	if (g == NULL) {
-		Message m1(4, "3");
+		Message m1(CONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
 		return;
 	}
 
 	if (g->getCapacity() == g->getPlayers().size()) {
-		Message m1(4, "1");
+		Message m1(CONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
 		return;
 	}
 
 	Player *p = g->findPlayerByName(nick);
 	if (p != NULL) {
-		Message m1(4, "2");
+		Message m1(CONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
 		return;
 	}
 
 	g->addPlayer(new Player(fd, nick));
-	Message m1(4, "0");
+	Message m1(CONNECT_ANSWER, "0");
 	m1.sendMessage(fd);
 
 	if (g->isFull()) {
@@ -212,20 +212,20 @@ void Server::reconnectToGame(Message m) {
 
 	Game *g = getGameById(id);
 	if (g == NULL) {
-		Message m1(19, "3");
+		Message m1(RECONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
 		return;
 	}
 
 	Player *p = g->findPlayerByName(nick);
 	if (p == NULL) {
-		Message m1(19, "1");
+		Message m1(RECONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
 		return;
 	}
 
 	if (p->getStatus() == ACTIVE) {
-		Message m1(19, "2");
+		Message m1(RECONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
 		return;
 	}

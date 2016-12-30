@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <malloc.h>
 #include <stdexcept>
+#include "MessageType.h"
 
 using std::string;
 
@@ -16,7 +17,7 @@ class Message {
 	/**
 	 * Indicates type of the message.
 	 */
-	int type;
+	MessageType type;
 
 	/**
 	 * Size of message data.
@@ -44,13 +45,13 @@ public:
 	/**
 	 * Constructor to create message with type and data.
 	 */
-	Message(int type, string data);
+	Message(MessageType type, string data);
 
 	/**
 	 * Getter for type of message.
 	 * @return type of message.
 	 */
-	int getType();
+	MessageType getType();
 
 	/**
 	 * Getter for message data.

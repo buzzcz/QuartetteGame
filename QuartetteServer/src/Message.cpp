@@ -2,11 +2,11 @@
 
 Message::Message() {}
 
-Message::Message(int type, string data) : type(type), data(data) {
+Message::Message(MessageType type, string data) : type(type), data(data) {
 	size = data.length();
 }
 
-int Message::getType() {
+MessageType Message::getType() {
 	return type;
 }
 
@@ -37,7 +37,7 @@ void Message::receiveMessage(int fd, size_t toRead) {
 //	TODO: not 2 means error
 	if (count == 2) {
 		try {
-			type = std::stoi(sType.c_str(), NULL, 10);
+			type = static_cast<MessageType>(std::stoi(sType.c_str(), NULL, 10));
 			size = std::stoul(sSize.c_str(), NULL, 10);
 		} catch (std::invalid_argument e) {
 

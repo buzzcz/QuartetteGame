@@ -82,16 +82,16 @@ void Game::manageGame() {
 
 void Game::sendStartGame() {
 	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
-		Message m(7, getStateOfGame(*iter));
+		Message m(START_OF_GAME, getStateOfGame(*iter));
 		m.sendMessage((*iter)->getFd());
 	}
 }
 
 void Game::sendYourTurn(Player *p) {
-	Message m(8, "");
+	Message m(YOUR_TURN, "");
 	m.sendMessage(p->getFd());
 
-	Message m1(9, p->getName());
+	Message m1(SOMEONES_TURN, p->getName());
 	for (list<Player *>::iterator iter = players.begin(); iter != players.end(); iter++) {
 		Player p1 = *(*iter);
 		if (p1.getName().compare(p->getName()) != 0) {
@@ -125,16 +125,16 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 	to->addCard(c);
 
 	if (from->getCards().size() == 0) {
-		Message m(15, "");
+		Message m(YOUR_MOVE_ANSWER, "");
 		m.sendMessage(from->getFd());
-		Message m1(16, from->getName());
+		Message m1(SOMEONES_MOVE, from->getName());
 		broadcast(m1, from);
 	}
 
 	if (to->hasQuartette()) {
-		Message m(13, "");
+		Message m(YOU_WON, "");
 		m.sendMessage(to->getFd());
-		Message m1(14, to->getName());
+		Message m1(SOMEONE_WON, to->getName());
 		broadcast(m1, to);
 	}
 }
@@ -162,7 +162,7 @@ void Game::dealCards() {
 }
 
 void Game::failGame(Player *p) {
-	Message m(17, p->getName());
+	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
 	run = false;
 }
