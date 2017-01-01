@@ -41,11 +41,6 @@ class Server {
 	socklen_t addrLen;
 
 	/**
-	 * Indicates how many byte are in socket to read.
-	 */
-	size_t toRead;
-
-	/**
 	 * Server Address.
 	 */
 	struct sockaddr_in serverAddr;
@@ -105,7 +100,7 @@ class Server {
 	 * Searches list of game for a game with specified id.
 	 * @return game with specified id or NULL if game wasn't found.
 	 */
-	Game *getGameById(int id);
+	Game *getGameById(unsigned long id);
 
 	/**
 	 * Reconnects player to game.

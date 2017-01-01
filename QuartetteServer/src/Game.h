@@ -55,11 +55,6 @@ class Game {
 	int fd;
 
 	/**
-	 * Indicates how many byte are in socket to read.
-	 */
-	size_t toRead;
-
-	/**
 	 * Set of client sockets.
 	 */
 	fd_set clientSocks;

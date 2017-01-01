@@ -62,7 +62,7 @@ public:
 	/**
 	 * Receives new message from specified file descriptor and maximal size.
 	 */
-	void receiveMessage(int fd, size_t toRead);
+	void receiveMessage(int fd);
 
 	/**
 	 * Sends message to specified file descriptor.

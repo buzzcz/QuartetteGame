@@ -35,6 +35,7 @@ bool Game::isFull() {
 }
 
 void Game::broadcast(Message m, Player *p) {
+	printf("Broadcast in game %lu.\n", id);
 	for (Player *p1 : players) {
 		if (p == NULL || p != p1) {
 			m.sendMessage(p1->getFd());
@@ -58,6 +59,7 @@ string Game::getStateOfGame(Player *p) {
 		state += ",";
 		state += cardNames[c];
 	}
+	printf("State of game %lu for player %s is \"%s\".\n", id, p->getName(), state);
 	return state;
 }
 
@@ -76,11 +78,11 @@ void Game::checkForMessages() {
 	// exclude stdin, stdout, stderr
 	for (fd = 3; fd < FD_SETSIZE; fd++) {
 		if (FD_ISSET(fd, &tests)) {
-			toRead = 0;
+			int toRead = 0;
 			ioctl(fd, FIONREAD, &toRead);
 			if (toRead > 0) {
 				Message *m = new Message();
-				m->receiveMessage(fd, toRead);
+				m->receiveMessage(fd);
 				processMessage(*m);
 			} else {
 //				TODO: Is this block necessary??
@@ -125,8 +127,8 @@ void Game::manageGame() {
 	sendYourTurn(p);
 	while (run) {
 		checkForMessages();
-//	    TODO: manage game as in Server::run
 	}
+//	TODO: return fds to server for listening.
 }
 
 void Game::sendStartGame() {
@@ -134,6 +136,7 @@ void Game::sendStartGame() {
 		Message m(START_OF_GAME, getStateOfGame(p));
 		m.sendMessage(p->getFd());
 	}
+	printf("Game %lu started.\n", id);
 }
 
 void Game::sendYourTurn(Player *p) {
@@ -143,6 +146,8 @@ void Game::sendYourTurn(Player *p) {
 
 	Message m1(SOMEONES_TURN, p->getName());
 	broadcast(m1, p);
+
+	printf("%s's turn in game %lu.\n", p->getName(), id);
 }
 
 Player *Game::findPlayerByName(string name) {
@@ -166,6 +171,7 @@ Player *Game::findPlayerByFd(int fd) {
 void Game::moveCard(Card c, Player *from, Player *to) {
 	from->removeCard(c);
 	to->addCard(c);
+	printf("Moved card from %s to %s in game %lu.\n", from->getName(), to->getName(), id);
 
 	if (from->getCards().size() == 0) {
 		Message m(YOU_LOST, "");
@@ -173,6 +179,7 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 		Message m1(SOMEONE_LOST, from->getName());
 		broadcast(m1, from);
 		removePlayer(from);
+		printf("%s lost in game %lu.\n", from->getName(), id);
 	}
 
 	if (to->hasQuartette()) {
@@ -180,6 +187,7 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 		m.sendMessage(to->getFd());
 		Message m1(SOMEONE_WON, to->getName());
 		broadcast(m1, to);
+		printf("%s won in game %lu.\n", to->getName(), id);
 	}
 }
 
@@ -208,8 +216,8 @@ void Game::dealCards() {
 void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
-	removePlayer(p);
 	run = false;
+	printf("%s is unreachable or exited game %lu.\n", p->getName(), id);
 }
 
 void Game::sendMoveAnswer(Message m, Player *to) {
@@ -226,6 +234,7 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	int has = 1;
 	if (from->hasCard(card)) {
 		has = 0;
+		moveCard(card, from, to);
 	}
 	Message m1(MOVE_ANSWER, std::to_string(has));
 	m1.sendMessage(to->getFd());
@@ -238,7 +247,5 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	data += from->getName();
 	Message m2(SOMEONES_MOVE, data);
 	broadcast(m2, to);
-	if (has == 0) {
-		moveCard(card, from, to);
-	}
+	printf("%s wanted %s from %s in game %lu.\n", to->getName(), cardName, from->getName(), id);
 }

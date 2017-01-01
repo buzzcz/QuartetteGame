@@ -47,6 +47,7 @@ enum Card {
 /**
  * Card string representations.
  */
+//TODO: Consider creating map instead.
 const string cardNames[] = {
 		"1A",
 		"2A",

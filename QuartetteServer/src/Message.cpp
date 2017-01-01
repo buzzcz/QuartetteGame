@@ -14,51 +14,33 @@ string Message::getData() {
 	return data;
 }
 
-void Message::receiveMessage(int fd, size_t toRead) {
-	char buffer;
-	string sType = "", sSize = "";
-	int count = 0;
+void Message::receiveMessage(int fd) {
+	string line = "";
 
-	for (int i = 0; i < toRead; i++) {
-		if (count == 2) {
+	while (true) {
+		char c;
+		recv(fd, &c, 1, 0);
+		if (c == '\n') {
 			break;
 		}
-		recv(fd, &buffer, 1, 0);
-		if (buffer == ';') {
-			count++;
-			continue;
-		}
-		if (count == 0) {
-			sType += buffer;
-		} else if (count == 1) {
-			sSize += buffer;
-		}
+		line += c;
 	}
-//	TODO: not 2 means error
-	if (count == 2) {
-		try {
-			type = static_cast<MessageType>(std::stoi(sType, NULL, 10));
-			size = std::stoul(sSize.c_str(), NULL, 10);
-		} catch (std::invalid_argument e) {
-
-		}
-
-		char *tmp = (char *) malloc(size * sizeof(char));
-		ssize_t read;
-		read = recv(fd, tmp, size, 0);
-		if (read != size) {
-//			TODO: error
-		}
-		data.assign(tmp, size);
-		free(tmp);
-		read = recv(fd, &buffer, 1, 0);
-		if (read == 1 && buffer == '\n') {
-			printf("Client %d sent %d;%lu;%s\n", fd, type, size, data.c_str());
-		} else {
-			printf("Error in receiveMessage");
-//			TODO: error
-		}
+	unsigned long i = line.find(";");
+//	TODO: if == string::npos error
+	string sType = line.substr(0, i);
+	line.erase(0, i + 1);
+	i = line.find(";");
+//	TODO: if == string::npos error
+	string sSize = line.substr(0, i);
+	line.erase(0, i + 1);
+	try {
+		type = static_cast<MessageType>(std::stoi(sType, NULL, 10));
+		size = std::stoul(sSize, NULL, 10);
+	} catch (std::invalid_argument e) {
+//		TODO: error
 	}
+	data = line;
+	printf("Client %d sent %d;%lu;%s.\n", fd, type, size, data);
 }
 
 string Message::getMessageToSend() {
@@ -68,4 +50,5 @@ string Message::getMessageToSend() {
 void Message::sendMessage(int fd) {
 	string data = getMessageToSend();
 	send(fd, data.c_str(), data.length(), 0);
+	printf("Sending \"%s\" to client %d.\n", data, fd);
 }
