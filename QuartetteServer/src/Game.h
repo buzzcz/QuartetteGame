@@ -62,7 +62,7 @@ class Game {
 	/**
 	 * Runs select and receives new messages.
 	 */
-	void checkForMessages();
+	void checkForMessages(int timeout);
 
 	/**
 	 * Processes received message.

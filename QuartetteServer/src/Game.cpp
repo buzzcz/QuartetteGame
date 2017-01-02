@@ -1,7 +1,7 @@
 #include "Game.h"
 
 Game::Game(unsigned long id, int capacity) : id(id), capacity(capacity) {
-	std::thread(start());
+	std::thread(&Game::start, this).detach();
 }
 
 unsigned long Game::getId() {
@@ -68,9 +68,16 @@ void Game::start() {
 	setupGame();
 }
 
-void Game::checkForMessages() {
+void Game::checkForMessages(int timeout) {
 	fd_set tests = clientSocks;
-	int returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
+	int returnValue;
+	if (timeout) {
+		struct timeval t;
+		t.tv_sec = timeout;
+		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
+	} else {
+		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
+	}
 	if (returnValue < 0) {
 		printf("Select error.\n");
 //		TODO: error
@@ -113,7 +120,7 @@ void Game::setupGame() {
 	FD_ZERO(&clientSocks);
 	shuffleCards();
 	while (run) {
-		checkForMessages();
+		checkForMessages(3);
 		if (isFull()) {
 			manageGame();
 		}
@@ -126,7 +133,7 @@ void Game::manageGame() {
 	Player *p = players.front();
 	sendYourTurn(p);
 	while (run) {
-		checkForMessages();
+		checkForMessages(0);
 	}
 //	TODO: return fds to server for listening.
 }
@@ -204,12 +211,19 @@ void Game::dealCards() {
 	for (int i = 0; i < NUMBER_OF_CARDS; i++) {
 		Card c = *allCards.begin();
 		allCards.pop_front();
-		Player p = *(*playerIter);
-		p.addCard(c);
+		Player *p = *playerIter;
+		p->addCard(c);
 		playerIter++;
 		if (playerIter == players.end()) {
 			playerIter = players.begin();
 		}
+	}
+	for (Player *p : players) {
+		printf("%s has: ", p->getName().c_str());
+		for (Card c : p->getCards()) {
+			printf("%s, ", cardNames[c].c_str());
+		}
+		printf("\n");
 	}
 }
 
