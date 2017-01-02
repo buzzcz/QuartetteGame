@@ -47,7 +47,7 @@ public class MessageConsumer implements ConsumerInterface {
 			case SOMEONES_TURN:
 				Platform.runLater(() -> mainWindowController.someonesTurn(message));
 				break;
-			case YOUR_MOVE_ANSWER:
+			case MOVE_ANSWER:
 				Platform.runLater(() -> mainWindowController.yourMoveAnswer(message));
 				break;
 			case SOMEONES_MOVE:

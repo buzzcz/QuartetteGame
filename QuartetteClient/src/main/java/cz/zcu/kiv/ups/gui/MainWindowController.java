@@ -83,14 +83,15 @@ public class MainWindowController implements Initializable {
 	 * @param port     port.
 	 * @param nickname nickname.
 	 */
-	public void openConnection(String hostname, int port, String nickname) {
+	void openConnection(String hostname, int port, String nickname) {
 		String error = connection.open(hostname, port);
 		if (error == null) {
 			this.nickname = nickname;
 			showMenu();
 			scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50);
+			log.info(String.format("Connected to %s:%d with nickname %s.", hostname, port, nickname));
 		} else {
-			log.error("Could not open connection.");
+			log.error(String.format("Could not open connection: %s.", error));
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Connection Error", "Could not open connection.",
 					error);
 		}
@@ -99,7 +100,7 @@ public class MainWindowController implements Initializable {
 	/**
 	 * Shows menu.
 	 */
-	public void showMenu() {
+	void showMenu() {
 		mainWindowVBox.getChildren().remove(content);
 		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Menu.fxml");
 		mainWindowVBox.getChildren().add(content);
@@ -108,15 +109,16 @@ public class MainWindowController implements Initializable {
 	/**
 	 * Sends list of games request.
 	 */
-	public void listOfGamesRequest() {
+	void listOfGamesRequest() {
 		Message m = new Message(MessageType.LIST_OF_GAMES_REQUEST, "");
 		connection.sendMessage(m);
+		log.info("Sending request for list of games.");
 	}
 
 	/**
 	 * Shows choice dialog and sends create game request.
 	 */
-	public void createGameRequest() {
+	void createGameRequest() {
 		List<Integer> numbers = new LinkedList<>();
 		for (int i = 2; i < 32; i++) {
 			numbers.add(i);
@@ -126,13 +128,15 @@ public class MainWindowController implements Initializable {
 		result.ifPresent(number -> {
 			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, number));
 			connection.sendMessage(m);
+			log.info(String.format("Sending request for creating game with nickname %s and %d opponents.", nickname,
+					number));
 		});
 	}
 
 	/**
 	 * Sends reconnect request.
 	 */
-	public void reconnectRequest() {
+	void reconnectRequest() {
 //		TODO: How to remember game id??
 	}
 
@@ -201,19 +205,23 @@ public class MainWindowController implements Initializable {
 			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
 			mainWindowVBox.getChildren().add(content);
 		} else {
+			log.error("Could not create game - number of opponents was smaller then 2.");
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
-					"game.", "Creating new game is impossible due to number of opponents lower then 2.");
+					"game.", "Creating new game is impossible due to number of opponents smaller then 2.");
 		}
 	}
 
 	/**
 	 * Sends exit game message and shows menu.
 	 */
-	public void exitGame() {
-		gameTableController = null;
-		Message message = new Message(MessageType.DISCONNECTING, "");
-		connection.sendMessage(message);
-		showMenu();
+	void exitGame() {
+		if (gameTableController != null) {
+			gameTableController = null;
+			Message message = new Message(MessageType.DISCONNECTING, "");
+			connection.sendMessage(message);
+			showMenu();
+			log.info("Exiting game.");
+		}
 	}
 
 	/**
@@ -233,6 +241,7 @@ public class MainWindowController implements Initializable {
 		if (gameTableController != null) {
 			gameTableController.setMyTurn(true);
 			gameTableController.getHistory().add("It's your turn.");
+			log.info("It's my turn.");
 		}
 	}
 
@@ -245,6 +254,7 @@ public class MainWindowController implements Initializable {
 		if (gameTableController != null) {
 			String msg = String.format("It's %s's turn.", message.getData());
 			gameTableController.getHistory().add(msg);
+			log.info(msg);
 		}
 	}
 
@@ -254,9 +264,18 @@ public class MainWindowController implements Initializable {
 	 * @param message message with result of player's move.
 	 */
 	public void yourMoveAnswer(Message message) {
-		int result = Integer.parseInt(message.getData());
-		if (gameTableController != null && result == 0) {
-			gameTableController.moveSuccessful();
+		if (gameTableController != null) {
+			int result = Integer.parseInt(message.getData());
+			if (result == 0) {
+				gameTableController.moveSuccessful();
+				log.info(String.format("I took %s from %s.", gameTableController.getLastMove().getValue().getName(),
+						gameTableController.getLastMove().getKey().getName()));
+			} else {
+				String info = String.format("%s does not have %s.", gameTableController
+						.getLastMove().getKey().getName(), gameTableController.getLastMove().getValue().getName());
+				gameTableController.getHistory().add(info);
+				log.info(info);
+			}
 		}
 	}
 
@@ -266,15 +285,13 @@ public class MainWindowController implements Initializable {
 	 * @param message message with result
 	 */
 	public void someonesMove(Message message) {
-		String[] parts = message.getData().split(",");
-		int result = Integer.parseInt(parts[0]);
 		if (gameTableController != null) {
+			String[] parts = message.getData().split(",");
+			int result = Integer.parseInt(parts[0]);
 			String first = parts[1];
 			Card card = Card.getCardByName(parts[2]);
 			String second = parts[3];
 			if (result == 0) {
-				gameTableController.getHistory().add(String.format("%s gave %s to %s.", second, card.getName(),
-						first));
 				gameTableController.someonesMoveSuccessful(first, card, second);
 			} else if (result == 1) {
 				gameTableController.getHistory().add(String.format("%s doesn't have %s to give to %s.", second, card,
@@ -288,7 +305,7 @@ public class MainWindowController implements Initializable {
 	 *
 	 * @param text text to show.
 	 */
-	public void showEndOfGame(String text) {
+	private void showEndOfGame(String text) {
 		mainWindowVBox.getChildren().remove(content);
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(context);
 		FXMLLoader loader = springFxmlLoader.getLoader();
@@ -302,8 +319,11 @@ public class MainWindowController implements Initializable {
 	 * Shows End of game screen with message saying you won.
 	 */
 	public void youWon() {
-		gameTableController = null;
-		showEndOfGame("Congratulations, you won!");
+		if (gameTableController != null) {
+			gameTableController = null;
+			showEndOfGame("Congratulations, you won!");
+			log.info("I won.");
+		}
 	}
 
 	/**
@@ -312,16 +332,22 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about who won.
 	 */
 	public void someoneWon(Message message) {
-		gameTableController = null;
-		showEndOfGame(String.format("Sorry, %s won.", message.getData()));
+		if (gameTableController != null) {
+			gameTableController = null;
+			showEndOfGame(String.format("Sorry, %s won.", message.getData()));
+			log.info(String.format("%s won.", message.getData()));
+		}
 	}
 
 	/**
 	 * Shows End of game screen with message saying you lost.
 	 */
 	public void youLost() {
-		gameTableController = null;
-		showEndOfGame("Sorry, you lost.");
+		if (gameTableController != null) {
+			gameTableController = null;
+			showEndOfGame("Sorry, you lost.");
+			log.info("I lost.");
+		}
 	}
 
 	/**
@@ -331,7 +357,9 @@ public class MainWindowController implements Initializable {
 	 */
 	public void someoneLost(Message message) {
 		if (gameTableController != null) {
-			gameTableController.getHistory().add(String.format("%s lost.", message.getData()));
+			String info = String.format("%s lost.", message.getData());
+			gameTableController.getHistory().add(info);
+			log.info(info);
 		}
 	}
 
@@ -341,8 +369,10 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about unreachable player.
 	 */
 	public void playerUnreachable(Message message) {
-		gameTableController = null;
-		showEndOfGame(String.format("Sorry, %s is unreachable", message.getData()));
+		if (gameTableController != null) {
+			gameTableController = null;
+			showEndOfGame(String.format("Sorry, %s is unreachable", message.getData()));
+		}
 	}
 
 	/**
@@ -374,6 +404,8 @@ public class MainWindowController implements Initializable {
 				mainWindowVBox.getChildren().remove(content);
 				content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
 				mainWindowVBox.getChildren().add(content);
+				break;
+			default:
 				break;
 		}
 	}

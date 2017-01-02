@@ -73,10 +73,4 @@ public class ParseCmdLine {
 		}
 	}
 
-	/**
-	 * Prints usage of application.
-	 */
-	public void usage() {
-		log.info("Usage: QuartetteClient [-host hostname] [-port port] [-nick nickname].");
-	}
 }

@@ -19,7 +19,7 @@ public class MenuController {
 	 * Sends list of games request.
 	 */
 	@FXML
-	public void listOfGamesRequest() {
+	private void listOfGamesRequest() {
 		mainWindowController.listOfGamesRequest();
 	}
 
@@ -27,7 +27,7 @@ public class MenuController {
 	 * Sends create new game request.
 	 */
 	@FXML
-	public void createGameRequest() {
+	private void createGameRequest() {
 		mainWindowController.createGameRequest();
 	}
 
@@ -35,7 +35,7 @@ public class MenuController {
 	 * Sends reconnect request.
 	 */
 	@FXML
-	public void reconnectRequest() {
+	private void reconnectRequest() {
 		mainWindowController.reconnectRequest();
 	}
 

@@ -15,6 +15,7 @@ import javafx.scene.control.ListView;
 import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,7 @@ import java.util.ResourceBundle;
  * @author Jaroslav Klaus
  */
 @Component
+@Slf4j
 public class GameTableController implements Initializable {
 
 	@Autowired
@@ -70,13 +72,13 @@ public class GameTableController implements Initializable {
 	 * List View of game history.
 	 */
 	@FXML
-	public ListView<String> historyListView;
+	private ListView<String> historyListView;
 
 	/**
 	 * Player's last move.
 	 */
-
-	public Pair<Opponent, Card> lastMove;
+	@Getter
+	private Pair<Opponent, Card> lastMove;
 
 	/**
 	 * Indicated whether it is my turn or not.
@@ -123,9 +125,10 @@ public class GameTableController implements Initializable {
 						"Select a card.", "Select a card you want to get from selected player.");
 				result.ifPresent(s -> {
 					Opponent o = opponentsListView.getSelectionModel().getSelectedItem();
-					Message m = new Message(MessageType.YOUR_MOVE, String.format("%s,%s", o.getName(), s));
+					Message m = new Message(MessageType.MOVE, String.format("%s,%s", o.getName(), s));
 					connection.sendMessage(m);
 					myTurn = false;
+					log.info(String.format("I want %s from %s.", s, o.getName()));
 				});
 			}
 		});
@@ -138,7 +141,7 @@ public class GameTableController implements Initializable {
 	 *
 	 * @param cards new cards to set.
 	 */
-	public void setCards(List<Card> cards) {
+	void setCards(List<Card> cards) {
 		this.cards.clear();
 		this.cards.addAll(cards);
 	}
@@ -148,7 +151,7 @@ public class GameTableController implements Initializable {
 	 *
 	 * @param opponents new opponents to set.
 	 */
-	public void setOpponents(List<Opponent> opponents) {
+	void setOpponents(List<Opponent> opponents) {
 		this.opponents.clear();
 		this.opponents.addAll(opponents);
 	}
@@ -157,18 +160,19 @@ public class GameTableController implements Initializable {
 	 * Exits game and shows menu.
 	 */
 	@FXML
-	public void exit() {
+	private void exit() {
 		mainWindowController.exitGame();
 	}
 
 	/**
 	 * Adds card from move to player's cards and decrements opponent's number of cards.
 	 */
-	public void moveSuccessful() {
+	void moveSuccessful() {
 		cards.add(lastMove.getValue());
 		opponents.get(opponents.indexOf(lastMove.getKey())).removeCard();
 		cardsListView.refresh();
 		opponentsListView.refresh();
+		log.info(String.format("I got %s from %s.", lastMove.getValue().getName(), lastMove.getKey().getName()));
 	}
 
 	/**
@@ -178,7 +182,7 @@ public class GameTableController implements Initializable {
 	 * @param card   card that was moved between players.
 	 * @param second player from whom is the card taken.
 	 */
-	public void someonesMoveSuccessful(String first, Card card, String second) {
+	void someonesMoveSuccessful(String first, Card card, String second) {
 		for (Opponent o : opponents) {
 			if (o.getName().equals(first)) {
 				o.addCard();
@@ -188,6 +192,7 @@ public class GameTableController implements Initializable {
 		if (second.equals(mainWindowController.getNickname())) {
 			cards.remove(card);
 			cardsListView.refresh();
+			second = "me";
 		} else {
 			for (Opponent o : opponents) {
 				if (o.getName().equals(second)) {
@@ -197,5 +202,8 @@ public class GameTableController implements Initializable {
 			}
 		}
 		opponentsListView.refresh();
+		String info = String.format("%s took card from %s.", card.getName(), second);
+		history.add(info);
+		log.info(info);
 	}
 }

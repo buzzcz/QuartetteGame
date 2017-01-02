@@ -19,7 +19,7 @@ public class WaitRoomController {
 	 * Exits game and shows menu.
 	 */
 	@FXML
-	public void exit() {
+	private void exit() {
 		mainWindowController.exitGame();
 	}
 }

@@ -89,6 +89,7 @@ public class Connection implements NetworkInterface {
 		try {
 			writer.println(msg.getMessageToSend());
 			writer.flush();
+			log.info(String.format("Sending %s.", msg.getMessageToSend()));
 		} catch (Exception e) {
 			log.error("Write error.", e);
 		}

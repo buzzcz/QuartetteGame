@@ -13,6 +13,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ import java.util.ResourceBundle;
  * @author Jaroslav Klaus
  */
 @Component
+@Slf4j
 public class ListOfGamesController implements Initializable {
 
 	@Autowired
@@ -71,6 +73,7 @@ public class ListOfGamesController implements Initializable {
 				Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%d", mainWindowController
 						.getNickname(), game.getId()));
 				connection.sendMessage(m);
+				log.info(String.format("Connecting to game %d.", game.getId()));
 			}
 		});
 	}
@@ -80,7 +83,7 @@ public class ListOfGamesController implements Initializable {
 	 *
 	 * @param games new games to set.
 	 */
-	public void setGames(List<Game> games) {
+	void setGames(List<Game> games) {
 		this.games.clear();
 		this.games.addAll(games);
 	}
@@ -89,7 +92,7 @@ public class ListOfGamesController implements Initializable {
 	 * Goes back to menu.
 	 */
 	@FXML
-	public void back() {
+	private void back() {
 		mainWindowController.showMenu();
 	}
 }

@@ -24,7 +24,7 @@ public class EndOfGameController {
 	 *
 	 * @param text text to show.
 	 */
-	public void setInfoLabelText(String text) {
+	void setInfoLabelText(String text) {
 		infoLabel.setText(text);
 	}
 
@@ -32,7 +32,7 @@ public class EndOfGameController {
 	 * Shows menu.
 	 */
 	@FXML
-	public void menu() {
+	private void menu() {
 		mainWindowController.showMenu();
 	}
 }
