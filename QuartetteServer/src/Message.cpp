@@ -40,7 +40,7 @@ void Message::receiveMessage(int fd) {
 //		TODO: error
 	}
 	data = line;
-	printf("Client %d sent %d;%lu;%s.\n", fd, type, size, data);
+	printf("Client %d sent %d;%lu;%s.\n", fd, type, size, data.c_str());
 }
 
 string Message::getMessageToSend() {
@@ -50,5 +50,5 @@ string Message::getMessageToSend() {
 void Message::sendMessage(int fd) {
 	string data = getMessageToSend();
 	send(fd, data.c_str(), data.length(), 0);
-	printf("Sending \"%s\" to client %d.\n", data, fd);
+	printf("Sending \"%s\" to client %d.\n", data.c_str(), fd);
 }

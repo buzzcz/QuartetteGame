@@ -11,52 +11,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f65d0f6-a35f-49d6-85bf-764201857c80" name="Default" comment="Added game thread management of players">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.gitignore" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.idea/compiler.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.idea/copyright/profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.mvn/wrapper/maven-wrapper.jar" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/.mvn/wrapper/maven-wrapper.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/pom.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/QuartetteClient.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/dto/Card.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/dto/Game.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/dto/Message.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/dto/MessageType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/dto/Opponent.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/EndOfGame.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/EndOfGameController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/GameTable.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/GameTableController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/ListOfGames.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/ListOfGamesController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/Login.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/LoginController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/MainWindow.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/MainWindowController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/Menu.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/MenuController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/WaitRoom.fxml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/WaitRoomController.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/network/Connection.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/network/ConsumerInterface.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/network/MessageConsumer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/network/NetworkInterface.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/utils/AlertsAndDialogs.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/utils/ParseCmdLine.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/utils/SpringFxmlLoader.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/resources/application.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../QuartetteClient/src/test/java/cz/zcu/kiv/ups/QuartetteClientApplicationTests.java" afterPath="" />
+    <list default="true" id="5f65d0f6-a35f-49d6-85bf-764201857c80" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Card.h" afterPath="$PROJECT_DIR$/src/Card.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Game.cpp" afterPath="$PROJECT_DIR$/src/Game.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Game.h" afterPath="$PROJECT_DIR$/src/Game.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.cpp" afterPath="$PROJECT_DIR$/src/Main.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Message.cpp" afterPath="$PROJECT_DIR$/src/Message.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Message.h" afterPath="$PROJECT_DIR$/src/Message.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Server.cpp" afterPath="$PROJECT_DIR$/src/Server.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Server.h" afterPath="$PROJECT_DIR$/src/Server.h" />
     </list>
     <ignored path="QuartetteServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -78,7 +38,38 @@
     <favorites_list name="QuartetteServer" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="525" />
+    <leaf>
+      <file leaf-file-name="Server.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Server.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="596">
+              <caret line="239" column="96" lean-forward="false" selection-start-line="239" selection-start-column="96" selection-end-line="239" selection-end-column="96" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Game.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Game.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="862">
+              <caret line="249" column="120" lean-forward="false" selection-start-line="249" selection-start-column="120" selection-end-line="249" selection-end-column="120" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Message.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Message.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="862">
+              <caret line="52" column="57" lean-forward="false" selection-start-line="52" selection-start-column="57" selection-end-line="52" selection-end-column="57" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -90,6 +81,7 @@
       <find>list</find>
       <find>List</find>
       <find>card</find>
+      <find>printf</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;card\d[A-D]&quot;</replace>
@@ -128,8 +120,8 @@
         <option value="$PROJECT_DIR$/src/Server.h" />
         <option value="$PROJECT_DIR$/src/Game.h" />
         <option value="$PROJECT_DIR$/src/Card.h" />
-        <option value="$PROJECT_DIR$/src/Message.cpp" />
         <option value="$PROJECT_DIR$/src/Game.cpp" />
+        <option value="$PROJECT_DIR$/src/Message.cpp" />
         <option value="$PROJECT_DIR$/src/Server.cpp" />
       </list>
     </option>
@@ -201,6 +193,22 @@
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Ignored.Files" />
     <property name="js.eslint.eslintPackage" value="" />
     <property name="SearchEverywhereHistoryKey" value="hasCard&#9;null&#9;null" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="772" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="772" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="773" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="772" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="375" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="422" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="552" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="1740" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
   </component>
   <component name="RunManager" selected="Application.Build All">
     <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" PROJECT_NAME="QuartetteServer" TARGET_NAME="QuartetteServer" CONFIG_NAME="Debug" TEST_MODE="SUITE_TEST">
@@ -418,7 +426,8 @@
       <workItem from="1483093804679" duration="1691000" />
       <workItem from="1483096384060" duration="3365000" />
       <workItem from="1483109895845" duration="9777000" />
-      <workItem from="1483289885667" duration="2500000" />
+      <workItem from="1483289885667" duration="3181000" />
+      <workItem from="1483380656444" duration="642000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1476821402436</created>
@@ -574,11 +583,18 @@
       <option name="project" value="LOCAL" />
       <updated>1483118918845</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Trying to untrack Client from Server&#10;Added output to console&#10;Minor refactoring">
+      <created>1483292445631</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1483292445631</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="85043000" />
+    <option name="totallyTimeSpent" value="86366000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -591,28 +607,28 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-96" width="3200" height="1896" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14421253" sideWeight="0.41781232" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14421253" sideWeight="0.41601914" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32875076" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32635984" sideWeight="0.49873498" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934847" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3264075" sideWeight="0.50126505" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32635984" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329559" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14421253" sideWeight="0.5821877" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934847" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32875076" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14421253" sideWeight="0.58398086" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297619" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2499213" sideWeight="0.50238097" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39928272" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32635984" sideWeight="0.49873498" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="100" y="152" width="3000" height="1576" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32875076" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295302" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3997555" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -671,16 +687,34 @@
     <MESSAGE value="Game remembers who's turn it is&#10;Fixed YOU_LOST message type&#10;Added sendMoveAnswer&#10;Added functionality to reconnectToGame" />
     <MESSAGE value="Changed for loops not to use iterators" />
     <MESSAGE value="Added game thread management of players" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added game thread management of players" />
+    <MESSAGE value="Trying to untrack Client from Server&#10;Added output to console&#10;Minor refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Trying to untrack Client from Server&#10;Added output to console&#10;Minor refactoring" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/Game.cpp</url>
+          <line>124</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/Game.cpp</url>
+          <line>116</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/Game.cpp</url>
+          <line>3</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="11" />
+      <option name="time" value="15" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -812,14 +846,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
@@ -848,6 +874,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="861">
           <caret line="70" column="29" lean-forward="true" selection-start-line="70" selection-start-column="29" selection-end-line="70" selection-end-column="29" />
+          <folding>
+            <element signature="e#67#82#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -862,16 +891,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="15" column="4" lean-forward="false" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Server.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1120">
-          <caret line="40" column="22" lean-forward="false" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
-          <folding>
-            <element signature="e#67#85#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -891,34 +910,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Message.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1456">
-          <caret line="52" column="55" lean-forward="false" selection-start-line="52" selection-start-column="55" selection-end-line="52" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Player.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="980">
           <caret line="35" column="1" lean-forward="true" selection-start-line="35" selection-start-column="1" selection-end-line="35" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Server.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-384">
+          <caret line="55" column="23" lean-forward="true" selection-start-line="55" selection-start-column="23" selection-end-line="55" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="5" column="10" lean-forward="false" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Game.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="130" column="45" lean-forward="false" selection-start-line="130" selection-start-column="45" selection-end-line="130" selection-end-column="45" />
+        <state relative-caret-position="862">
+          <caret line="249" column="120" lean-forward="false" selection-start-line="249" selection-start-column="120" selection-end-line="249" selection-end-column="120" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Message.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="862">
+          <caret line="52" column="57" lean-forward="false" selection-start-line="52" selection-start-column="57" selection-end-line="52" selection-end-column="57" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Server.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1492">
-          <caret line="268" column="1" lean-forward="true" selection-start-line="268" selection-start-column="1" selection-end-line="268" selection-end-column="1" />
+        <state relative-caret-position="596">
+          <caret line="239" column="96" lean-forward="false" selection-start-line="239" selection-start-column="96" selection-end-line="239" selection-end-column="96" />
           <folding />
         </state>
       </provider>

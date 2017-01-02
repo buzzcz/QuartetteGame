@@ -59,7 +59,7 @@ string Game::getStateOfGame(Player *p) {
 		state += ",";
 		state += cardNames[c];
 	}
-	printf("State of game %lu for player %s is \"%s\".\n", id, p->getName(), state);
+	printf("State of game %lu for player %s is \"%s\".\n", id, p->getName().c_str(), state.c_str());
 	return state;
 }
 
@@ -147,7 +147,7 @@ void Game::sendYourTurn(Player *p) {
 	Message m1(SOMEONES_TURN, p->getName());
 	broadcast(m1, p);
 
-	printf("%s's turn in game %lu.\n", p->getName(), id);
+	printf("%s's turn in game %lu.\n", p->getName().c_str(), id);
 }
 
 Player *Game::findPlayerByName(string name) {
@@ -171,7 +171,7 @@ Player *Game::findPlayerByFd(int fd) {
 void Game::moveCard(Card c, Player *from, Player *to) {
 	from->removeCard(c);
 	to->addCard(c);
-	printf("Moved card from %s to %s in game %lu.\n", from->getName(), to->getName(), id);
+	printf("Moved card from %s to %s in game %lu.\n", from->getName().c_str(), to->getName().c_str(), id);
 
 	if (from->getCards().size() == 0) {
 		Message m(YOU_LOST, "");
@@ -179,7 +179,7 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 		Message m1(SOMEONE_LOST, from->getName());
 		broadcast(m1, from);
 		removePlayer(from);
-		printf("%s lost in game %lu.\n", from->getName(), id);
+		printf("%s lost in game %lu.\n", from->getName().c_str(), id);
 	}
 
 	if (to->hasQuartette()) {
@@ -187,7 +187,7 @@ void Game::moveCard(Card c, Player *from, Player *to) {
 		m.sendMessage(to->getFd());
 		Message m1(SOMEONE_WON, to->getName());
 		broadcast(m1, to);
-		printf("%s won in game %lu.\n", to->getName(), id);
+		printf("%s won in game %lu.\n", to->getName().c_str(), id);
 	}
 }
 
@@ -217,7 +217,7 @@ void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
 	run = false;
-	printf("%s is unreachable or exited game %lu.\n", p->getName(), id);
+	printf("%s is unreachable or exited game %lu.\n", p->getName().c_str(), id);
 }
 
 void Game::sendMoveAnswer(Message m, Player *to) {
@@ -247,5 +247,5 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	data += from->getName();
 	Message m2(SOMEONES_MOVE, data);
 	broadcast(m2, to);
-	printf("%s wanted %s from %s in game %lu.\n", to->getName(), cardName, from->getName(), id);
+	printf("%s wanted %s from %s in game %lu.\n", to->getName().c_str(), cardName.c_str(), from->getName().c_str(), id);
 }

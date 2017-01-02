@@ -58,6 +58,7 @@ int Server::start(string address, uint16_t port) {
 	}
 
 	numberOfGames = 0;
+	run = true;
 
 //	TODO: statistics
 //	TODO: sigIntHandler (Ctrl + C)
@@ -133,7 +134,7 @@ void Server::sendGameList() {
 
 	Message m(LIST_OF_GAMES_ANSWER, data);
 	m.sendMessage(fd);
-	printf("Sending game list \"%s\" to %d.\n", data, fd);
+	printf("Sending game list \"%s\" to %d.\n", data.c_str(), fd);
 }
 
 void Server::createGame(Message m) {
@@ -197,7 +198,7 @@ void Server::connectToGame(Message m) {
 	FD_CLR(fd, &clientSocks);
 	Message m1(CONNECT_ANSWER, "0");
 	m1.sendMessage(fd);
-	printf("Connected player %s to game %lu.\n", nick, id);
+	printf("Connected player %s to game %lu.\n", nick.c_str(), id);
 }
 
 Game *Server::getGameById(unsigned long id) {
@@ -229,14 +230,14 @@ void Server::reconnectToGame(Message m) {
 	if (p == NULL) {
 		Message m1(RECONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %lu - player %s not found in game.\n", id, nick);
+		printf("Error in reconnect to game %lu - player %s not found in game.\n", id, nick.c_str());
 		return;
 	}
 
 	if (p->getStatus() == ACTIVE) {
 		Message m1(RECONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %lu - player %s is still active.\n", id, nick);
+		printf("Error in reconnect to game %lu - player %s is still active.\n", id, nick.c_str());
 		return;
 	}
 
