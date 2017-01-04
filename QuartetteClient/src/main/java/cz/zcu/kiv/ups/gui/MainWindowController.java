@@ -151,7 +151,7 @@ public class MainWindowController implements Initializable {
 		int numberOfGames = Integer.parseInt(parts[0]);
 		List<Game> games = new LinkedList<>();
 		for (int i = 0, index = 1; i < numberOfGames; i++, index += 3) {
-			Game game = new Game(Integer.parseInt(parts[index]), Integer.parseInt(parts[index + 1]), Integer.parseInt
+			Game game = new Game(parts[index], Integer.parseInt(parts[index + 1]), Integer.parseInt
 					(parts[index + 2]));
 			games.add(game);
 		}
@@ -200,8 +200,8 @@ public class MainWindowController implements Initializable {
 	 * @param message message with answer.
 	 */
 	public void createGameAnswer(Message message) {
-		int code = Integer.parseInt(message.getData());
-		if (code >= 0) {
+		String id = message.getData();
+		if (!id.isEmpty()) {
 			mainWindowVBox.getChildren().remove(content);
 			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
 			mainWindowVBox.getChildren().add(content);
@@ -441,6 +441,7 @@ public class MainWindowController implements Initializable {
 		GameTableController ctrl = loader.getController();
 		ctrl.setCards(cards);
 		ctrl.setOpponents(opponents);
+		ctrl.getHistory().clear();
 		ctrl.getHistory().add(historyInfo);
 		gameTableController = ctrl;
 		mainWindowVBox.getChildren().addAll(content);

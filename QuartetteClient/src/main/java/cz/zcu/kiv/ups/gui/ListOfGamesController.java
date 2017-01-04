@@ -60,8 +60,8 @@ public class ListOfGamesController implements Initializable {
 				if (empty || item == null) {
 					setText(null);
 				} else {
-					setText(String.format("Id: %d, connected players: %d, capacity: %d.", item.getId(), item
-							.getNumberOfConnected(), item.getCapacity()));
+					setText(String.format("Connected players: %d, capacity: %d.", item.getNumberOfConnected(), item
+							.getCapacity()));
 				}
 			}
 		});
@@ -71,9 +71,10 @@ public class ListOfGamesController implements Initializable {
 				Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to" + " Game", "Do you want to connect to selected game?", null);
 
 				if (result.get() == ButtonType.OK) {
-					Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%d", mainWindowController.getNickname(), game.getId()));
+					Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%s", mainWindowController
+							.getNickname(), game.getId()));
 					connection.sendMessage(m);
-					log.info(String.format("Connecting to game %d.", game.getId()));
+					log.info(String.format("Connecting to game %s.", game.getId()));
 				}
 			}
 		});

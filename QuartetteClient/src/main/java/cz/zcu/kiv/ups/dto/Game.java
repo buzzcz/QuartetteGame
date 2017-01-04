@@ -15,7 +15,7 @@ public class Game {
 	/**
 	 * Id of game.
 	 */
-	private int id;
+	private String id;
 
 	/**
 	 * Number of connected players.

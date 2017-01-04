@@ -125,7 +125,8 @@ public class GameTableController implements Initializable {
 					for (Card c : Card.values()) {
 						choices.add(c.getName());
 					}
-					Optional<String> result = AlertsAndDialogs.showAndWaitChoiceDialog("1A", choices, "Your Move", "Select a card.", "Select a card you want to get from selected player.");
+					Optional<String> result = AlertsAndDialogs.showAndWaitChoiceDialog("1A", choices, "Your Move",
+							"Select a card.", "Select a card you want to get from selected player.");
 
 					result.ifPresent(s -> {
 						Message m = new Message(MessageType.MOVE, String.format("%s,%s", o.getName(), s));
