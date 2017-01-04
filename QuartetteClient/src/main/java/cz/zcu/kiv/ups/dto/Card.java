@@ -14,8 +14,8 @@ public enum Card {
 
 	CARD_1A("1A"),
 	CARD_1B("1B"),
-	CARD_1D("1D"),
 	CARD_1C("1C"),
+	CARD_1D("1D"),
 	CARD_2A("2A"),
 	CARD_2B("2B"),
 	CARD_2C("2C"),
@@ -46,15 +46,6 @@ public enum Card {
 	CARD_8D("8D");
 
 	/**
-	 * Constructor to create card with its name.
-	 *
-	 * @param name name of the card.
-	 */
-	Card(String name) {
-		this.name = name;
-	}
-
-	/**
 	 * Name of the card.
 	 */
 	@Getter
@@ -64,6 +55,15 @@ public enum Card {
 	 * Map of cards by their names.
 	 */
 	private static final Map<String, Card> cardByName;
+
+	/**
+	 * Constructor to create card with its name.
+	 *
+	 * @param name name of the card.
+	 */
+	Card(String name) {
+		this.name = name;
+	}
 
 	static {
 		cardByName = new HashMap<>();
