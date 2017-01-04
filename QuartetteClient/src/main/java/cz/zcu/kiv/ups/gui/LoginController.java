@@ -36,15 +36,9 @@ public class LoginController implements Initializable {
 	@FXML
 	private TextField portTextField;
 
-	/**
-	 * Text Field with nickname.
-	 */
-	@FXML
-	private TextField nicknameTextField;
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		setParams(parseCmdLine.getHostname(), parseCmdLine.getPort(), parseCmdLine.getNickname());
+		setParams(parseCmdLine.getHostname(), parseCmdLine.getPort());
 	}
 
 	/**
@@ -52,12 +46,10 @@ public class LoginController implements Initializable {
 	 *
 	 * @param hostname hostname.
 	 * @param port     port.
-	 * @param nickname nickname.
 	 */
-	private void setParams(String hostname, int port, String nickname) {
+	private void setParams(String hostname, int port) {
 		hostnameTextField.setText(hostname);
 		portTextField.setText(String.valueOf(port));
-		nicknameTextField.setText(nickname);
 	}
 
 	/**
@@ -65,8 +57,6 @@ public class LoginController implements Initializable {
 	 */
 	@FXML
 	private void logIn() {
-//		TODO: Check nickname for unsupported characters
-		mainWindowController.openConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()),
-				nicknameTextField.getText());
+		mainWindowController.openConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()));
 	}
 }

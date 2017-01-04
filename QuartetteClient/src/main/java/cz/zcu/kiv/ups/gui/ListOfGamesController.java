@@ -68,7 +68,8 @@ public class ListOfGamesController implements Initializable {
 		gamesListView.setOnMouseClicked(event -> {
 			Game game = gamesListView.getSelectionModel().getSelectedItem();
 			if (game != null) {
-				Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to" + " Game", "Do you want to connect to selected game?", null);
+				Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect" +
+						" to Game", "Do you want to connect to selected game?", null);
 
 				if (result.get() == ButtonType.OK) {
 					Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%s", mainWindowController

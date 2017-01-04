@@ -27,7 +27,7 @@ public class ParseCmdLine {
 	 * Nickname.
 	 */
 	@Getter
-	private String nickname = "";
+	private String nickname;
 
 	public ParseCmdLine(String[] args) {
 		int i = 0;

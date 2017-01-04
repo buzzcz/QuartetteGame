@@ -8,12 +8,14 @@ import cz.zcu.kiv.ups.dto.Opponent;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.network.MessageConsumer;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
+import cz.zcu.kiv.ups.utils.ParseCmdLine;
 import cz.zcu.kiv.ups.utils.SpringFxmlLoader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,9 @@ public class MainWindowController implements Initializable {
 	@Autowired
 	private MessageConsumer consumer;
 
+	@Autowired
+	private ParseCmdLine parseCmdLine;
+
 	/**
 	 * VBox in Main Window.
 	 */
@@ -74,6 +79,7 @@ public class MainWindowController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Login.fxml");
 		mainWindowVBox.getChildren().add(content);
+		nickname = parseCmdLine.getNickname();
 	}
 
 	/**
@@ -81,15 +87,13 @@ public class MainWindowController implements Initializable {
 	 *
 	 * @param hostname hostname.
 	 * @param port     port.
-	 * @param nickname nickname.
 	 */
-	void openConnection(String hostname, int port, String nickname) {
+	void openConnection(String hostname, int port) {
 		String error = connection.open(hostname, port);
 		if (error == null) {
-			this.nickname = nickname;
 			showMenu();
 			scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50);
-			log.info(String.format("Connected to %s:%d with nickname %s.", hostname, port, nickname));
+			log.info(String.format("Connected to %s:%d.", hostname, port));
 		} else {
 			log.error(String.format("Could not open connection: %s.", error));
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Connection Error", "Could not open connection.",
@@ -123,14 +127,16 @@ public class MainWindowController implements Initializable {
 		for (int i = 2; i < 32; i++) {
 			numbers.add(i);
 		}
-		Optional<Integer> result = AlertsAndDialogs.showAndWaitChoiceDialog(numbers.get(0), numbers, "Create New " +
-						"Game",
-				"Create new game.", "Select number of desired opponents:");
-		result.ifPresent(number -> {
-			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, number));
+		Optional<Pair<Integer, String>> result = AlertsAndDialogs.showAndWaitChoiceTextDialog("Create New Game",
+				"Create new game.", "Select number of desired opponents:", numbers, null, "Enter your nickname:",
+				"Nickname", nickname);
+		result.ifPresent(pair -> {
+//		    TODO: Check nickname for unsupported characters
+			nickname = pair.getValue();
+			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, pair.getKey()));
 			connection.sendMessage(m);
 			log.info(String.format("Sending request for creating game with nickname %s and %d opponents.", nickname,
-					number));
+					pair.getKey()));
 		});
 	}
 
@@ -138,7 +144,15 @@ public class MainWindowController implements Initializable {
 	 * Sends reconnect request.
 	 */
 	void reconnectRequest() {
-//		TODO: How to remember game id??
+		Optional<String> result = AlertsAndDialogs.showAndWaitTextInputDialog("Reconnect To Game", "Reconnect to " +
+				"game.", "Enter nickname:", "Nickname", nickname);
+		result.ifPresent(s -> {
+//		    TODO: Check nickname for unsupported characters
+			nickname = s;
+			Message m = new Message(MessageType.RECONNECT_REQUEST, nickname);
+			connection.sendMessage(m);
+			log.info(String.format("Sending request for reconnecting with nickname %s.", nickname));
+		});
 	}
 
 	/**
@@ -151,8 +165,7 @@ public class MainWindowController implements Initializable {
 		int numberOfGames = Integer.parseInt(parts[0]);
 		List<Game> games = new LinkedList<>();
 		for (int i = 0, index = 1; i < numberOfGames; i++, index += 3) {
-			Game game = new Game(parts[index], Integer.parseInt(parts[index + 1]), Integer.parseInt
-					(parts[index + 2]));
+			Game game = new Game(parts[index], Integer.parseInt(parts[index + 1]), Integer.parseInt(parts[index + 2]));
 			games.add(game);
 		}
 		mainWindowVBox.getChildren().remove(content);
@@ -165,6 +178,15 @@ public class MainWindowController implements Initializable {
 	}
 
 	/**
+	 * Shows wait room.
+	 */
+	private void showWaitRoom() {
+		mainWindowVBox.getChildren().remove(content);
+		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
+		mainWindowVBox.getChildren().add(content);
+	}
+
+	/**
 	 * Processes connect request answer and shows wait screen or error dialog.
 	 *
 	 * @param message message with answer.
@@ -173,9 +195,7 @@ public class MainWindowController implements Initializable {
 		int code = Integer.parseInt(message.getData());
 		switch (code) {
 			case 0:
-				mainWindowVBox.getChildren().remove(content);
-				content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
-				mainWindowVBox.getChildren().add(content);
+				showWaitRoom();
 				break;
 			case 1:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Capacity Error", "Could not connect to game"
@@ -183,8 +203,8 @@ public class MainWindowController implements Initializable {
 				break;
 			case 2:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Could not connect to game"
-						+ ".", "Connecting to game is impossible because player with the same nickname is already on" +
-						" server. Choose another nickname.");
+						+ ".", "Connecting to game is impossible because player with the same nickname is already on"
+						+ " server. Choose another nickname.");
 				break;
 			case 3:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Game Error", "Could not connect to game.",
@@ -203,9 +223,7 @@ public class MainWindowController implements Initializable {
 	public void createGameAnswer(Message message) {
 		int code = Integer.parseInt(message.getData());
 		if (code == 0) {
-			mainWindowVBox.getChildren().remove(content);
-			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
-			mainWindowVBox.getChildren().add(content);
+			showWaitRoom();
 		} else if (code == 1) {
 			log.error("Could not create game - player with the same nickname is already on server.");
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
@@ -222,13 +240,11 @@ public class MainWindowController implements Initializable {
 	 * Sends exit game message and shows menu.
 	 */
 	void exitGame() {
-		if (gameTableController != null) {
-			gameTableController = null;
-			Message message = new Message(MessageType.DISCONNECTING, "");
-			connection.sendMessage(message);
-			showMenu();
-			log.info("Exiting game.");
-		}
+		gameTableController = null;
+		Message message = new Message(MessageType.DISCONNECTING, "");
+		connection.sendMessage(message);
+		showMenu();
+		log.info("Exiting game.");
 	}
 
 	/**
@@ -278,8 +294,8 @@ public class MainWindowController implements Initializable {
 				log.info(String.format("I took %s from %s.", gameTableController.getLastMove().getValue().getName(),
 						gameTableController.getLastMove().getKey().getName()));
 			} else {
-				String info = String.format("%s does not have %s.", gameTableController
-						.getLastMove().getKey().getName(), gameTableController.getLastMove().getValue().getName());
+				String info = String.format("%s does not have %s.", gameTableController.getLastMove().getKey().getName
+						(), gameTableController.getLastMove().getValue().getName());
 				gameTableController.getHistory().add(info);
 				log.info(info);
 			}
@@ -302,7 +318,7 @@ public class MainWindowController implements Initializable {
 				gameTableController.someonesMoveSuccessful(first, card, second);
 			} else if (result == 1) {
 				gameTableController.getHistory().add(String.format("%s doesn't have %s to give to %s.", second, card
-								.getName(), first));
+						.getName(), first));
 			}
 		}
 	}
@@ -398,19 +414,14 @@ public class MainWindowController implements Initializable {
 				break;
 			case 1:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "No player with specified " +
-						"nickname in game.");
+						"nickname found on server.");
 				break;
 			case 2:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "Specified player is not " +
 						"considered not responding. If it was really you, try again later.");
 				break;
 			case 3:
-				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "Desired game was not found.");
-				break;
-			case 4:
-				mainWindowVBox.getChildren().remove(content);
-				content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
-				mainWindowVBox.getChildren().add(content);
+				showWaitRoom();
 				break;
 			default:
 				break;

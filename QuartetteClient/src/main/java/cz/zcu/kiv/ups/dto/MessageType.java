@@ -1,7 +1,5 @@
 package cz.zcu.kiv.ups.dto;
 
-import lombok.Getter;
-
 /**
  * Represents message type and it's value.
  *
