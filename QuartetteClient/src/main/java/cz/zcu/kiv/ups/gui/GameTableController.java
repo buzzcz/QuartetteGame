@@ -208,7 +208,7 @@ public class GameTableController implements Initializable {
 			}
 		}
 		opponentsListView.refresh();
-		String info = String.format("%s took card from %s.", card.getName(), second);
+		String info = String.format("%s took %s from %s.", first, card.getName(), second);
 		history.add(info);
 		log.info(info);
 	}

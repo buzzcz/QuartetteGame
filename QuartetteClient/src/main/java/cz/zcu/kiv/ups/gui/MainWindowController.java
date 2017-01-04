@@ -183,7 +183,8 @@ public class MainWindowController implements Initializable {
 				break;
 			case 2:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Could not connect to game"
-						+ ".", "Connecting to game is impossible due to player with the same nickname.");
+						+ ".", "Connecting to game is impossible because player with the same nickname is already on" +
+						" server. Choose another nickname.");
 				break;
 			case 3:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Game Error", "Could not connect to game.",
@@ -200,15 +201,20 @@ public class MainWindowController implements Initializable {
 	 * @param message message with answer.
 	 */
 	public void createGameAnswer(Message message) {
-		String id = message.getData();
-		if (!id.isEmpty()) {
+		int code = Integer.parseInt(message.getData());
+		if (code == 0) {
 			mainWindowVBox.getChildren().remove(content);
 			content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
 			mainWindowVBox.getChildren().add(content);
-		} else {
-			log.error("Could not create game - number of opponents was smaller then 2.");
+		} else if (code == 1) {
+			log.error("Could not create game - player with the same nickname is already on server.");
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
-					"game.", "Creating new game is impossible due to number of opponents smaller then 2.");
+					"game.", "Creating new game is impossible - player with the same nickname is already on server.");
+		} else {
+			log.error("Could not create game - number of opponents was smaller then 2 or higher then 31");
+			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
+					"game.", "Creating new game is impossible - number of opponents was smaller then 2 or higher " +
+					"then 31.");
 		}
 	}
 
