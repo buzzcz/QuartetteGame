@@ -262,4 +262,9 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	Message m2(SOMEONES_MOVE, data);
 	broadcast(m2, to);
 	printf("%s wanted %s from %s in game %lu.\n", to->getName().c_str(), cardName.c_str(), from->getName().c_str(), id);
+	if (has == 0) {
+		sendYourTurn(to);
+	} else {
+		sendYourTurn(from);
+	}
 }
