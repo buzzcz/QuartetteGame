@@ -8,6 +8,7 @@ import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +90,7 @@ public class GameTableController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		cardsListView.setItems(cards);
+		cardsListView.setItems(new SortedList<>(cards, Comparator.comparing(Card::getName)));
 		cardsListView.setCellFactory(param -> new ListCell<Card>() {
 			@Override
 			protected void updateItem(Card item, boolean empty) {
@@ -117,20 +119,22 @@ public class GameTableController implements Initializable {
 		});
 		opponentsListView.setOnMouseClicked(event -> {
 			if (myTurn) {
-				List<String> choices = new LinkedList<>();
-				for (Card c : Card.values()) {
-					choices.add(c.getName());
+				Opponent o = opponentsListView.getSelectionModel().getSelectedItem();
+				if (o != null) {
+					List<String> choices = new LinkedList<>();
+					for (Card c : Card.values()) {
+						choices.add(c.getName());
+					}
+					Optional<String> result = AlertsAndDialogs.showAndWaitChoiceDialog("1A", choices, "Your Move", "Select a card.", "Select a card you want to get from selected player.");
+
+					result.ifPresent(s -> {
+						Message m = new Message(MessageType.MOVE, String.format("%s,%s", o.getName(), s));
+						connection.sendMessage(m);
+						myTurn = false;
+						lastMove = new Pair<>(o, Card.getCardByName(s));
+						log.info(String.format("I want %s from %s.", s, o.getName()));
+					});
 				}
-				Optional<String> result = AlertsAndDialogs.showAndWaitChoiceDialog("1A", choices, "Your Move",
-						"Select a card.", "Select a card you want to get from selected player.");
-				result.ifPresent(s -> {
-					Opponent o = opponentsListView.getSelectionModel().getSelectedItem();
-					Message m = new Message(MessageType.MOVE, String.format("%s,%s", o.getName(), s));
-					connection.sendMessage(m);
-					myTurn = false;
-					lastMove = new Pair<>(o, Card.getCardByName(s));
-					log.info(String.format("I want %s from %s.", s, o.getName()));
-				});
 			}
 		});
 

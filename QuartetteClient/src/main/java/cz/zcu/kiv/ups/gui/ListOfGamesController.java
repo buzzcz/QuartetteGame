@@ -66,14 +66,15 @@ public class ListOfGamesController implements Initializable {
 			}
 		});
 		gamesListView.setOnMouseClicked(event -> {
-			Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to"
-					+ " Game", "Do you want to connect to selected game?", null);
-			if (result.get() == ButtonType.OK) {
-				Game game = gamesListView.getSelectionModel().getSelectedItem();
-				Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%d", mainWindowController
-						.getNickname(), game.getId()));
-				connection.sendMessage(m);
-				log.info(String.format("Connecting to game %d.", game.getId()));
+			Game game = gamesListView.getSelectionModel().getSelectedItem();
+			if (game != null) {
+				Optional<ButtonType> result = AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.CONFIRMATION, "Connect to" + " Game", "Do you want to connect to selected game?", null);
+
+				if (result.get() == ButtonType.OK) {
+					Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%d", mainWindowController.getNickname(), game.getId()));
+					connection.sendMessage(m);
+					log.info(String.format("Connecting to game %d.", game.getId()));
+				}
 			}
 		});
 	}
