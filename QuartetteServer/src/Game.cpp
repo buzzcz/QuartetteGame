@@ -1,10 +1,17 @@
 #include "Game.h"
 
-Game::Game(unsigned long id, int capacity) : id(id), capacity(capacity) {
+Game::Game(int capacity, fd_set *serverClients, list<Game *> *serverGames) : capacity(capacity),
+                                                                             serverClients(serverClients),
+                                                                             serverGames(serverGames) {
+	uuid_t uuid;
+	uuid_generate_random(uuid);
+	char s[37];
+	uuid_unparse(uuid, s);
+	id.assign(s);
 	std::thread(&Game::start, this).detach();
 }
 
-unsigned long Game::getId() {
+string Game::getId() {
 	return id;
 }
 
@@ -27,6 +34,7 @@ void Game::addPlayer(Player *p) {
 
 void Game::removePlayer(Player *p) {
 	FD_CLR(p->getFd(), &clientSocks);
+	FD_SET(p->getFd(), serverClients);
 	players.remove(p);
 }
 
@@ -35,7 +43,7 @@ bool Game::isFull() {
 }
 
 void Game::broadcast(Message m, Player *p) {
-	printf("Broadcast in game %lu.\n", id);
+	printf("Broadcast in game %s.\n", id.c_str());
 	for (Player *p1 : players) {
 		if (p == NULL || p != p1) {
 			m.sendMessage(p1->getFd());
@@ -59,7 +67,7 @@ string Game::getStateOfGame(Player *p) {
 		state += ",";
 		state += cardNames[c];
 	}
-	printf("State of game %lu for player %s is \"%s\".\n", id, p->getName().c_str(), state.c_str());
+	printf("State of game %s for player %s is \"%s\".\n", id.c_str(), p->getName().c_str(), state.c_str());
 	return state;
 }
 
@@ -68,16 +76,13 @@ void Game::start() {
 	setupGame();
 }
 
-void Game::checkForMessages(int timeout) {
+void Game::checkForMessages() {
 	fd_set tests = clientSocks;
 	int returnValue;
-	if (timeout) {
-		struct timeval t;
-		t.tv_sec = timeout;
-		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
-	} else {
-		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
-	}
+	struct timeval t;
+	t.tv_sec = 0;
+	t.tv_usec = 10000;
+	returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 	if (returnValue < 0) {
 		printf("Select error.\n");
 //		TODO: error
@@ -105,11 +110,11 @@ void Game::processMessage(Message m) {
 	switch (m.getType()) {
 		case MOVE:
 			if (isFull()) {
-				sendMoveAnswer(m, findPlayerByFd(fd));
+				sendMoveAnswer(m, getPlayerByFd(fd));
 			}
 			break;
 		case DISCONNECTING:
-			failGame(findPlayerByFd(fd));
+			failGame(getPlayerByFd(fd));
 			break;
 		default:
 			break;
@@ -118,9 +123,10 @@ void Game::processMessage(Message m) {
 
 void Game::setupGame() {
 	FD_ZERO(&clientSocks);
+	std::srand((unsigned int) std::time(0));
 	shuffleCards();
 	while (run) {
-		checkForMessages(3);
+		checkForMessages();
 		if (isFull()) {
 			manageGame();
 		}
@@ -129,13 +135,34 @@ void Game::setupGame() {
 
 void Game::manageGame() {
 	dealCards();
+	bool ok = false;
+	int i = 0;
+	while (!ok) {
+		i++;
+		ok = checkCards();
+		if (!ok) {
+			if (i == 50) {
+				std::srand((unsigned int) std::time(0));
+			}
+			shuffleCards();
+			dealCards();
+		}
+	}
 	sendStartGame();
 	Player *p = players.front();
 	sendYourTurn(p);
 	while (run) {
-		checkForMessages(0);
+		checkForMessages();
 	}
-//	TODO: return fds to server for listening.
+	endGame();
+}
+
+void Game::endGame() {
+	list<Player *> temp = players;
+	for (Player *p : temp) {
+		removePlayer(p);
+	}
+	serverGames->remove(this);
 }
 
 void Game::sendStartGame() {
@@ -143,7 +170,7 @@ void Game::sendStartGame() {
 		Message m(START_OF_GAME, getStateOfGame(p));
 		m.sendMessage(p->getFd());
 	}
-	printf("Game %lu started.\n", id);
+	printf("Game %s started.\n", id.c_str());
 }
 
 void Game::sendYourTurn(Player *p) {
@@ -154,10 +181,10 @@ void Game::sendYourTurn(Player *p) {
 	Message m1(SOMEONES_TURN, p->getName());
 	broadcast(m1, p);
 
-	printf("%s's turn in game %lu.\n", p->getName().c_str(), id);
+	printf("%s's turn in game %s.\n", p->getName().c_str(), id.c_str());
 }
 
-Player *Game::findPlayerByName(string name) {
+Player *Game::getPlayerByName(string name) {
 	for (Player *p : players) {
 		if (p->getName().compare(name) == 0) {
 			return p;
@@ -166,7 +193,7 @@ Player *Game::findPlayerByName(string name) {
 	return NULL;
 }
 
-Player *Game::findPlayerByFd(int fd) {
+Player *Game::getPlayerByFd(int fd) {
 	for (Player *p : players) {
 		if (p->getFd() == fd) {
 			return p;
@@ -178,24 +205,7 @@ Player *Game::findPlayerByFd(int fd) {
 void Game::moveCard(Card c, Player *from, Player *to) {
 	from->removeCard(c);
 	to->addCard(c);
-	printf("Moved card from %s to %s in game %lu.\n", from->getName().c_str(), to->getName().c_str(), id);
-
-	if (from->getCards().size() == 0) {
-		Message m(YOU_LOST, "");
-		m.sendMessage(from->getFd());
-		Message m1(SOMEONE_LOST, from->getName());
-		broadcast(m1, from);
-		removePlayer(from);
-		printf("%s lost in game %lu.\n", from->getName().c_str(), id);
-	}
-
-	if (to->hasQuartette()) {
-		Message m(YOU_WON, "");
-		m.sendMessage(to->getFd());
-		Message m1(SOMEONE_WON, to->getName());
-		broadcast(m1, to);
-		printf("%s won in game %lu.\n", to->getName().c_str(), id);
-	}
+	printf("Moved card from %s to %s in game %s.\n", from->getName().c_str(), to->getName().c_str(), id.c_str());
 }
 
 void Game::shuffleCards() {
@@ -207,6 +217,9 @@ void Game::shuffleCards() {
 }
 
 void Game::dealCards() {
+	for (Player *p : players) {
+		p->clearCards();
+	}
 	list<Player *>::iterator playerIter = players.begin();
 	for (int i = 0; i < NUMBER_OF_CARDS; i++) {
 		Card c = *allCards.begin();
@@ -218,20 +231,24 @@ void Game::dealCards() {
 			playerIter = players.begin();
 		}
 	}
+}
+
+bool Game::checkCards() {
+	bool ok = true;
 	for (Player *p : players) {
-		printf("%s has: ", p->getName().c_str());
-		for (Card c : p->getCards()) {
-			printf("%s, ", cardNames[c].c_str());
+		if (p->hasQuartette()) {
+			ok = false;
+			break;
 		}
-		printf("\n");
 	}
+	return ok;
 }
 
 void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
 	run = false;
-	printf("%s is unreachable or exited game %lu.\n", p->getName().c_str(), id);
+	printf("%s is unreachable or exited game %s.\n", p->getName().c_str(), id.c_str());
 }
 
 void Game::sendMoveAnswer(Message m, Player *to) {
@@ -243,7 +260,7 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	string cardName = data;
 	Card card = static_cast<Card>(std::distance(std::begin(cardNames), std::find(std::begin(cardNames), std::end
 			(cardNames), cardName)));
-	Player *from = findPlayerByName(fromNick);
+	Player *from = getPlayerByName(fromNick);
 
 	int has = 1;
 	if (from->hasCard(card)) {
@@ -261,8 +278,29 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	data += from->getName();
 	Message m2(SOMEONES_MOVE, data);
 	broadcast(m2, to);
-	printf("%s wanted %s from %s in game %lu.\n", to->getName().c_str(), cardName.c_str(), from->getName().c_str(), id);
+	printf("%s wanted %s from %s in game %s.\n", to->getName().c_str(), cardName.c_str(), from->getName().c_str(), id
+			.c_str());
 	if (has == 0) {
+
+		if (from->getCards().size() == 0) {
+			Message m3(YOU_LOST, "");
+			m3.sendMessage(from->getFd());
+			Message m4(SOMEONE_LOST, from->getName());
+			broadcast(m4, from);
+			removePlayer(from);
+			printf("%s lost in game %s.\n", from->getName().c_str(), id.c_str());
+		}
+
+		if (to->hasQuartette()) {
+			Message m3(YOU_WON, "");
+			m3.sendMessage(to->getFd());
+			Message m4(SOMEONE_WON, to->getName());
+			broadcast(m4, to);
+			printf("%s won in game %s.\n", to->getName().c_str(), id.c_str());
+			run = false;
+			return;
+		}
+
 		sendYourTurn(to);
 	} else {
 		sendYourTurn(from);

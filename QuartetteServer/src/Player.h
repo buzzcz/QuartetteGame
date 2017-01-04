@@ -77,6 +77,11 @@ public:
 	list<Card> getCards();
 
 	/**
+	 * Clears list of cards.
+	 */
+	void clearCards();
+
+	/**
 	 * Checks if player has specified card.
 	 * @param c card to be looked for.
 	 * @return true if player has the card, false otherwise.

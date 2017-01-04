@@ -35,6 +35,10 @@ bool Player::hasCard(Card c) {
 	return false;
 }
 
+void Player::clearCards() {
+	cards.clear();
+}
+
 void Player::addCard(Card c) {
 	cards.push_back(c);
 }

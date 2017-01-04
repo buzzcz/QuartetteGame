@@ -61,11 +61,6 @@ class Server {
 	bool run;
 
 	/**
-	 * Indicates number of games.
-	 */
-	unsigned long numberOfGames;
-
-	/**
 	 * List of running games.
 	 */
 	list<Game *> games;
@@ -100,7 +95,14 @@ class Server {
 	 * Searches list of game for a game with specified id.
 	 * @return game with specified id or NULL if game wasn't found.
 	 */
-	Game *getGameById(unsigned long id);
+	Game *getGameById(string id);
+
+	/**
+	 * Finds player by nickname on server.
+	 * @param name nickname of player to find.
+	 * @return true if player is on server, false otherwise.
+	 */
+	bool isPlayerOnServer(string name);
 
 	/**
 	 * Reconnects player to game.

@@ -50,5 +50,5 @@ string Message::getMessageToSend() {
 void Message::sendMessage(int fd) {
 	string data = getMessageToSend();
 	send(fd, data.c_str(), data.length(), 0);
-	printf("Sending \"%s\" to client %d.\n", data.c_str(), fd);
+	printf("Sending %d;%lu;%s to client %d.\n", type, size, this->data.c_str(), fd);
 }

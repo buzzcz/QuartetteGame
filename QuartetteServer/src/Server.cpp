@@ -57,14 +57,16 @@ int Server::start(string address, uint16_t port) {
 		return returnValue;
 	}
 
-	numberOfGames = 0;
 	run = true;
 
 //	TODO: statistics
 //	TODO: sigIntHandler (Ctrl + C)
 	while (run) {
 		fd_set tests = clientSocks;
-		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
+		struct timeval t;
+		t.tv_sec = 0;
+		t.tv_usec = 10000;
+		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 		if (returnValue < 0) {
 			printf("Select error.\n");
 			return returnValue;
@@ -117,15 +119,11 @@ void Server::processMessage(Message m) {
 
 void Server::sendGameList() {
 	string data;
-	data += std::to_string(numberOfGames);
+	data += std::to_string(games.size());
 
 	for (Game *g : games) {
-		if (g->getPlayers().size() == 0) {
-//			TODO: Remove game.
-			continue;
-		}
 		data += ",";
-		data += std::to_string(g->getId());
+		data += g->getId();
 		data += ",";
 		data += std::to_string(g->getPlayers().size());
 		data += ",";
@@ -142,25 +140,32 @@ void Server::createGame(Message m) {
 	unsigned long i = data.find(",");
 //	TODO: if i == string::npos error
 	string nick = data.substr(0, i);
-	Player *p = new Player(fd, nick);
 	data.erase(0, i + 1);
 	int capacity = std::stoi(data, NULL, 10) + 1;
-	if (capacity <= 2) {
-		Message m1(CREATE_GAME_ANSWER, "-1");
+
+	if (isPlayerOnServer(nick)) {
+		Message m1(CREATE_GAME_ANSWER, "1");
 		m1.sendMessage(fd);
-		printf("Error while creating game - capacity is %d.\n", capacity);
+		printf("Error while creating game - player with the nickname is already on server.\n");
 		return;
 	}
 
-//	TODO: if numberOfGames == ULONG_MAX, send error
-	Game *newGame = new Game(numberOfGames++, capacity);
+	if (capacity <= 2) {
+		Message m1(CREATE_GAME_ANSWER, "2");
+		m1.sendMessage(fd);
+		printf("Error while creating game - capacity is smaller then 3 or higher then 32.\n");
+		return;
+	}
+
+	Game *newGame = new Game(capacity, &clientSocks, &games);
+	Player *p = new Player(fd, nick);
 	newGame->addPlayer(p);
 	FD_CLR(fd, &clientSocks);
 	games.push_back(newGame);
 
-	Message m1(CREATE_GAME_ANSWER, std::to_string(newGame->getId()));
+	Message m1(CREATE_GAME_ANSWER, "0");
 	m1.sendMessage(fd);
-	printf("Created game %lu.\n", newGame->getId());
+	printf("Created game %s.\n", newGame->getId().c_str());
 }
 
 void Server::connectToGame(Message m) {
@@ -169,28 +174,28 @@ void Server::connectToGame(Message m) {
 //	TODO: if == string::npos error
 	string nick = data.substr(0, i);
 	data.erase(0, i + 1);
-	unsigned long id = std::stoul(data, NULL, 10);
+	string id = data;
 
 	Game *g = getGameById(id);
 	if (g == NULL) {
 		Message m1(CONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
-		printf("Error in connect to game %lu - game no longer exists.\n", id);
+		printf("Error in connect to game %s - game no longer exists.\n", id.c_str());
 		return;
 	}
 
 	if (g->getCapacity() == g->getPlayers().size()) {
 		Message m1(CONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
-		printf("Error in connect to game %lu - game is full.\n", id);
+		printf("Error in connect to game %s - game is full.\n", id.c_str());
 		return;
 	}
 
-	Player *p = g->findPlayerByName(nick);
+	Player *p = g->getPlayerByName(nick);
 	if (p != NULL) {
 		Message m1(CONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
-		printf("Error in connect to game %lu - player with the same nickname is already in game.\n", id);
+		printf("Error in connect to game %s - player with the same nickname is already in game.\n", id.c_str());
 		return;
 	}
 
@@ -198,16 +203,27 @@ void Server::connectToGame(Message m) {
 	FD_CLR(fd, &clientSocks);
 	Message m1(CONNECT_ANSWER, "0");
 	m1.sendMessage(fd);
-	printf("Connected player %s to game %lu.\n", nick.c_str(), id);
+	printf("Connected player %s to game %s.\n", nick.c_str(), id.c_str());
 }
 
-Game *Server::getGameById(unsigned long id) {
+Game *Server::getGameById(string id) {
 	for (Game *g : games) {
-		if (g->getId() == id) {
+		if (g->getId().compare(id) == 0) {
 			return g;
 		}
 	}
 	return NULL;
+}
+
+bool Server::isPlayerOnServer(string name) {
+	bool is = false;
+	for (Game *g : games) {
+		if (g->getPlayerByName(name) != NULL) {
+			is = true;
+			break;
+		}
+	}
+	return is;
 }
 
 void Server::reconnectToGame(Message m) {
@@ -216,28 +232,28 @@ void Server::reconnectToGame(Message m) {
 //	TODO: if == string::npos error
 	string nick = data.substr(0, i);
 	data.erase(0, i + 1);
-	unsigned long id = std::stoul(data, NULL, 10);
+	string id = data;
 
 	Game *g = getGameById(id);
 	if (g == NULL) {
 		Message m1(RECONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %lu - game no longer exists.\n", id);
+		printf("Error in reconnect to game %s - game no longer exists.\n", id.c_str());
 		return;
 	}
 
-	Player *p = g->findPlayerByName(nick);
+	Player *p = g->getPlayerByName(nick);
 	if (p == NULL) {
 		Message m1(RECONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %lu - player %s not found in game.\n", id, nick.c_str());
+		printf("Error in reconnect to game %s - player %s not found in game.\n", id.c_str(), nick.c_str());
 		return;
 	}
 
 	if (p->getStatus() == ACTIVE) {
 		Message m1(RECONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %lu - player %s is still active.\n", id, nick.c_str());
+		printf("Error in reconnect to game %s - player %s is still active.\n", id.c_str(), nick.c_str());
 		return;
 	}
 
@@ -245,7 +261,7 @@ void Server::reconnectToGame(Message m) {
 		Message m1(RECONNECT_ANSWER, "4");
 		m1.sendMessage(fd);
 //		TODO: Modify player's fd.
-		printf("Reconnected to game %lu - game hasn't started yet.\n", id);
+		printf("Reconnected to game %s - game hasn't started yet.\n", id.c_str());
 		return;
 	}
 
@@ -266,5 +282,5 @@ void Server::reconnectToGame(Message m) {
 	FD_CLR(fd, &clientSocks);
 	p->setStatus(ACTIVE);
 //	TODO: Solve locking - what if in between messages someone makes move??
-	printf("Reconnected to game %lu.\n", id);
+	printf("Reconnected to game %s.\n", id.c_str());
 }

@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
+#include <uuid/uuid.h>
 #include "Player.h"
 #include "Message.h"
 
@@ -22,12 +23,22 @@ class Game {
 	/**
 	 * Id of game.
 	 */
-	unsigned long id;
+	string id;
 
 	/**
 	 * Indicates maximum number of players in game.
 	 */
 	int capacity;
+
+	/**
+	 * Set of server clients.
+	 */
+	fd_set *serverClients;
+
+	/**
+	 * List of games on server.
+	 */
+	list<Game *> *serverGames;
 
 	/**
 	 * List of players in game.
@@ -62,7 +73,7 @@ class Game {
 	/**
 	 * Runs select and receives new messages.
 	 */
-	void checkForMessages(int timeout);
+	void checkForMessages();
 
 	/**
 	 * Processes received message.
@@ -80,6 +91,11 @@ class Game {
 	void manageGame();
 
 	/**
+	 * Ends game. Returns players' fds to server etc.
+	 */
+	void endGame();
+
+	/**
 	 * Sends start game message to all players in game.
 	 */
 	void sendStartGame();
@@ -95,7 +111,7 @@ class Game {
 	 * @param fd file descriptor of the player to find.
 	 * @return player with specified file descriptor or NULL if not found.
 	 */
-	Player *findPlayerByFd(int fd);
+	Player *getPlayerByFd(int fd);
 
 	/**
 	 * Moves card from one player to another one.
@@ -114,6 +130,11 @@ class Game {
 	 * Deals cards to player.
 	 */
 	void dealCards();
+
+	/**
+	 * Checks if any player has quartette. If so, shuffles and deals cards again.
+	 */
+	bool checkCards();
 
 	/**
 	 * Broadcasts message due to unresponsive player or due to player correctly exiting.
@@ -136,13 +157,13 @@ public:
 	/**
 	 * Constructor to create new game with id and capacity.
 	 */
-	Game(unsigned long id, int capacity);
+	Game(int capacity, fd_set *serverClients, list<Game *> *serverGames);
 
 	/**
 	 * Getter for id of game.
 	 * @return id of game.
 	 */
-	unsigned long getId();
+	string getId();
 
 	/**
 	 * Getter for maximum number of players in game.
@@ -177,7 +198,7 @@ public:
 	 * @param name name of the player to find.
 	 * @return player with specified name or NULL if not found.
 	 */
-	Player *findPlayerByName(string name);
+	Player *getPlayerByName(string name);
 
 	/**
 	 * Indicates whether number of players in game is same as maximum number of players in game.
