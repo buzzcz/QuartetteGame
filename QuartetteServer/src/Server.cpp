@@ -215,6 +215,15 @@ Game *Server::getGameById(string id) {
 	return NULL;
 }
 
+Game *Server::getGameByPlayersName(string name) {
+	for (Game *g : games) {
+		if (g->getPlayerByName(name) != NULL) {
+			return g;
+		}
+	}
+	return NULL;
+}
+
 bool Server::isPlayerOnServer(string name) {
 	bool is = false;
 	for (Game *g : games) {
@@ -227,41 +236,29 @@ bool Server::isPlayerOnServer(string name) {
 }
 
 void Server::reconnectToGame(Message m) {
-	string data = m.getData();
-	unsigned long i = data.find(",");
-//	TODO: if == string::npos error
-	string nick = data.substr(0, i);
-	data.erase(0, i + 1);
-	string id = data;
+	string name = m.getData();
 
-	Game *g = getGameById(id);
+	Game *g = getGameByPlayersName(name);
 	if (g == NULL) {
-		Message m1(RECONNECT_ANSWER, "3");
-		m1.sendMessage(fd);
-		printf("Error in reconnect to game %s - game no longer exists.\n", id.c_str());
-		return;
-	}
-
-	Player *p = g->getPlayerByName(nick);
-	if (p == NULL) {
 		Message m1(RECONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %s - player %s not found in game.\n", id.c_str(), nick.c_str());
+		printf("Error in reconnect to game - player not found in any game.\n");
 		return;
 	}
 
+	Player *p = g->getPlayerByName(name);
 	if (p->getStatus() == ACTIVE) {
 		Message m1(RECONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
-		printf("Error in reconnect to game %s - player %s is still active.\n", id.c_str(), nick.c_str());
+		printf("Error in reconnect to game %s - player %s is still active.\n", g->getId().c_str(), name.c_str());
 		return;
 	}
 
 	if (!g->isFull()) {
-		Message m1(RECONNECT_ANSWER, "4");
+		Message m1(RECONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
 //		TODO: Modify player's fd.
-		printf("Reconnected to game %s - game hasn't started yet.\n", id.c_str());
+		printf("Reconnected to game %s - game hasn't started yet.\n", g->getId().c_str());
 		return;
 	}
 
@@ -282,5 +279,5 @@ void Server::reconnectToGame(Message m) {
 	FD_CLR(fd, &clientSocks);
 	p->setStatus(ACTIVE);
 //	TODO: Solve locking - what if in between messages someone makes move??
-	printf("Reconnected to game %s.\n", id.c_str());
+	printf("Reconnected %s to game %s.\n", name.c_str(), g->getId().c_str());
 }

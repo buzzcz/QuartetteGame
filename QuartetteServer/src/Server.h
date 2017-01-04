@@ -98,6 +98,13 @@ class Server {
 	Game *getGameById(string id);
 
 	/**
+	 * Finds game with specified player in it.
+	 * @param nickname of player that should be in the game.
+	 * @return game with player in it or null.
+	 */
+	Game *getGameByPlayersName(string name);
+
+	/**
 	 * Finds player by nickname on server.
 	 * @param name nickname of player to find.
 	 * @return true if player is on server, false otherwise.
