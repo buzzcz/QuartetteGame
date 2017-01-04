@@ -103,7 +103,8 @@ public class Connection implements NetworkInterface {
 				line = reader.readLine();
 				log.info(String.format("Received: %s.", line));
 				String[] parts = line.split(";");
-				if (Integer.parseInt(parts[1]) == parts[2].length()) {
+				int size = Integer.parseInt(parts[1]);
+				if ((size == 0 && parts.length == 2) || size == parts[2].length()) {
 					return new Message(MessageType.values()[Integer.parseInt(parts[0])], parts[2]);
 				} else {
 					log.error("Received data size mismatch.");
