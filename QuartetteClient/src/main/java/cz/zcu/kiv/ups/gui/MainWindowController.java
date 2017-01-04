@@ -123,8 +123,9 @@ public class MainWindowController implements Initializable {
 		for (int i = 2; i < 32; i++) {
 			numbers.add(i);
 		}
-		Optional<Integer> result = AlertsAndDialogs.showAndWaitChoiceDialog(3, numbers, "Create New Game", "Create" +
-				" new game.", "Select number of desired opponents:");
+		Optional<Integer> result = AlertsAndDialogs.showAndWaitChoiceDialog(numbers.get(0), numbers, "Create New " +
+						"Game",
+				"Create new game.", "Select number of desired opponents:");
 		result.ifPresent(number -> {
 			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, number));
 			connection.sendMessage(m);
