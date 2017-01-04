@@ -295,8 +295,8 @@ public class MainWindowController implements Initializable {
 			if (result == 0) {
 				gameTableController.someonesMoveSuccessful(first, card, second);
 			} else if (result == 1) {
-				gameTableController.getHistory().add(String.format("%s doesn't have %s to give to %s.", second, card,
-						first));
+				gameTableController.getHistory().add(String.format("%s doesn't have %s to give to %s.", second, card
+								.getName(), first));
 			}
 		}
 	}

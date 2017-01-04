@@ -128,6 +128,7 @@ public class GameTableController implements Initializable {
 					Message m = new Message(MessageType.MOVE, String.format("%s,%s", o.getName(), s));
 					connection.sendMessage(m);
 					myTurn = false;
+					lastMove = new Pair<>(o, Card.getCardByName(s));
 					log.info(String.format("I want %s from %s.", s, o.getName()));
 				});
 			}
