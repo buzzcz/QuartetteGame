@@ -22,6 +22,8 @@ void Message::receiveMessage(int fd) {
 		recv(fd, &c, 1, 0);
 		if (c == '\n') {
 			break;
+		} else if (c == '\r') {
+			continue;
 		}
 		line += c;
 	}
