@@ -80,6 +80,11 @@ class Server {
 	void processMessage(Message m);
 
 	/**
+	 * Closes connection to file descriptor because of unparseable message.
+	 */
+	void closeFd();
+
+	/**
 	 * Send list of games.
 	 */
 	void sendGameList();

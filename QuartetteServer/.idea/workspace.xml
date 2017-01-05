@@ -15,7 +15,9 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/ListOfGamesController.java" afterPath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/ListOfGamesController.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/MainWindowController.java" afterPath="$PROJECT_DIR$/../QuartetteClient/src/main/java/cz/zcu/kiv/ups/gui/MainWindowController.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Message.cpp" afterPath="$PROJECT_DIR$/src/Message.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Game.cpp" afterPath="$PROJECT_DIR$/src/Game.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Server.cpp" afterPath="$PROJECT_DIR$/src/Server.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Server.h" afterPath="$PROJECT_DIR$/src/Server.h" />
     </list>
     <ignored path="QuartetteServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,11 +40,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="525">
-      <file leaf-file-name="Message.cpp" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Message.cpp">
+      <file leaf-file-name="Server.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Server.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="588">
-              <caret line="21" column="10" lean-forward="false" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
+            <state relative-caret-position="609">
+              <caret line="282" column="33" lean-forward="true" selection-start-line="282" selection-start-column="33" selection-end-line="282" selection-end-column="33" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Game.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Game.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="320">
+              <caret line="91" column="17" lean-forward="false" selection-start-line="91" selection-start-column="17" selection-end-line="91" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -64,7 +76,9 @@
       <find>byfd</find>
       <find>id</find>
       <find>std::sto</find>
+      <find>try</find>
       <find>stoi</find>
+      <find>std::st</find>
       <find>find</find>
     </findStrings>
     <replaceStrings>
@@ -101,13 +115,13 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/Player.cpp" />
         <option value="$PROJECT_DIR$/src/MessageType.h" />
-        <option value="$PROJECT_DIR$/src/Server.cpp" />
         <option value="$PROJECT_DIR$/src/Message.h" />
         <option value="$PROJECT_DIR$/src/Player.h" />
-        <option value="$PROJECT_DIR$/src/Server.h" />
         <option value="$PROJECT_DIR$/src/Game.h" />
-        <option value="$PROJECT_DIR$/src/Game.cpp" />
         <option value="$PROJECT_DIR$/src/Message.cpp" />
+        <option value="$PROJECT_DIR$/src/Server.h" />
+        <option value="$PROJECT_DIR$/src/Server.cpp" />
+        <option value="$PROJECT_DIR$/src/Game.cpp" />
       </list>
     </option>
   </component>
@@ -177,7 +191,7 @@
     <property name="js-jscs-nodeInterpreter" value="/usr/bin/node" />
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Ignored.Files" />
     <property name="js.eslint.eslintPackage" value="" />
-    <property name="SearchEverywhereHistoryKey" value="Message&#9;FILE&#9;file:///home/buzzcz/School/7Semester/UPS/SP/QuartetteServer/src/Message.cpp&#10;hasCard&#9;null&#9;null" />
+    <property name="SearchEverywhereHistoryKey" value="messa&#9;FILE&#9;file:///home/buzzcz/School/7Semester/UPS/SP/QuartetteServer/src/Message.cpp&#10;game&#9;FILE&#9;file:///home/buzzcz/School/7Semester/UPS/SP/QuartetteServer/src/Game.cpp&#10;Message&#9;FILE&#9;file:///home/buzzcz/School/7Semester/UPS/SP/QuartetteServer/src/Message.cpp&#10;hasCard&#9;null&#9;null" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="772" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="772" />
@@ -415,7 +429,7 @@
       <workItem from="1483380656444" duration="6579000" />
       <workItem from="1483522836523" duration="820000" />
       <workItem from="1483525048650" duration="26027000" />
-      <workItem from="1483614028806" duration="9225000" />
+      <workItem from="1483614028806" duration="10075000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1476821402436</created>
@@ -627,11 +641,18 @@
       <option name="project" value="LOCAL" />
       <updated>1483624761362</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="Fixed receiving message ending with \r\n">
+      <created>1483625585078</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1483625585078</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="128375000" />
+    <option name="totallyTimeSpent" value="129225000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -647,7 +668,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14421253" sideWeight="0.40939596" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32875076" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281879" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3261745" sideWeight="0.49873498" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934847" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3264075" sideWeight="0.50126505" order="7" side_tool="true" content_ui="tabs" />
@@ -702,7 +723,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Changed strtol to stol and family&#10;Optimized imports" />
     <MESSAGE value="Comments and minor refactoring" />
     <MESSAGE value="Fixed capacity check&#10;Added sendStartGame function" />
     <MESSAGE value="Added cards enum and names&#10;Changed iterators to be only local&#10;Resolved cards TODOs&#10;Added sendYourTurn message&#10;Shuffling cards at beginning of game" />
@@ -727,7 +747,8 @@
     <MESSAGE value="Game id is uuid string now&#10;Added function to clear player's cards&#10;selects are now waiting for 0.1 sec to get new fds&#10;Minor refactoring" />
     <MESSAGE value="Added getGameByPlayersName&#10;Modified reconnect function" />
     <MESSAGE value="Refactoring comments&#10;Added unparseable message handling&#10;Extracted prepareGame function" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactoring comments&#10;Added unparseable message handling&#10;Extracted prepareGame function" />
+    <MESSAGE value="Fixed receiving message ending with \r\n" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed receiving message ending with \r\n" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -868,14 +889,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="8" column="13" lean-forward="true" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/include/c++/6.2.1/ext/new_allocator.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
@@ -923,14 +936,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Server.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1113">
-          <caret line="130" column="34" lean-forward="false" selection-start-line="130" selection-start-column="34" selection-end-line="130" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Status.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="224">
@@ -955,14 +960,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Game.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1491">
-          <caret line="129" column="1" lean-forward="true" selection-start-line="129" selection-start-column="1" selection-end-line="129" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Message.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="280">
@@ -971,18 +968,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Server.cpp">
+    <entry file="file://$PROJECT_DIR$/src/Server.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="817">
-          <caret line="114" column="25" lean-forward="true" selection-start-line="114" selection-start-column="25" selection-end-line="114" selection-end-column="25" />
+        <state relative-caret-position="1001">
+          <caret line="84" column="19" lean-forward="true" selection-start-line="84" selection-start-column="19" selection-end-line="84" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Message.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="21" column="10" lean-forward="false" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
+        <state relative-caret-position="749">
+          <caret line="52" column="5" lean-forward="true" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Server.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="609">
+          <caret line="282" column="33" lean-forward="true" selection-start-line="282" selection-start-column="33" selection-end-line="282" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="6" lean-forward="false" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Game.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="320">
+          <caret line="91" column="17" lean-forward="false" selection-start-line="91" selection-start-column="17" selection-end-line="91" selection-end-column="17" />
           <folding />
         </state>
       </provider>

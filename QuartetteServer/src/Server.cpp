@@ -122,6 +122,12 @@ void Server::processMessage(Message m) {
 	}
 }
 
+void Server::closeFd() {
+	printf("Client %d sent unparseable message, disconnecting.\n", fd);
+	close(fd);
+	FD_CLR(fd, &clientSocks);
+}
+
 void Server::sendGameList() {
 	string data;
 	data += std::to_string(games.size());
@@ -143,10 +149,19 @@ void Server::sendGameList() {
 void Server::createGame(Message m) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
-//	TODO: if i == string::npos error
+	if (i == string::npos) {
+		closeFd();
+		return;
+	}
 	string nick = data.substr(0, i);
 	data.erase(0, i + 1);
-	int capacity = std::stoi(data, NULL, 10) + 1;
+	int capacity;
+	try {
+		capacity = std::stoi(data, NULL, 10) + 1;
+	} catch (std::invalid_argument e) {
+		closeFd();
+		return;
+	}
 
 	if (isPlayerOnServer(nick)) {
 		Message m1(CREATE_GAME_ANSWER, "1");
@@ -164,8 +179,8 @@ void Server::createGame(Message m) {
 
 	Game *newGame = new Game(capacity, &clientSocks, &games);
 	Player *p = new Player(fd, nick);
-	newGame->addPlayer(p);
 	FD_CLR(fd, &clientSocks);
+	newGame->addPlayer(p);
 	games.push_back(newGame);
 
 	Message m1(CREATE_GAME_ANSWER, "0");
@@ -176,7 +191,10 @@ void Server::createGame(Message m) {
 void Server::connectToGame(Message m) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
-//	TODO: if == string::npos error
+	if (i == string::npos) {
+		closeFd();
+		return;
+	}
 	string nick = data.substr(0, i);
 	data.erase(0, i + 1);
 	string id = data;

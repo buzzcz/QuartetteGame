@@ -89,7 +89,7 @@ int Game::checkForMessages() {
 	returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 	if (returnValue < 0) {
 		printf("Select error.\n");
-//		TODO: error
+		return 0;
 	}
 	// exclude stdin, stdout, stderr
 	for (fd = 3; fd < FD_SETSIZE; fd++) {
