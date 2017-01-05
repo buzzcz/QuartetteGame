@@ -37,6 +37,8 @@ public:
 
 	/**
 	 * Constructor for player with file descriptor and nickname.
+	 * @param fd file descriptor of the player.
+	 * @param name nickname of the player.
 	 */
 	Player(int fd, string name);
 

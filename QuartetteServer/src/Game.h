@@ -72,13 +72,16 @@ class Game {
 
 	/**
 	 * Runs select and receives new messages.
+	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	void checkForMessages();
+	int checkForMessages();
 
 	/**
 	 * Processes received message.
+	 * @param m message to process.
+	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	void processMessage(Message m);
+	int processMessage(Message m);
 
 	/**
 	 * Setups game before start.
@@ -87,13 +90,15 @@ class Game {
 
 	/**
 	 * Manages game and it's clients.
+	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	void manageGame();
+	int manageGame();
 
 	/**
 	 * Ends game. Returns players' fds to server etc.
+	 * @param fd param to be closed and not returned to server.
 	 */
-	void endGame();
+	void endGame(int fd);
 
 	/**
 	 * Sends start game message to all players in game.
@@ -132,30 +137,44 @@ class Game {
 	void dealCards();
 
 	/**
-	 * Checks if any player has quartette. If so, shuffles and deals cards again.
+	 * Checks if any player has quartette.
+	 * @return false if any player has quartette, true otherwise.
 	 */
 	bool checkCards();
 
 	/**
+	 * Checks if any player has quartette. If so, shuffles and deals cards again.
+	 */
+	void prepareToRun();
+
+	/**
 	 * Broadcasts message due to unresponsive player or due to player correctly exiting.
+	 * @param p player because of whom the game failed.
 	 */
 	void failGame(Player *p);
 
 	/**
 	 * Broadcasts message to all players in game. If player is specified, message is not sent to him.
+	 * @param m message to broadcast.
+	 * @param p if specified, message won't be broadcasted to this player.
 	 */
 	void broadcast(Message m, Player *p = NULL);
 
 	/**
 	 * Validates move, sends answer and info to others.
 	 * @param m message with info about move.
+	 * @param to player who's move it is.
+	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	void sendMoveAnswer(Message m, Player *to);
+	int sendMoveAnswer(Message m, Player *to);
 
 public:
 
 	/**
 	 * Constructor to create new game with id and capacity.
+	 * @param capacity maximum number of players in this game.
+	 * @param serverClients fd_set of server clients.
+	 * @param serverGames list of games on server.
 	 */
 	Game(int capacity, fd_set *serverClients, list<Game *> *serverGames);
 
@@ -185,13 +204,16 @@ public:
 
 	/**
 	 * Adds player to game.
+	 * @param p player to add.
 	 */
 	void addPlayer(Player *p);
 
 	/**
 	 * Removes player from game.
+	 * @param p player to remove.
+	 * @param backToServer true if player should be returned to server, false if connection to player should be closed.
 	 */
-	void removePlayer(Player *p);
+	void removePlayer(Player *p, bool backToServer);
 
 	/**
 	 * Finds player with specified name in game.

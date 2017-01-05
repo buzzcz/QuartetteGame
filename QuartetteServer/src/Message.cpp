@@ -26,20 +26,35 @@ void Message::receiveMessage(int fd) {
 		line += c;
 	}
 	unsigned long i = line.find(";");
-//	TODO: if == string::npos error
+	if (i == string::npos) {
+		type = UNPARSEABLE;
+		printf("Could not parse received message.\n");
+		return;
+	}
 	string sType = line.substr(0, i);
 	line.erase(0, i + 1);
 	i = line.find(";");
-//	TODO: if == string::npos error
+	if (i == string::npos) {
+		type = UNPARSEABLE;
+		printf("Could not parse received message.\n");
+		return;
+	}
 	string sSize = line.substr(0, i);
 	line.erase(0, i + 1);
 	try {
 		type = static_cast<MessageType>(std::stoi(sType, NULL, 10));
 		size = std::stoul(sSize, NULL, 10);
 	} catch (std::invalid_argument e) {
-//		TODO: error
+		type = UNPARSEABLE;
+		printf("Type or size is not a number.\n");
+		return;
 	}
 	data = line;
+	if (size != data.size()) {
+		type = UNPARSEABLE;
+		printf("Received data size mismatch.\n");
+		return;
+	}
 	printf("Client %d sent %d;%lu;%s.\n", fd, type, size, data.c_str());
 }
 

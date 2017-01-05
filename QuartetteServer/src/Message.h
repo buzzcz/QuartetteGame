@@ -44,6 +44,8 @@ public:
 
 	/**
 	 * Constructor to create message with type and data.
+	 * @param type type of message.
+	 * @param data message data.
 	 */
 	Message(MessageType type, string data);
 
@@ -61,11 +63,13 @@ public:
 
 	/**
 	 * Receives new message from specified file descriptor and maximal size.
+	 * @param fd receive message from this file descriptor.
 	 */
 	void receiveMessage(int fd);
 
 	/**
 	 * Sends message to specified file descriptor.
+	 * @param fd send message to this file descriptor.
 	 */
 	void sendMessage(int fd);
 

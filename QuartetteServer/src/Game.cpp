@@ -32,9 +32,13 @@ void Game::addPlayer(Player *p) {
 	FD_SET(p->getFd(), &clientSocks);
 }
 
-void Game::removePlayer(Player *p) {
+void Game::removePlayer(Player *p, bool backToServer) {
 	FD_CLR(p->getFd(), &clientSocks);
-	FD_SET(p->getFd(), serverClients);
+	if (backToServer) {
+		FD_SET(p->getFd(), serverClients);
+	} else {
+		close(fd);
+	}
 	players.remove(p);
 }
 
@@ -76,7 +80,7 @@ void Game::start() {
 	setupGame();
 }
 
-void Game::checkForMessages() {
+int Game::checkForMessages() {
 	fd_set tests = clientSocks;
 	int returnValue;
 	struct timeval t;
@@ -95,72 +99,71 @@ void Game::checkForMessages() {
 			if (toRead > 0) {
 				Message *m = new Message();
 				m->receiveMessage(fd);
-				processMessage(*m);
+				return processMessage(*m);
 			} else {
-//				TODO: Is this block necessary??
-				printf("Client %d disconnected.\n", fd);
-				close(fd);
-				FD_CLR(fd, &clientSocks);
+				failGame(getPlayerByFd(fd));
+				return fd;
 			}
 		}
 	}
+	return 0;
 }
 
-void Game::processMessage(Message m) {
+int Game::processMessage(Message m) {
 	switch (m.getType()) {
 		case MOVE:
 			if (isFull()) {
-				sendMoveAnswer(m, getPlayerByFd(fd));
+				return sendMoveAnswer(m, getPlayerByFd(fd));
 			}
 			break;
 		case DISCONNECTING:
 			failGame(getPlayerByFd(fd));
 			break;
+		case UNPARSEABLE:
+			printf("Client %d sent unparseable message, disconnecting.\n", fd);
+			failGame(getPlayerByFd(fd));
+			return fd;
 		default:
 			break;
 	}
+	return 0;
 }
 
 void Game::setupGame() {
 	FD_ZERO(&clientSocks);
 	std::srand((unsigned int) std::time(0));
 	shuffleCards();
+	int errorFd = 0;
 	while (run) {
-		checkForMessages();
+		errorFd = checkForMessages();
 		if (isFull()) {
-			manageGame();
+			errorFd = manageGame();
 		}
 	}
+	endGame(errorFd);
 }
 
-void Game::manageGame() {
+int Game::manageGame() {
 	dealCards();
-	bool ok = false;
-	int i = 0;
-	while (!ok) {
-		i++;
-		ok = checkCards();
-		if (!ok) {
-			if (i == 50) {
-				std::srand((unsigned int) std::time(0));
-			}
-			shuffleCards();
-			dealCards();
-		}
-	}
+	prepareToRun();
 	sendStartGame();
 	Player *p = players.front();
 	sendYourTurn(p);
+	int errorFd = 0;
 	while (run) {
-		checkForMessages();
+		errorFd = checkForMessages();
 	}
-	endGame();
+	return errorFd;
 }
 
-void Game::endGame() {
+void Game::endGame(int fd) {
 	list<Player *> temp = players;
 	for (Player *p : temp) {
-		removePlayer(p);
+		if (p->getFd() == fd) {
+			removePlayer(p, false);
+			continue;
+		}
+		removePlayer(p, true);
 	}
 	serverGames->remove(this);
 }
@@ -244,6 +247,22 @@ bool Game::checkCards() {
 	return ok;
 }
 
+void Game::prepareToRun() {
+	bool ok = false;
+	int i = 0;
+	while (!ok) {
+		i++;
+		ok = checkCards();
+		if (!ok) {
+			if (i == 50) {
+				std::srand((unsigned int) std::time(0));
+			}
+			shuffleCards();
+			dealCards();
+		}
+	}
+}
+
 void Game::failGame(Player *p) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
@@ -251,10 +270,14 @@ void Game::failGame(Player *p) {
 	printf("%s is unreachable or exited game %s.\n", p->getName().c_str(), id.c_str());
 }
 
-void Game::sendMoveAnswer(Message m, Player *to) {
+int Game::sendMoveAnswer(Message m, Player *to) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
-//	TODO: if == string::npos error
+	if (i == string::npos) {
+		printf("Client %d sent unparseable message, disconnecting.\n", fd);
+		failGame(to);
+		return to->getFd();
+	}
 	string fromNick = data.substr(0, i);
 	data.erase(0, i + 1);
 	string cardName = data;
@@ -287,7 +310,7 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 			m3.sendMessage(from->getFd());
 			Message m4(SOMEONE_LOST, from->getName());
 			broadcast(m4, from);
-			removePlayer(from);
+			removePlayer(from, true);
 			printf("%s lost in game %s.\n", from->getName().c_str(), id.c_str());
 		}
 
@@ -298,11 +321,12 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 			broadcast(m4, to);
 			printf("%s won in game %s.\n", to->getName().c_str(), id.c_str());
 			run = false;
-			return;
+			return 0;
 		}
 
 		sendYourTurn(to);
 	} else {
 		sendYourTurn(from);
 	}
+	return 0;
 }

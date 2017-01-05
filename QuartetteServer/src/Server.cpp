@@ -112,6 +112,11 @@ void Server::processMessage(Message m) {
 		case RECONNECT_REQUEST:
 			reconnectToGame(m);
 			break;
+		case UNPARSEABLE:
+			printf("Client %d sent unparseable message, disconnecting.\n", fd);
+			close(fd);
+			FD_CLR(fd, &clientSocks);
+			break;
 		default:
 			break;
 	}

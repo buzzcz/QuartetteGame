@@ -67,12 +67,15 @@ class Server {
 
 	/**
 	 * Creates server - checks input values, binds and listens on socket.
+	 * @param address address of server.
+	 * @param port port of server.
 	 * @return 0 if creating of server is successful, error number otherwise.
 	 */
 	int create(string address, uint16_t port);
 
 	/**
 	 * Processes incoming message.
+	 * @param m message to process.
 	 */
 	void processMessage(Message m);
 
@@ -83,16 +86,19 @@ class Server {
 
 	/**
 	 * Creates new game and adds first player into it.
+	 * @param m message with info about game.
 	 */
 	void createGame(Message m);
 
 	/**
 	 * Connects player to game.
+	 * @param m message with info abou game.
 	 */
 	void connectToGame(Message m);
 
 	/**
 	 * Searches list of game for a game with specified id.
+	 * @param id id of game to find.
 	 * @return game with specified id or NULL if game wasn't found.
 	 */
 	Game *getGameById(string id);
@@ -121,6 +127,8 @@ public:
 
 	/**
 	 * Starts server.
+	 * @param address address of server.
+	 * @param port port of server.
 	 * @return 0 if everything is successful, error number otherwise.
 	 */
 	int start(string address, uint16_t port);
