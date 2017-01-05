@@ -17,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -68,6 +69,7 @@ public class MainWindowController implements Initializable {
 	 * User's nickname.
 	 */
 	@Getter
+	@Setter
 	private String nickname;
 
 	/**
