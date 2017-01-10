@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,6 +83,10 @@ public class GameTableController implements Initializable {
 	@Getter
 	private Pair<Opponent, Card> lastMove;
 
+	@Getter
+	@Setter
+	private LocalDateTime receivedKeepAlive;
+
 	/**
 	 * Indicated whether it is my turn or not.
 	 */
@@ -133,7 +138,9 @@ public class GameTableController implements Initializable {
 						connection.sendMessage(m);
 						myTurn = false;
 						lastMove = new Pair<>(o, Card.getCardByName(s));
-						log.info(String.format("I want %s from %s.", s, o.getName()));
+						String info = String.format("I want %s from %s.", s, o.getName());
+						history.add(info);
+						log.info(info);
 					});
 				}
 			}
@@ -167,7 +174,7 @@ public class GameTableController implements Initializable {
 	 */
 	@FXML
 	private void exit() {
-		mainWindowController.exitGame();
+		mainWindowController.exitGame(true);
 	}
 
 	/**
@@ -176,9 +183,8 @@ public class GameTableController implements Initializable {
 	void moveSuccessful() {
 		cards.add(lastMove.getValue());
 		opponents.get(opponents.indexOf(lastMove.getKey())).removeCard();
-		cardsListView.refresh();
 		opponentsListView.refresh();
-		log.info(String.format("I got %s from %s.", lastMove.getValue().getName(), lastMove.getKey().getName()));
+		history.add(String.format("I took %s from %s.", lastMove.getValue().getName(), lastMove.getKey().getName()));
 	}
 
 	/**
@@ -197,7 +203,6 @@ public class GameTableController implements Initializable {
 		}
 		if (second.equals(mainWindowController.getNickname())) {
 			cards.remove(card);
-			cardsListView.refresh();
 			second = "me";
 		} else {
 			for (Opponent o : opponents) {

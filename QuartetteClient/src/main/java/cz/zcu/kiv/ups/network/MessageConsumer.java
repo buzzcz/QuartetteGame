@@ -29,6 +29,9 @@ public class MessageConsumer implements ConsumerInterface {
 			return;
 		}
 		switch (message.getType()) {
+			case KEEP_ALIVE:
+				Platform.runLater(mainWindowController::keepAlive);
+				break;
 			case LIST_OF_GAMES_ANSWER:
 				Platform.runLater(() -> mainWindowController.showListOfGames(message));
 				break;
@@ -72,6 +75,7 @@ public class MessageConsumer implements ConsumerInterface {
 				Platform.runLater(() -> mainWindowController.reconnectAnswer(message));
 				break;
 			default:
+				Platform.runLater(mainWindowController::showLogin);
 				break;
 		}
 	}

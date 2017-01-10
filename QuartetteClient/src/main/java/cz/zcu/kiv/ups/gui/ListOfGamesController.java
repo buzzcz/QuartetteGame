@@ -5,6 +5,7 @@ import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.network.Connection;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -71,6 +72,7 @@ public class ListOfGamesController implements Initializable {
 				Optional<String> result = AlertsAndDialogs.showAndWaitTextInputDialog("Connect To Game",
 						"Connect to game.", "Enter nickname:", "Nickname", mainWindowController.getNickname());
 				result.ifPresent(s -> {
+					Platform.runLater(mainWindowController::showWaitForServer);
 					mainWindowController.setNickname(s);
 					Message m = new Message(MessageType.CONNECT_REQUEST, String.format("%s,%s", s, game.getId()));
 					connection.sendMessage(m);

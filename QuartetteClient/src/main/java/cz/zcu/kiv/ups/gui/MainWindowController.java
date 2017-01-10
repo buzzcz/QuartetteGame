@@ -5,8 +5,10 @@ import cz.zcu.kiv.ups.dto.Game;
 import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.dto.Opponent;
-import cz.zcu.kiv.ups.network.Connection;
-import cz.zcu.kiv.ups.network.MessageConsumer;
+import cz.zcu.kiv.ups.network.ConsumerInterface;
+import cz.zcu.kiv.ups.network.KeepAliveCheckerInterface;
+import cz.zcu.kiv.ups.network.KeepAliveSenderInterface;
+import cz.zcu.kiv.ups.network.NetworkInterface;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import cz.zcu.kiv.ups.utils.ParseCmdLine;
 import cz.zcu.kiv.ups.utils.SpringFxmlLoader;
@@ -25,10 +27,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * Controller of Main Window and handler of most of the logic.
@@ -43,16 +47,25 @@ public class MainWindowController implements Initializable {
 	private ApplicationContext context;
 
 	@Autowired
-	private Connection connection;
+	private NetworkInterface connection;
 
 	@Autowired
 	private ThreadPoolTaskScheduler scheduler;
 
 	@Autowired
-	private MessageConsumer consumer;
+	private ConsumerInterface consumer;
+
+	@Autowired
+	private KeepAliveSenderInterface sender;
+
+	@Autowired
+	private KeepAliveCheckerInterface checker;
 
 	@Autowired
 	private ParseCmdLine parseCmdLine;
+
+	@Autowired
+	private GameTableController gameTableController;
 
 	/**
 	 * VBox in Main Window.
@@ -61,9 +74,9 @@ public class MainWindowController implements Initializable {
 	private VBox mainWindowVBox;
 
 	/**
-	 * Controller of the Game Table screen.
+	 * Content in Main Window to show desired screen.
 	 */
-	private GameTableController gameTableController;
+	private VBox content;
 
 	/**
 	 * User's nickname.
@@ -73,15 +86,20 @@ public class MainWindowController implements Initializable {
 	private String nickname;
 
 	/**
-	 * Content in Main Window to show desired screen.
+	 * Indicates whether player is in game.
 	 */
-	private VBox content;
+	private boolean inGame = false;
+
+	private List<ScheduledFuture<?>> futures = new LinkedList<>();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		mainWindowVBox.getChildren().remove(content);
 		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "Login.fxml");
 		mainWindowVBox.getChildren().add(content);
-		nickname = parseCmdLine.getNickname();
+		if (nickname == null) {
+			nickname = parseCmdLine.getNickname();
+		}
 	}
 
 	/**
@@ -94,13 +112,34 @@ public class MainWindowController implements Initializable {
 		String error = connection.open(hostname, port);
 		if (error == null) {
 			showMenu();
-			scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50);
+			gameTableController.setReceivedKeepAlive(null);
+			futures.add(scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50));
+			futures.add(scheduler.scheduleWithFixedDelay(sender::sendKeepAlive, 2500));
+			futures.add(scheduler.scheduleWithFixedDelay(checker::checkKeepAlive, 2500));
 			log.info(String.format("Connected to %s:%d.", hostname, port));
 		} else {
 			log.error(String.format("Could not open connection: %s.", error));
 			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Connection Error", "Could not open connection.",
 					error);
+			showLogin();
 		}
+	}
+
+	/**
+	 * Shuts down scheduler and closes connection.
+	 */
+	private void closeConnection() {
+		for (ScheduledFuture<?> f : futures) {
+			f.cancel(true);
+		}
+		futures.clear();
+		connection.close();
+	}
+
+	public void showLogin() {
+		exitGame(false);
+		closeConnection();
+		initialize(null, null);
 	}
 
 	/**
@@ -116,6 +155,7 @@ public class MainWindowController implements Initializable {
 	 * Sends list of games request.
 	 */
 	void listOfGamesRequest() {
+		showWaitForServer();
 		Message m = new Message(MessageType.LIST_OF_GAMES_REQUEST, "");
 		connection.sendMessage(m);
 		log.info("Sending request for list of games.");
@@ -134,6 +174,7 @@ public class MainWindowController implements Initializable {
 				"Nickname", nickname);
 		result.ifPresent(pair -> {
 //		    TODO: Check nickname for unsupported characters
+			showWaitForServer();
 			nickname = pair.getValue();
 			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, pair.getKey()));
 			connection.sendMessage(m);
@@ -150,6 +191,7 @@ public class MainWindowController implements Initializable {
 				"game.", "Enter nickname:", "Nickname", nickname);
 		result.ifPresent(s -> {
 //		    TODO: Check nickname for unsupported characters
+			showWaitForServer();
 			nickname = s;
 			Message m = new Message(MessageType.RECONNECT_REQUEST, nickname);
 			connection.sendMessage(m);
@@ -181,11 +223,32 @@ public class MainWindowController implements Initializable {
 
 	/**
 	 * Shows wait room.
+	 *
+	 * @param text text to show.
 	 */
-	private void showWaitRoom() {
+	private void showWaitRoom(String text) {
 		mainWindowVBox.getChildren().remove(content);
-		content = (VBox) new SpringFxmlLoader(context).load(getClass(), "WaitRoom.fxml");
-		mainWindowVBox.getChildren().add(content);
+		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(context);
+		FXMLLoader loader = springFxmlLoader.getLoader();
+		content = (VBox) springFxmlLoader.load(loader, getClass(), "WaitRoom.fxml");
+		WaitRoomController ctrl = loader.getController();
+		ctrl.setInfoLabelText(text);
+		mainWindowVBox.getChildren().addAll(content);
+	}
+
+	/**
+	 * Shows wait room saying you're waiting for other players.
+	 */
+	private void showWaitForOthers() {
+		inGame = true;
+		showWaitRoom("Waiting for other players.");
+	}
+
+	/**
+	 * Shows wait room saying you're waiting for server response.
+	 */
+	void showWaitForServer() {
+		showWaitRoom("Waiting for server response.");
 	}
 
 	/**
@@ -197,20 +260,24 @@ public class MainWindowController implements Initializable {
 		int code = Integer.parseInt(message.getData());
 		switch (code) {
 			case 0:
-				showWaitRoom();
+				showWaitForOthers();
 				break;
 			case 1:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Capacity Error", "Could not connect to game"
 						+ ".", "Connecting to game is impossible due to full capacity of the game.");
+				showMenu();
 				break;
 			case 2:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Could not connect to game"
 						+ ".", "Connecting to game is impossible because player with the same nickname is already on"
 						+ " server. Choose another nickname.");
+				showMenu();
 				break;
 			case 3:
-				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Game Error", "Could not connect to game.",
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "No Game Error", "Could not connect to " +
+								"game.",
 						"Connecting to game is impossible due to no longer existing game.");
+				showMenu();
 				break;
 			default:
 				break;
@@ -225,28 +292,35 @@ public class MainWindowController implements Initializable {
 	public void createGameAnswer(Message message) {
 		int code = Integer.parseInt(message.getData());
 		if (code == 0) {
-			showWaitRoom();
+			showWaitForOthers();
 		} else if (code == 1) {
 			log.error("Could not create game - player with the same nickname is already on server.");
-			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
+			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Could not create new " +
 					"game.", "Creating new game is impossible - player with the same nickname is already on server.");
+			showMenu();
 		} else {
 			log.error("Could not create game - number of opponents was smaller then 2 or higher then 31");
-			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Create Game Error", "Could not create new " +
+			AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Capacity Error", "Could not create new " +
 					"game.", "Creating new game is impossible - number of opponents was smaller then 2 or higher " +
 					"then 31.");
+			showMenu();
 		}
 	}
 
 	/**
 	 * Sends exit game message and shows menu.
+	 * @param showMenu indicates whether menu should be shown.
 	 */
-	void exitGame() {
-		gameTableController = null;
-		Message message = new Message(MessageType.DISCONNECTING, "");
-		connection.sendMessage(message);
-		showMenu();
-		log.info("Exiting game.");
+	void exitGame(boolean showMenu) {
+		if (inGame) {
+			inGame = false;
+			Message message = new Message(MessageType.DISCONNECTING, "");
+			connection.sendMessage(message);
+			log.info("Exiting game.");
+		}
+		if (showMenu) {
+			showMenu();
+		}
 	}
 
 	/**
@@ -263,10 +337,10 @@ public class MainWindowController implements Initializable {
 	 * Indicates to player that it's his turn.
 	 */
 	public void yourTurn() {
-		if (gameTableController != null) {
+		if (inGame) {
 			gameTableController.setMyTurn(true);
 			gameTableController.getHistory().add("It's your turn.");
-			log.info("It's my turn.");
+			log.info("It's your turn.");
 		}
 	}
 
@@ -276,7 +350,7 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about who's turn is it.
 	 */
 	public void someonesTurn(Message message) {
-		if (gameTableController != null) {
+		if (inGame) {
 			String msg = String.format("It's %s's turn.", message.getData());
 			gameTableController.getHistory().add(msg);
 			log.info(msg);
@@ -289,7 +363,7 @@ public class MainWindowController implements Initializable {
 	 * @param message message with result of player's move.
 	 */
 	public void yourMoveAnswer(Message message) {
-		if (gameTableController != null) {
+		if (inGame) {
 			int result = Integer.parseInt(message.getData());
 			if (result == 0) {
 				gameTableController.moveSuccessful();
@@ -310,7 +384,7 @@ public class MainWindowController implements Initializable {
 	 * @param message message with result
 	 */
 	public void someonesMove(Message message) {
-		if (gameTableController != null) {
+		if (inGame) {
 			String[] parts = message.getData().split(",");
 			int result = Integer.parseInt(parts[0]);
 			String first = parts[1];
@@ -319,8 +393,10 @@ public class MainWindowController implements Initializable {
 			if (result == 0) {
 				gameTableController.someonesMoveSuccessful(first, card, second);
 			} else if (result == 1) {
-				gameTableController.getHistory().add(String.format("%s doesn't have %s to give to %s.", second, card
-						.getName(), first));
+				String info = String.format("%s doesn't have %s to give to %s.", second, card
+						.getName(), first);
+				gameTableController.getHistory().add(info);
+				log.info(info);
 			}
 		}
 	}
@@ -344,8 +420,8 @@ public class MainWindowController implements Initializable {
 	 * Shows End of game screen with message saying you won.
 	 */
 	public void youWon() {
-		if (gameTableController != null) {
-			gameTableController = null;
+		if (inGame) {
+			inGame = false;
 			showEndOfGame("Congratulations, you won!");
 			log.info("I won.");
 		}
@@ -357,8 +433,8 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about who won.
 	 */
 	public void someoneWon(Message message) {
-		if (gameTableController != null) {
-			gameTableController = null;
+		if (inGame) {
+			inGame = false;
 			showEndOfGame(String.format("Sorry, %s won.", message.getData()));
 			log.info(String.format("%s won.", message.getData()));
 		}
@@ -368,8 +444,8 @@ public class MainWindowController implements Initializable {
 	 * Shows End of game screen with message saying you lost.
 	 */
 	public void youLost() {
-		if (gameTableController != null) {
-			gameTableController = null;
+		if (inGame) {
+			inGame = false;
 			showEndOfGame("Sorry, you lost.");
 			log.info("I lost.");
 		}
@@ -381,7 +457,7 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about who lost.
 	 */
 	public void someoneLost(Message message) {
-		if (gameTableController != null) {
+		if (inGame) {
 			String info = String.format("%s lost.", message.getData());
 			gameTableController.getHistory().add(info);
 			log.info(info);
@@ -394,8 +470,8 @@ public class MainWindowController implements Initializable {
 	 * @param message message with info about unreachable player.
 	 */
 	public void playerUnreachable(Message message) {
-		if (gameTableController != null) {
-			gameTableController = null;
+		if (inGame) {
+			inGame = false;
 			showEndOfGame(String.format("Sorry, %s is unreachable", message.getData()));
 		}
 	}
@@ -417,13 +493,15 @@ public class MainWindowController implements Initializable {
 			case 1:
 				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "No player with specified " +
 						"nickname found on server.");
+				showMenu();
 				break;
 			case 2:
-				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "Specified player is not " +
-						"considered not responding. If it was really you, try again later.");
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, title, header, "Specified player is still " +
+						"active. If it was really you, try again later.");
+				showMenu();
 				break;
 			case 3:
-				showWaitRoom();
+				showWaitForOthers();
 				break;
 			default:
 				break;
@@ -457,13 +535,19 @@ public class MainWindowController implements Initializable {
 		SpringFxmlLoader springFxmlLoader = new SpringFxmlLoader(context);
 		FXMLLoader loader = springFxmlLoader.getLoader();
 		content = (VBox) springFxmlLoader.load(loader, getClass(), "GameTable.fxml");
-		GameTableController ctrl = loader.getController();
-		ctrl.setCards(cards);
-		ctrl.setOpponents(opponents);
-		ctrl.getHistory().clear();
-		ctrl.getHistory().add(historyInfo);
-		gameTableController = ctrl;
+		gameTableController.setCards(cards);
+		gameTableController.setOpponents(opponents);
+		gameTableController.getHistory().clear();
+		gameTableController.getHistory().add(historyInfo);
+		inGame = true;
 		mainWindowVBox.getChildren().addAll(content);
+	}
+
+	/**
+	 * Sets new time for received keep-alive.
+	 */
+	public void keepAlive() {
+		gameTableController.setReceivedKeepAlive(LocalDateTime.now());
 	}
 
 }

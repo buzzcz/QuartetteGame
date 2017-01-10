@@ -1,6 +1,7 @@
 package cz.zcu.kiv.ups.gui;
 
 import cz.zcu.kiv.ups.utils.ParseCmdLine;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -57,6 +58,9 @@ public class LoginController implements Initializable {
 	 */
 	@FXML
 	private void logIn() {
-		mainWindowController.openConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()));
+		Platform.runLater(() -> {
+			mainWindowController.showWaitForServer();
+			mainWindowController.openConnection(hostnameTextField.getText(), Integer.parseInt(portTextField.getText()));
+		});
 	}
 }

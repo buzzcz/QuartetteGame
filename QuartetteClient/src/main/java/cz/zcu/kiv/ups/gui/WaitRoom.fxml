@@ -6,6 +6,6 @@
 <VBox fx:controller="cz.zcu.kiv.ups.gui.WaitRoomController" VBox.vgrow="SOMETIMES" alignment="CENTER"
       spacing="10"
       xmlns:fx="http://javafx.com/fxml">
-	<Label VBox.vgrow="SOMETIMES" text="Waiting for other players."/>
+	<Label fx:id="infoLabel" VBox.vgrow="SOMETIMES"/>
 	<Button text="Exit Game" onAction="#exit"/>
 </VBox>

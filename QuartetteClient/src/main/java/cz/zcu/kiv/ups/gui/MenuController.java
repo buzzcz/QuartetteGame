@@ -39,4 +39,9 @@ public class MenuController {
 		mainWindowController.reconnectRequest();
 	}
 
+	@FXML
+	private void disconnect() {
+		mainWindowController.showLogin();
+	}
+
 }

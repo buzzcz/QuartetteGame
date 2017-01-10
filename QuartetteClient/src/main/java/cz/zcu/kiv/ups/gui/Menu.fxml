@@ -8,4 +8,5 @@
 	<Button text="List of games" onAction="#listOfGamesRequest" HBox.hgrow="SOMETIMES"/>
 	<Button text="Create new game" onAction="#createGameRequest" HBox.hgrow="SOMETIMES"/>
 	<Button text="Reconnect to game" onAction="#reconnectRequest" HBox.hgrow="SOMETIMES"/>
+	<Button text="Disconnect" onAction="#disconnect" HBox.hgrow="SOMETIMES"/>
 </VBox>

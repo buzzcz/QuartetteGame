@@ -69,8 +69,12 @@ public class Connection implements NetworkInterface {
 	@Override
 	public void close() {
 		try {
-			reader.close();
-			writer.close();
+			if (reader != null) {
+				reader.close();
+			}
+			if (writer != null) {
+				writer.close();
+			}
 		} catch (Exception e) {
 			log.error("Could not close streams.", e);
 		} finally {
@@ -86,12 +90,14 @@ public class Connection implements NetworkInterface {
 
 	@Override
 	public void sendMessage(Message msg) {
-		try {
-			writer.println(msg.getMessageToSend());
-			writer.flush();
-			log.info(String.format("Sending %s.", msg.getMessageToSend()));
-		} catch (Exception e) {
-			log.error("Write error.", e);
+		if (s.isConnected()) {
+			try {
+				writer.println(msg.getMessageToSend());
+				writer.flush();
+				log.info(String.format("Sending %s.", msg.getMessageToSend()));
+			} catch (Exception e) {
+				log.error("Write error.", e);
+			}
 		}
 	}
 

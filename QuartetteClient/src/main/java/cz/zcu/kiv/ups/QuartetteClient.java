@@ -52,7 +52,6 @@ public class QuartetteClient extends Application {
 			Connection connection = context.getBean(Connection.class);
 			connection.close();
 		});
-		ParseCmdLine parseCmdLine = context.getBean(ParseCmdLine.class);
 
 		SpringFxmlLoader loader = new SpringFxmlLoader(context);
 		Parent root = (Parent) loader.load(getClass(), "gui/MainWindow.fxml");
