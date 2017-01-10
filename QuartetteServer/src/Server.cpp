@@ -1,5 +1,7 @@
 #include "Server.h"
 
+bool Server::run = false;
+
 int Server::create(string address, uint16_t port) {
 	unsigned long i;
 	int returnValue;
@@ -58,14 +60,16 @@ int Server::start(string address, uint16_t port) {
 	}
 
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, Server::stop);
+	signal(SIGTERM, Server::stop);
+
+	time(&Statistics::start);
 
 	std::thread(&Server::sendKeepAlives, this).detach();
 	std::thread(&Server::checkKeepAlives, this).detach();
 
 	run = true;
 
-//	TODO: statistics
-//	TODO: sigIntHandler (Ctrl + C)
 	while (run) {
 		fd_set tests;
 		{
@@ -77,8 +81,7 @@ int Server::start(string address, uint16_t port) {
 		t.tv_usec = 10000;
 		returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 		if (returnValue < 0) {
-			printf("Select error.\n");
-			return returnValue;
+			continue;
 		}
 		// exclude stdin, stdout, stderr
 		for (fd = 3; fd < FD_SETSIZE; fd++) {
@@ -89,6 +92,7 @@ int Server::start(string address, uint16_t port) {
 					Player *p = new Player(clientSocket);
 					clients.push_back(p);
 					FD_SET(clientSocket, &clientSocks);
+					Statistics::acceptedConnections.fetch_add(1);
 					printf("New connection accepted.\n");
 				} else {
 					int toRead = 0;
@@ -99,12 +103,15 @@ int Server::start(string address, uint16_t port) {
 						processMessage(*m);
 					} else {
 						printf("Client %d disconnected.\n", fd);
-						closeFd();
+						closeFd(0, false);
 					}
 				}
 			}
 		}
 	}
+
+	time(&Statistics::end);
+	printStats();
 
 	return 0;
 }
@@ -128,12 +135,12 @@ void Server::processMessage(Message m) {
 			break;
 		case UNPARSEABLE:
 		default:
-			closeFd();
+			closeFd(0, true);
 			break;
 	}
 }
 
-void Server::closeFd(int fdToClose) {
+void Server::closeFd(int fdToClose, bool error) {
 	if (fdToClose == 0) {
 		fdToClose = fd;
 	}
@@ -143,6 +150,9 @@ void Server::closeFd(int fdToClose) {
 	clients.remove(p);
 	close(fdToClose);
 	FD_CLR(fdToClose, &clientSocks);
+	if (error) {
+		Statistics::closedClients.fetch_add(1);
+	}
 }
 
 void Server::sendGameList() {
@@ -168,7 +178,7 @@ void Server::createGame(Message m) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
 	if (i == string::npos) {
-		closeFd();
+		closeFd(0, true);
 		return;
 	}
 	string nick = data.substr(0, i);
@@ -177,7 +187,7 @@ void Server::createGame(Message m) {
 	try {
 		capacity = std::stoi(data, NULL, 10) + 1;
 	} catch (std::invalid_argument e) {
-		closeFd();
+		closeFd(0, true);
 		return;
 	}
 
@@ -214,7 +224,7 @@ void Server::connectToGame(Message m) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
 	if (i == string::npos) {
-		closeFd();
+		closeFd(0, true);
 		return;
 	}
 	string nick = data.substr(0, i);
@@ -387,7 +397,7 @@ void Server::checkKeepAlives() {
 				double diff = difftime(now, p->getLastReceivedKeepAlive());
 				if (p->getStatus() == NOT_ACTIVE && diff >= 25) {
 					printf("Closing unresponding client %d.\n", p->getFd());
-					closeFd(p->getFd());
+					closeFd(p->getFd(), true);
 				} else if (p->getStatus() == ACTIVE && diff >= 5) {
 					printf("Waiting for unresponding client %d.\n", p->getFd());
 					p->setStatus(NOT_ACTIVE);
@@ -414,4 +424,19 @@ void Server::checkKeepAlives() {
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 	}
+}
+
+void Server::printStats() {
+	double runTime = difftime(Statistics::end, Statistics::start);
+	printf("\nSTATISTICS:\n");
+	printf("Server run for %f seconds,\n", runTime);
+	printf("received %lu bytes and %lu messages,\n", Statistics::receivedBytes.load(), Statistics::receivedMessages
+			.load());
+	printf("sent %lu bytes and %lu messages,\n", Statistics::sentBytes.load(), Statistics::sentMessages.load());
+	printf("accepted %lu connections and disconnected %lu clients because of errors.\n",
+	       Statistics::acceptedConnections.load(), Statistics::closedClients.load());
+}
+
+void Server::stop(int sigNum) {
+	run = false;
 }

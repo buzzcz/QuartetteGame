@@ -62,7 +62,7 @@ class Server {
 	/**
 	 * Indicates whether server loop should run.
 	 */
-	bool run;
+	static bool run;
 
 	/**
 	 * List of server clients.
@@ -102,7 +102,7 @@ class Server {
 	 * Closes connection to file descriptor.
 	 * @param fdToClose file descriptor to close. If not specified, last file descriptor is closed.
 	 */
-	void closeFd(int fdToClose = 0);
+	void closeFd(int fdToClose, bool error);
 
 	/**
 	 * Send list of games.
@@ -170,6 +170,16 @@ class Server {
 	 * or disconnects client / player.
 	 */
 	void checkKeepAlives();
+
+	/**
+	 * Prints statistics.
+	 */
+	void printStats();
+
+	/**
+	 * Stops the server.
+	 */
+	static void stop(int sigNum);
 
 public:
 

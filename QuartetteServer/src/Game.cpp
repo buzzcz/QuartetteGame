@@ -53,6 +53,7 @@ void Game::removePlayer(Player *p, bool backToServer) {
 		FD_SET(p->getFd(), serverClientsFdSet);
 	} else {
 		close(fd);
+		Statistics::closedClients.fetch_add(1);
 	}
 	players.remove(p);
 
@@ -108,7 +109,6 @@ void Game::checkForMessages() {
 	t.tv_usec = 10000;
 	returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 	if (returnValue < 0) {
-		printf("Select error.\n");
 		return;
 	}
 	// exclude stdin, stdout, stderr
@@ -309,15 +309,18 @@ void Game::prepareToRun() {
 }
 
 void Game::failGame(Player *p, bool removePlayer) {
-	Message m(PLAYER_UNREACHABLE, p->getName());
-	broadcast(m, p);
-	run = false;
-	if (removePlayer) {
-		errorFd = p->getFd();
-		printf("%s is unreachable or or sent unparseable message in game %s.\n", p->getName().c_str(), id.c_str());
-	} else {
-		printf("%s exited game %s.\n", p->getName().c_str(), id.c_str());
+	if (p != NULL) {
+		Message m(PLAYER_UNREACHABLE, p->getName());
+		broadcast(m, p);
+		if (removePlayer) {
+			errorFd = p->getFd();
+			printf("%s is unreachable or or sent unparseable message in game %s.\n", p->getName().c_str(), id.c_str());
+		} else {
+			printf("%s exited game %s.\n", p->getName().c_str(), id.c_str());
+		}
 	}
+
+	run = false;
 }
 
 void Game::sendMoveAnswer(Message m, Player *to) {

@@ -6,6 +6,7 @@
 #include <malloc.h>
 #include <stdexcept>
 #include "MessageType.h"
+#include "Statistics.h"
 
 using std::string;
 

@@ -3,5 +3,5 @@ project(QuartetteServer)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -luuid")
 
-set(SOURCE_FILES src/Main.cpp src/Player.cpp src/Player.h src/Game.cpp src/Game.h src/Server.cpp src/Server.h src/Message.cpp src/Message.h src/Card.h src/Status.h src/MessageType.h)
+set(SOURCE_FILES src/Main.cpp src/Player.cpp src/Player.h src/Game.cpp src/Game.h src/Server.cpp src/Server.h src/Message.cpp src/Message.h src/Card.h src/Status.h src/MessageType.h src/Statistics.h src/Statistics.cpp)
 add_executable(QuartetteServer ${SOURCE_FILES})

@@ -27,6 +27,7 @@ void Message::receiveMessage(int fd) {
 		}
 		line += c;
 	}
+	Statistics::receivedBytes.fetch_add(line.size());
 	unsigned long i = line.find(";");
 	if (i == string::npos) {
 		type = UNPARSEABLE;
@@ -57,6 +58,7 @@ void Message::receiveMessage(int fd) {
 		printf("Received data size mismatch.\n");
 		return;
 	}
+	Statistics::receivedMessages.fetch_add(1);
 	printf("Client %d sent %d;%lu;%s.\n", fd, type, size, data.c_str());
 }
 
@@ -67,5 +69,7 @@ string Message::getMessageToSend() {
 void Message::sendMessage(int fd) {
 	string data = getMessageToSend();
 	send(fd, data.c_str(), data.length(), 0);
+	Statistics::sentBytes.fetch_add(data.size());
+	Statistics::sentMessages.fetch_add(1);
 	printf("Sending %d;%lu;%s to client %d.\n", type, size, this->data.c_str(), fd);
 }
