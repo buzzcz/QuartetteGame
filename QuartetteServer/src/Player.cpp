@@ -1,6 +1,14 @@
 #include "Player.h"
 
-Player::Player(int fd, string name) : fd(fd), name(name) {}
+Player::Player(int fd) : fd(fd) {
+	status = ACTIVE;
+	time(&lastReceivedKeepAlive);
+}
+
+Player::Player(int fd, string name) : fd(fd), name(name) {
+	status = ACTIVE;
+	time(&lastReceivedKeepAlive);
+}
 
 int Player::getFd() {
 	return fd;
@@ -12,6 +20,10 @@ void Player::setFd(int newFd) {
 
 string Player::getName() {
 	return name;
+}
+
+void Player::setName(string n) {
+	name = n;
 }
 
 Status Player::getStatus() {
@@ -56,4 +68,12 @@ bool Player::hasQuartette() {
 	       (hasCard(CARD_6A) && hasCard(CARD_6B) && hasCard(CARD_6C) && hasCard(CARD_6D)) ||
 	       (hasCard(CARD_7A) && hasCard(CARD_7B) && hasCard(CARD_7C) && hasCard(CARD_7D)) ||
 	       (hasCard(CARD_8A) && hasCard(CARD_8B) && hasCard(CARD_8C) && hasCard(CARD_8D));
+}
+
+time_t Player::getLastReceivedKeepAlive() {
+	return lastReceivedKeepAlive;
+}
+
+void Player::setLastReceivedKeepAlive(time_t time) {
+	lastReceivedKeepAlive = time;
 }

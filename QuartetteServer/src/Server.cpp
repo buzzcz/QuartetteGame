@@ -57,12 +57,21 @@ int Server::start(string address, uint16_t port) {
 		return returnValue;
 	}
 
+	signal(SIGPIPE, SIG_IGN);
+
+	std::thread(&Server::sendKeepAlives, this).detach();
+	std::thread(&Server::checkKeepAlives, this).detach();
+
 	run = true;
 
 //	TODO: statistics
 //	TODO: sigIntHandler (Ctrl + C)
 	while (run) {
-		fd_set tests = clientSocks;
+		fd_set tests;
+		{
+			std::lock_guard<std::mutex> lock(clientsMutex);
+			tests = clientSocks;
+		}
 		struct timeval t;
 		t.tv_sec = 0;
 		t.tv_usec = 10000;
@@ -75,7 +84,10 @@ int Server::start(string address, uint16_t port) {
 		for (fd = 3; fd < FD_SETSIZE; fd++) {
 			if (FD_ISSET(fd, &tests)) {
 				if (fd == serverSocket) {
+					std::lock_guard<std::mutex> lock(clientsMutex);
 					clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddr, &addrLen);
+					Player *p = new Player(clientSocket);
+					clients.push_back(p);
 					FD_SET(clientSocket, &clientSocks);
 					printf("New connection accepted.\n");
 				} else {
@@ -87,8 +99,7 @@ int Server::start(string address, uint16_t port) {
 						processMessage(*m);
 					} else {
 						printf("Client %d disconnected.\n", fd);
-						close(fd);
-						FD_CLR(fd, &clientSocks);
+						closeFd();
 					}
 				}
 			}
@@ -100,6 +111,9 @@ int Server::start(string address, uint16_t port) {
 
 void Server::processMessage(Message m) {
 	switch (m.getType()) {
+		case KEEP_ALIVE:
+			keepAlive();
+			break;
 		case LIST_OF_GAMES_REQUEST:
 			sendGameList();
 			break;
@@ -113,25 +127,29 @@ void Server::processMessage(Message m) {
 			reconnectToGame(m);
 			break;
 		case UNPARSEABLE:
-			printf("Client %d sent unparseable message, disconnecting.\n", fd);
-			close(fd);
-			FD_CLR(fd, &clientSocks);
-			break;
 		default:
+			closeFd();
 			break;
 	}
 }
 
-void Server::closeFd() {
-	printf("Client %d sent unparseable message, disconnecting.\n", fd);
-	close(fd);
-	FD_CLR(fd, &clientSocks);
+void Server::closeFd(int fdToClose) {
+	if (fdToClose == 0) {
+		fdToClose = fd;
+	}
+	std::lock_guard<std::mutex> lock(clientsMutex);
+	printf("Client %d sent unparseable message, disconnecting.\n", fdToClose);
+	Player *p = getClientByFd(fdToClose);
+	clients.remove(p);
+	close(fdToClose);
+	FD_CLR(fdToClose, &clientSocks);
 }
 
 void Server::sendGameList() {
 	string data;
 	data += std::to_string(games.size());
 
+	std::lock_guard<std::mutex> lock1(gamesMutex);
 	for (Game *g : games) {
 		data += ",";
 		data += g->getId();
@@ -163,6 +181,7 @@ void Server::createGame(Message m) {
 		return;
 	}
 
+	std::lock_guard<std::mutex> lock(clientsMutex);
 	if (isPlayerOnServer(nick)) {
 		Message m1(CREATE_GAME_ANSWER, "1");
 		m1.sendMessage(fd);
@@ -177,8 +196,11 @@ void Server::createGame(Message m) {
 		return;
 	}
 
-	Game *newGame = new Game(capacity, &clientSocks, &games);
-	Player *p = new Player(fd, nick);
+	std::lock_guard<std::mutex> lock1(gamesMutex);
+	Game *newGame = new Game(capacity, &clientSocks, &clients, &games, std::ref(clientsMutex), std::ref(gamesMutex));
+	Player *p = getClientByFd(fd);
+	p->setName(nick);
+	clients.remove(p);
 	FD_CLR(fd, &clientSocks);
 	newGame->addPlayer(p);
 	games.push_back(newGame);
@@ -199,6 +221,8 @@ void Server::connectToGame(Message m) {
 	data.erase(0, i + 1);
 	string id = data;
 
+	std::lock_guard<std::mutex> lock(clientsMutex);
+	std::lock_guard<std::mutex> lock1(gamesMutex);
 	Game *g = getGameById(id);
 	if (g == NULL) {
 		Message m1(CONNECT_ANSWER, "3");
@@ -207,23 +231,25 @@ void Server::connectToGame(Message m) {
 		return;
 	}
 
-	if (g->getCapacity() == g->getPlayers().size()) {
+	if (g->isFull() || g->getStatus() == ACTIVE) {
 		Message m1(CONNECT_ANSWER, "1");
 		m1.sendMessage(fd);
 		printf("Error in connect to game %s - game is full.\n", id.c_str());
 		return;
 	}
 
-	Player *p = g->getPlayerByName(nick);
-	if (p != NULL) {
+	if (isPlayerOnServer(nick)) {
 		Message m1(CONNECT_ANSWER, "2");
 		m1.sendMessage(fd);
-		printf("Error in connect to game %s - player with the same nickname is already in game.\n", id.c_str());
+		printf("Error in connect to game %s - player with the same nickname is already on server.\n", id.c_str());
 		return;
 	}
 
-	g->addPlayer(new Player(fd, nick));
+	Player *p = getClientByFd(fd);
+	p->setName(nick);
+	clients.remove(p);
 	FD_CLR(fd, &clientSocks);
+	g->addPlayer(p);
 	Message m1(CONNECT_ANSWER, "0");
 	m1.sendMessage(fd);
 	printf("Connected player %s to game %s.\n", nick.c_str(), id.c_str());
@@ -258,9 +284,20 @@ bool Server::isPlayerOnServer(string name) {
 	return is;
 }
 
+Player *Server::getClientByFd(int fd) {
+	for (Player *p: clients) {
+		if (p->getFd() == fd) {
+			return p;
+		}
+	}
+	return NULL;
+}
+
 void Server::reconnectToGame(Message m) {
 	string name = m.getData();
 
+	std::lock_guard<std::mutex> lock(clientsMutex);
+	std::lock_guard<std::mutex> lock1(gamesMutex);
 	Game *g = getGameByPlayersName(name);
 	if (g == NULL) {
 		Message m1(RECONNECT_ANSWER, "1");
@@ -278,29 +315,103 @@ void Server::reconnectToGame(Message m) {
 	}
 
 	if (!g->isFull()) {
+		clients.remove(getClientByFd(fd));
+		g->reconnectPlayer(p, fd);
 		Message m1(RECONNECT_ANSWER, "3");
 		m1.sendMessage(fd);
-//		TODO: Modify player's fd.
 		printf("Reconnected to game %s - game hasn't started yet.\n", g->getId().c_str());
 		return;
 	}
 
-	Message m1(RECONNECT_ANSWER, g->getStateOfGame(p));
+	clients.remove(getClientByFd(fd));
+	g->reconnectPlayer(p, fd);
+	string data = "0";
+	data += ",";
+	data += g->getStateOfGame(p);
+	Message m1(RECONNECT_ANSWER, data);
 	m1.sendMessage(fd);
 
 	if (g->getWhosTurn() == p) {
 		Message m2(YOUR_TURN, "");
-		m.sendMessage(fd);
+		m2.sendMessage(fd);
 	} else {
 		Message m2(SOMEONES_TURN, g->getWhosTurn()->getName());
 		m2.sendMessage(fd);
 	}
-
-	int oldFd = p->getFd();
-//	TODO: Remove old fd from fd_set and add new
-	p->setFd(fd);
-	FD_CLR(fd, &clientSocks);
-	p->setStatus(ACTIVE);
-//	TODO: Solve locking - what if in between messages someone makes move??
 	printf("Reconnected %s to game %s.\n", name.c_str(), g->getId().c_str());
+}
+
+void Server::keepAlive() {
+	std::lock_guard<std::mutex> lock(clientsMutex);
+	Player *p = getClientByFd(fd);
+	if (p != NULL) {
+		time_t now;
+		time(&now);
+		p->setLastReceivedKeepAlive(now);
+		p->setStatus(ACTIVE);
+	}
+}
+
+void Server::sendKeepAlives() {
+	Message m(KEEP_ALIVE, "");
+	while (run) {
+		{
+			std::lock_guard<std::mutex> lock(clientsMutex);
+			for (Player *p : clients) {
+				m.sendMessage(p->getFd());
+			}
+		}
+
+		{
+			std::lock_guard<std::mutex> lock1(gamesMutex);
+			for (Game *g : games) {
+				for (Player *p : g->getPlayers()) {
+					m.sendMessage(p->getFd());
+				}
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+	}
+}
+
+void Server::checkKeepAlives() {
+	while (run) {
+		{
+			std::lock_guard<std::mutex> lock(clientsMutex);
+			std::lock_guard<std::mutex> lock1(gamesMutex);
+			printf("Checking keep-alive clients.\n");
+			list<Player *> l = clients;
+			for (Player *p : l) {
+				time_t now;
+				time(&now);
+				double diff = difftime(now, p->getLastReceivedKeepAlive());
+				if (p->getStatus() == NOT_ACTIVE && diff >= 25) {
+					printf("Closing unresponding client %d.\n", p->getFd());
+					closeFd(p->getFd());
+				} else if (p->getStatus() == ACTIVE && diff >= 5) {
+					printf("Waiting for unresponding client %d.\n", p->getFd());
+					p->setStatus(NOT_ACTIVE);
+				}
+			}
+
+			printf("Checking keep-alive players.\n");
+			list<Game *> lg = games;
+			for (Game *g : lg) {
+				l = g->getPlayers();
+				for (Player *p : l) {
+					time_t now;
+					time(&now);
+					double diff = difftime(now, p->getLastReceivedKeepAlive());
+					if (p->getStatus() == NOT_ACTIVE && diff >= 25) {
+						printf("Closing unresponding player %d.\n", p->getFd());
+						g->failGame(p, true);
+					} else if (p->getStatus() == ACTIVE && diff >= 5) {
+						printf("Waiting for unresponding player %d.\n", p->getFd());
+						p->setStatus(NOT_ACTIVE);
+					}
+				}
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+	}
 }

@@ -1,13 +1,20 @@
 #include "Game.h"
 
-Game::Game(int capacity, fd_set *serverClients, list<Game *> *serverGames) : capacity(capacity),
-                                                                             serverClients(serverClients),
-                                                                             serverGames(serverGames) {
+Game::Game(int capacity, fd_set *serverClientsFdSet, list<Player *> *serverClients, list<Game *> *serverGames,
+           std::mutex &serverClientsMutex, std::mutex &serverGamesMutex)
+		: capacity(capacity),
+		  serverClientsFdSet(serverClientsFdSet),
+		  serverClients(serverClients),
+		  serverGames(serverGames),
+		  serverClientsMutex(serverClientsMutex),
+		  serverGamesMutex(serverGamesMutex) {
 	uuid_t uuid;
 	uuid_generate_random(uuid);
 	char s[37];
 	uuid_unparse(uuid, s);
 	id.assign(s);
+	FD_ZERO(&clientSocks);
+	status = NOT_ACTIVE;
 	std::thread(&Game::start, this).detach();
 }
 
@@ -19,6 +26,10 @@ int Game::getCapacity() {
 	return capacity;
 }
 
+Status Game::getStatus() {
+	return status;
+}
+
 list<Player *> Game::getPlayers() {
 	return players;
 }
@@ -28,18 +39,23 @@ Player *Game::getWhosTurn() {
 }
 
 void Game::addPlayer(Player *p) {
-	players.push_back(p);
-	FD_SET(p->getFd(), &clientSocks);
+	{
+		players.push_back(p);
+		FD_SET(p->getFd(), &clientSocks);
+	}
 }
 
 void Game::removePlayer(Player *p, bool backToServer) {
+	std::lock_guard<std::mutex> lock(serverClientsMutex);
 	FD_CLR(p->getFd(), &clientSocks);
 	if (backToServer) {
-		FD_SET(p->getFd(), serverClients);
+		serverClients->push_back(p);
+		FD_SET(p->getFd(), serverClientsFdSet);
 	} else {
 		close(fd);
 	}
 	players.remove(p);
+
 }
 
 bool Game::isFull() {
@@ -80,8 +96,12 @@ void Game::start() {
 	setupGame();
 }
 
-int Game::checkForMessages() {
-	fd_set tests = clientSocks;
+void Game::checkForMessages() {
+	fd_set tests;
+	{
+		std::lock_guard<std::mutex> lock(serverGamesMutex);
+		tests = clientSocks;
+	}
 	int returnValue;
 	struct timeval t;
 	t.tv_sec = 0;
@@ -89,7 +109,7 @@ int Game::checkForMessages() {
 	returnValue = select(FD_SETSIZE, &tests, (fd_set *) 0, (fd_set *) 0, &t);
 	if (returnValue < 0) {
 		printf("Select error.\n");
-		return 0;
+		return;
 	}
 	// exclude stdin, stdout, stderr
 	for (fd = 3; fd < FD_SETSIZE; fd++) {
@@ -99,67 +119,92 @@ int Game::checkForMessages() {
 			if (toRead > 0) {
 				Message *m = new Message();
 				m->receiveMessage(fd);
-				return processMessage(*m);
-			} else {
-				failGame(getPlayerByFd(fd));
-				return fd;
+				processMessage(*m);
 			}
 		}
 	}
-	return 0;
+	return;
 }
 
-int Game::processMessage(Message m) {
+void Game::processMessage(Message m) {
+	bool full;
 	switch (m.getType()) {
-		case MOVE:
-			if (isFull()) {
-				return sendMoveAnswer(m, getPlayerByFd(fd));
+		case KEEP_ALIVE:
+			keepAlive();
+			break;
+		case MOVE: {
+			std::lock_guard<std::mutex> lock1(serverGamesMutex);
+			full = isFull();
+		}
+			if (full) {
+				sendMoveAnswer(m, getPlayerByFd(fd));
 			}
 			break;
-		case DISCONNECTING:
-			failGame(getPlayerByFd(fd));
+		case DISCONNECTING: {
+			std::lock_guard<std::mutex> lock1(serverGamesMutex);
+			full = isFull();
+		}
+			if (full) {
+				failGame(getPlayerByFd(fd), false);
+			} else {
+				std::lock_guard<std::mutex> lock1(serverGamesMutex);
+				if (players.size() == 1) {
+					run = false;
+				} else {
+					removePlayer(getPlayerByFd(fd), true);
+				}
+			}
 			break;
 		case UNPARSEABLE:
-			printf("Client %d sent unparseable message, disconnecting.\n", fd);
-			failGame(getPlayerByFd(fd));
-			return fd;
 		default:
+			printf("Client %d sent unparseable message, disconnecting.\n", fd);
+			failGame(getPlayerByFd(fd), true);
 			break;
 	}
-	return 0;
 }
 
 void Game::setupGame() {
-	FD_ZERO(&clientSocks);
-	std::srand((unsigned int) std::time(0));
-	shuffleCards();
-	int errorFd = 0;
+	{
+		std::lock_guard<std::mutex> lock1(serverGamesMutex);
+		std::srand((unsigned int) std::time(0));
+		shuffleCards();
+		errorFd = 0;
+	}
 	while (run) {
-		errorFd = checkForMessages();
-		if (isFull()) {
-			errorFd = manageGame();
+		checkForMessages();
+		bool full;
+		{
+			std::lock_guard<std::mutex> lock1(serverGamesMutex);
+			full = isFull();
+		}
+		if (full) {
+			manageGame();
 		}
 	}
-	endGame(errorFd);
+	std::lock_guard<std::mutex> lock1(serverGamesMutex);
+	endGame();
 }
 
-int Game::manageGame() {
-	dealCards();
-	prepareToRun();
-	sendStartGame();
-	Player *p = players.front();
-	sendYourTurn(p);
-	int errorFd = 0;
-	while (run) {
-		errorFd = checkForMessages();
+void Game::manageGame() {
+	{
+		std::lock_guard<std::mutex> lock1(serverGamesMutex);
+		status = ACTIVE;
+		dealCards();
+		prepareToRun();
+		sendStartGame();
+		Player *p = players.front();
+		sendYourTurn(p);
 	}
-	return errorFd;
+	while (run) {
+		checkForMessages();
+	}
 }
 
-void Game::endGame(int fd) {
+void Game::endGame() {
+	printf("Ending game %s.\n", id.c_str());
 	list<Player *> temp = players;
 	for (Player *p : temp) {
-		if (p->getFd() == fd) {
+		if (p->getFd() == errorFd) {
 			removePlayer(p, false);
 			continue;
 		}
@@ -263,20 +308,25 @@ void Game::prepareToRun() {
 	}
 }
 
-void Game::failGame(Player *p) {
+void Game::failGame(Player *p, bool removePlayer) {
 	Message m(PLAYER_UNREACHABLE, p->getName());
 	broadcast(m, p);
 	run = false;
-	printf("%s is unreachable or exited game %s.\n", p->getName().c_str(), id.c_str());
+	if (removePlayer) {
+		errorFd = p->getFd();
+		printf("%s is unreachable or or sent unparseable message in game %s.\n", p->getName().c_str(), id.c_str());
+	} else {
+		printf("%s exited game %s.\n", p->getName().c_str(), id.c_str());
+	}
 }
 
-int Game::sendMoveAnswer(Message m, Player *to) {
+void Game::sendMoveAnswer(Message m, Player *to) {
 	string data = m.getData();
 	unsigned long i = data.find(",");
-	if (i == string::npos) {
+	if (i == string::npos || to != whosTurn) {
 		printf("Client %d sent unparseable message, disconnecting.\n", fd);
-		failGame(to);
-		return to->getFd();
+		failGame(to, true);
+		return;
 	}
 	string fromNick = data.substr(0, i);
 	data.erase(0, i + 1);
@@ -321,12 +371,32 @@ int Game::sendMoveAnswer(Message m, Player *to) {
 			broadcast(m4, to);
 			printf("%s won in game %s.\n", to->getName().c_str(), id.c_str());
 			run = false;
-			return 0;
+			return;
 		}
 
 		sendYourTurn(to);
 	} else {
 		sendYourTurn(from);
 	}
-	return 0;
+	return;
+}
+
+void Game::keepAlive() {
+	std::lock_guard<std::mutex> lock1(serverGamesMutex);
+	Player *p = getPlayerByFd(fd);
+	time_t now;
+	time(&now);
+	p->setLastReceivedKeepAlive(now);
+	p->setStatus(ACTIVE);
+}
+
+void Game::reconnectPlayer(Player *p, int newFd) {
+	FD_CLR(newFd, serverClientsFdSet);
+	FD_CLR(p->getFd(), &clientSocks);
+	FD_SET(newFd, &clientSocks);
+	p->setFd(newFd);
+	p->setStatus(ACTIVE);
+	time_t now;
+	time(&now);
+	p->setLastReceivedKeepAlive(now);
 }

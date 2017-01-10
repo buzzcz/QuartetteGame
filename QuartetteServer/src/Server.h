@@ -11,6 +11,10 @@
 #include <malloc.h>
 #include <arpa/inet.h>
 #include <list>
+#include <thread>
+#include <mutex>
+#include <signal.h>
+#include <chrono>
 #include "Game.h"
 
 using std::list;
@@ -61,9 +65,24 @@ class Server {
 	bool run;
 
 	/**
+	 * List of server clients.
+	 */
+	list<Player *> clients;
+
+	/**
 	 * List of running games.
 	 */
 	list<Game *> games;
+
+	/**
+	 * Mutex to avoid race condition on clients list.
+	 */
+	std::mutex clientsMutex;
+
+	/**
+	 * Mutex to avoid race condition on games list.
+	 */
+	std::mutex gamesMutex;
 
 	/**
 	 * Creates server - checks input values, binds and listens on socket.
@@ -80,9 +99,10 @@ class Server {
 	void processMessage(Message m);
 
 	/**
-	 * Closes connection to file descriptor because of unparseable message.
+	 * Closes connection to file descriptor.
+	 * @param fdToClose file descriptor to close. If not specified, last file descriptor is closed.
 	 */
-	void closeFd();
+	void closeFd(int fdToClose = 0);
 
 	/**
 	 * Send list of games.
@@ -123,10 +143,33 @@ class Server {
 	bool isPlayerOnServer(string name);
 
 	/**
+	 * Finds server client by file descriptor.
+	 * @param fd file descriptor of client to find.
+	 * @return found client or NULL.
+	 */
+	Player *getClientByFd(int fd);
+
+	/**
 	 * Reconnects player to game.
 	 * @param m message with data.
 	 */
 	void reconnectToGame(Message m);
+
+	/**
+	 * Sets new time of last keep-alive to client.
+	 */
+	void keepAlive();
+
+	/**
+	 * Sends keep-alive message to all clients and players.
+	 */
+	void sendKeepAlives();
+
+	/**
+	 * Checks times of last received keep-alives of all clients / players and either changes client's / player's status
+	 * or disconnects client / player.
+	 */
+	void checkKeepAlives();
 
 public:
 

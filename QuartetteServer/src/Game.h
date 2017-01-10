@@ -3,6 +3,7 @@
 
 #include <list>
 #include <thread>
+#include <mutex>
 #include <deque>
 #include <algorithm>
 #include <unistd.h>
@@ -31,9 +32,20 @@ class Game {
 	int capacity;
 
 	/**
+	 * Status of game.
+	 * ACTIVE means that game is running, NOT_ACTIVE means that game hasn't begun yet.
+	 */
+	Status status;
+
+	/**
 	 * Set of server clients.
 	 */
-	fd_set *serverClients;
+	fd_set *serverClientsFdSet;
+
+	/**
+	 * List of server clients.
+	 */
+	list<Player *> *serverClients;
 
 	/**
 	 * List of games on server.
@@ -66,22 +78,31 @@ class Game {
 	int fd;
 
 	/**
+	 * File descriptor of player that caused failing the game.
+	 */
+	int errorFd;
+
+	/**
 	 * Set of client sockets.
 	 */
 	fd_set clientSocks;
+
+	std::mutex &serverClientsMutex;
+
+	std::mutex &serverGamesMutex;
 
 	/**
 	 * Runs select and receives new messages.
 	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	int checkForMessages();
+	void checkForMessages();
 
 	/**
 	 * Processes received message.
 	 * @param m message to process.
 	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	int processMessage(Message m);
+	void processMessage(Message m);
 
 	/**
 	 * Setups game before start.
@@ -92,13 +113,13 @@ class Game {
 	 * Manages game and it's clients.
 	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	int manageGame();
+	void manageGame();
 
 	/**
 	 * Ends game. Returns players' fds to server etc.
 	 * @param fd param to be closed and not returned to server.
 	 */
-	void endGame(int fd);
+	void endGame();
 
 	/**
 	 * Sends start game message to all players in game.
@@ -117,6 +138,13 @@ class Game {
 	 * @return player with specified file descriptor or NULL if not found.
 	 */
 	Player *getPlayerByFd(int fd);
+
+	/**
+	 * Removes player from game.
+	 * @param p player to remove.
+	 * @param backToServer true if player should be returned to server, false if connection to player should be closed.
+	 */
+	void removePlayer(Player *p, bool backToServer);
 
 	/**
 	 * Moves card from one player to another one.
@@ -148,12 +176,6 @@ class Game {
 	void prepareToRun();
 
 	/**
-	 * Broadcasts message due to unresponsive player or due to player correctly exiting.
-	 * @param p player because of whom the game failed.
-	 */
-	void failGame(Player *p);
-
-	/**
 	 * Broadcasts message to all players in game. If player is specified, message is not sent to him.
 	 * @param m message to broadcast.
 	 * @param p if specified, message won't be broadcasted to this player.
@@ -166,17 +188,24 @@ class Game {
 	 * @param to player who's move it is.
 	 * @return 0 if everything is ok, fd to be closed otherwise.
 	 */
-	int sendMoveAnswer(Message m, Player *to);
+	void sendMoveAnswer(Message m, Player *to);
+
+	/**
+	 * Sets time of last received keep-alive.
+	 */
+	void keepAlive();
 
 public:
 
 	/**
 	 * Constructor to create new game with id and capacity.
 	 * @param capacity maximum number of players in this game.
-	 * @param serverClients fd_set of server clients.
+	 * @param serverClientsFdSet fd_set of server clients.
+	 * @param serverClients list of server clients.
 	 * @param serverGames list of games on server.
 	 */
-	Game(int capacity, fd_set *serverClients, list<Game *> *serverGames);
+	Game(int capacity, fd_set *serverClientsFdSet, list<Player *> *serverClients, list<Game *> *serverGames,
+	     std::mutex &serverClientsMutex, std::mutex &serverGamesMutex);
 
 	/**
 	 * Getter for id of game.
@@ -189,6 +218,12 @@ public:
 	 * @return maximum number of player in game.
 	 */
 	int getCapacity();
+
+	/**
+	 * Getter for status of game.
+	 * @return status of game.
+	 */
+	Status getStatus();
 
 	/**
 	 * Getter for list of players in game.
@@ -207,13 +242,6 @@ public:
 	 * @param p player to add.
 	 */
 	void addPlayer(Player *p);
-
-	/**
-	 * Removes player from game.
-	 * @param p player to remove.
-	 * @param backToServer true if player should be returned to server, false if connection to player should be closed.
-	 */
-	void removePlayer(Player *p, bool backToServer);
 
 	/**
 	 * Finds player with specified name in game.
@@ -239,6 +267,18 @@ public:
 	 * Starts game thread.
 	 */
 	void start();
+
+	/**
+	 * Broadcasts message due to unresponsive player or due to player correctly exiting.
+	 * @param p player because of whom the game failed.
+	 */
+	void failGame(Player *p, bool removePlayer);
+
+	/**
+	 * Reconnects player into game.
+	 * @param p player to reconnect.
+	 */
+	void reconnectPlayer(Player *p, int newFd);
 
 };
 

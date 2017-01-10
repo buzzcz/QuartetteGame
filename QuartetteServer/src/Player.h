@@ -2,6 +2,7 @@
 #define QUARTETTESERVER_PLAYER_H
 
 #include <list>
+#include <time.h>
 #include "Card.h"
 #include "Status.h"
 
@@ -33,7 +34,18 @@ class Player {
 	 */
 	list<Card> cards;
 
+	/**
+	 * Time of last received keep-alive.
+	 */
+	time_t lastReceivedKeepAlive;
+
 public:
+
+	/**
+	 * Constructor for player with file descriptor.
+	 * @param fd file descriptor of the player.
+	 */
+	Player(int fd);
 
 	/**
 	 * Constructor for player with file descriptor and nickname.
@@ -59,6 +71,12 @@ public:
 	 * @return nickname.
 	 */
 	string getName();
+
+	/**
+	 * Setter for name.
+	 * @param n name
+	 */
+	void setName(string n);
 
 	/**
 	 * Getter for status.
@@ -107,6 +125,18 @@ public:
 	 * @return true if player has quartette, false otherwise.
 	 */
 	bool hasQuartette();
+
+	/**
+	 * Getter for time of last received keep-alive.
+	 * @return time of last received keep-alive.
+	 */
+	time_t getLastReceivedKeepAlive();
+
+	/**
+	 * Setter for time of last received keep-alive.
+	 * @param time time of last received keep-alive.
+	 */
+	void setLastReceivedKeepAlive(time_t time);
 
 };
 
