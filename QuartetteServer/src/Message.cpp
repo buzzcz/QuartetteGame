@@ -19,6 +19,12 @@ void Message::receiveMessage(int fd) {
 
 	while (true) {
 		char c;
+		ssize_t canRead = recv(fd, &c, 1, MSG_PEEK | MSG_DONTWAIT);
+		if (canRead <= 0) {
+			type = UNPARSEABLE;
+			printf("Could not receive message.\n");
+			return;
+		}
 		recv(fd, &c, 1, 0);
 		if (c == '\n') {
 			break;

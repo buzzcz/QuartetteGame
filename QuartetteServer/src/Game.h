@@ -29,7 +29,7 @@ class Game {
 	/**
 	 * Indicates maximum number of players in game.
 	 */
-	int capacity;
+	unsigned int capacity;
 
 	/**
 	 * Status of game.
@@ -87,8 +87,14 @@ class Game {
 	 */
 	fd_set clientSocks;
 
+	/**
+	 * Mutex on server clients.
+	 */
 	std::mutex &serverClientsMutex;
 
+	/**
+	 * Mutex on server games.
+	 */
 	std::mutex &serverGamesMutex;
 
 	/**
@@ -138,13 +144,6 @@ class Game {
 	 * @return player with specified file descriptor or NULL if not found.
 	 */
 	Player *getPlayerByFd(int fd);
-
-	/**
-	 * Removes player from game.
-	 * @param p player to remove.
-	 * @param backToServer true if player should be returned to server, false if connection to player should be closed.
-	 */
-	void removePlayer(Player *p, bool backToServer);
 
 	/**
 	 * Moves card from one player to another one.
@@ -242,6 +241,13 @@ public:
 	 * @param p player to add.
 	 */
 	void addPlayer(Player *p);
+
+	/**
+	 * Removes player from game.
+	 * @param p player to remove.
+	 * @param backToServer true if player should be returned to server, false if connection to player should be closed.
+	 */
+	void removePlayer(Player *p, bool backToServer);
 
 	/**
 	 * Finds player with specified name in game.

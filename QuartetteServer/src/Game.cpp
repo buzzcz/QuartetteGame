@@ -46,9 +46,9 @@ void Game::addPlayer(Player *p) {
 }
 
 void Game::removePlayer(Player *p, bool backToServer) {
-	std::lock_guard<std::mutex> lock(serverClientsMutex);
 	FD_CLR(p->getFd(), &clientSocks);
 	if (backToServer) {
+		std::lock_guard<std::mutex> lock(serverClientsMutex);
 		serverClients->push_back(p);
 		FD_SET(p->getFd(), serverClientsFdSet);
 	} else {

@@ -145,12 +145,12 @@ void Server::closeFd(int fdToClose, bool error) {
 		fdToClose = fd;
 	}
 	std::lock_guard<std::mutex> lock(clientsMutex);
-	printf("Client %d sent unparseable message, disconnecting.\n", fdToClose);
 	Player *p = getClientByFd(fdToClose);
 	clients.remove(p);
 	close(fdToClose);
 	FD_CLR(fdToClose, &clientSocks);
 	if (error) {
+		printf("Client %d sent unparseable message, disconnecting.\n", fdToClose);
 		Statistics::closedClients.fetch_add(1);
 	}
 }
@@ -367,13 +367,11 @@ void Server::sendKeepAlives() {
 	while (run) {
 		{
 			std::lock_guard<std::mutex> lock(clientsMutex);
+			std::lock_guard<std::mutex> lock1(gamesMutex);
 			for (Player *p : clients) {
 				m.sendMessage(p->getFd());
 			}
-		}
 
-		{
-			std::lock_guard<std::mutex> lock1(gamesMutex);
 			for (Game *g : games) {
 				for (Player *p : g->getPlayers()) {
 					m.sendMessage(p->getFd());
@@ -414,7 +412,15 @@ void Server::checkKeepAlives() {
 					double diff = difftime(now, p->getLastReceivedKeepAlive());
 					if (p->getStatus() == NOT_ACTIVE && diff >= 25) {
 						printf("Closing unresponding player %d.\n", p->getFd());
-						g->failGame(p, true);
+						if (g->isFull() || g->getStatus() == ACTIVE) {
+							g->failGame(p, true);
+						} else {
+							if (g->getPlayers().size() == 1) {
+								run = false;
+							} else {
+								g->removePlayer(p, false);
+							}
+						}
 					} else if (p->getStatus() == ACTIVE && diff >= 5) {
 						printf("Waiting for unresponding player %d.\n", p->getFd());
 						p->setStatus(NOT_ACTIVE);

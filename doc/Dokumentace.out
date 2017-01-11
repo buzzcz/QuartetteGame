@@ -1,0 +1,16 @@
+\BOOKMARK [1][-]{section.1}{Zad\341n\355}{}% 1
+\BOOKMARK [1][-]{section.2}{Popis hry}{}% 2
+\BOOKMARK [1][-]{section.3}{Protokol}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Typy zpr\341v a dat}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Posloupnost zpr\341v v bezprobl\351mov\351 hre}{section.3}% 5
+\BOOKMARK [1][-]{section.4}{Implementace}{}% 6
+\BOOKMARK [2][-]{subsection.4.1}{Server}{section.4}% 7
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Klienti mimo hru}{subsection.4.1}% 8
+\BOOKMARK [3][-]{subsubsection.4.1.2}{Management hry}{subsection.4.1}% 9
+\BOOKMARK [3][-]{subsubsection.4.1.3}{Periodick\351 zas\355l\341n\355 keep-alive}{subsection.4.1}% 10
+\BOOKMARK [3][-]{subsubsection.4.1.4}{Kontrola dostupnosti klientu}{subsection.4.1}% 11
+\BOOKMARK [2][-]{subsection.4.2}{Klient}{section.4}% 12
+\BOOKMARK [1][-]{section.5}{U\236ivatelsk\341 pr\355rucka}{}% 13
+\BOOKMARK [2][-]{subsection.5.1}{Server}{section.5}% 14
+\BOOKMARK [2][-]{subsection.5.2}{Klient}{section.5}% 15
+\BOOKMARK [1][-]{section.6}{Z\341ver}{}% 16
