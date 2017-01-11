@@ -107,17 +107,19 @@ public class Connection implements NetworkInterface {
 		try {
 			if (reader.ready()) {
 				line = reader.readLine();
-				log.info(String.format("Received: %s.", line));
 				String[] parts = line.split(";");
 				int size = Integer.parseInt(parts[1]);
 				if ((size == 0 && parts.length == 2) || size == parts[2].length()) {
+					log.info(String.format("Received: %s.", line));
 					return new Message(MessageType.values()[Integer.parseInt(parts[0])], size == 0 ? "" : parts[2]);
 				} else {
 					log.error("Received data size mismatch.");
+					return new Message(MessageType.UNPARSEABLE, "");
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("Read error.", e);
+			return new Message(MessageType.UNPARSEABLE, "");
 		}
 		return null;
 	}

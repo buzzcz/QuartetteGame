@@ -173,7 +173,14 @@ public class MainWindowController implements Initializable {
 				"Create new game.", "Select number of desired opponents:", numbers, null, "Enter your nickname:",
 				"Nickname", nickname);
 		result.ifPresent(pair -> {
-//		    TODO: Check nickname for unsupported characters
+			if (pair.getValue().contains(",") || pair.getValue().contains(";") || pair.getValue().contains("\n") ||
+					pair.getValue().contains("\r\n")) {
+				log.error(String.format("Nickname %s contains unsupported characters.", pair.getValue()));
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Nickname contains " +
+						"unsupported characters.", "Nickname cannot contain ',', ';', '\\n' and \"\\r\\n\"");
+				createGameRequest();
+				return;
+			}
 			showWaitForServer();
 			nickname = pair.getValue();
 			Message m = new Message(MessageType.CREATE_GAME_REQUEST, String.format("%s,%d", nickname, pair.getKey()));
@@ -190,7 +197,13 @@ public class MainWindowController implements Initializable {
 		Optional<String> result = AlertsAndDialogs.showAndWaitTextInputDialog("Reconnect To Game", "Reconnect to " +
 				"game.", "Enter nickname:", "Nickname", nickname);
 		result.ifPresent(s -> {
-//		    TODO: Check nickname for unsupported characters
+			if (s.contains(",") || s.contains(";") || s.contains("\n") || s.contains("\r\n")) {
+				log.error(String.format("Nickname %s contains unsupported characters.", s));
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Nickname Error", "Nickname contains " +
+						"unsupported characters.", "Nickname cannot contain ',', ';', '\\n' and \"\\r\\n\"");
+				reconnectRequest();
+				return;
+			}
 			showWaitForServer();
 			nickname = s;
 			Message m = new Message(MessageType.RECONNECT_REQUEST, nickname);
@@ -458,9 +471,8 @@ public class MainWindowController implements Initializable {
 	 */
 	public void someoneLost(Message message) {
 		if (inGame) {
-			String info = String.format("%s lost.", message.getData());
-			gameTableController.getHistory().add(info);
-			log.info(info);
+			gameTableController.someoneLost(message.getData());
+			log.info(String.format("%s lost.", message.getData()));
 		}
 	}
 

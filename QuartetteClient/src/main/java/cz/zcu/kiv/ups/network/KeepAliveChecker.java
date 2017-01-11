@@ -31,7 +31,7 @@ public class KeepAliveChecker implements KeepAliveCheckerInterface {
 		if (lastKeepAlive != null && lastKeepAlive.plus(10, ChronoUnit.SECONDS).isBefore(LocalDateTime.now())) {
 			gameTableController.setReceivedKeepAlive(null);
 			Platform.runLater(() -> {
-				AlertsAndDialogs.showAlert(Alert.AlertType.ERROR, "Server Error", "Server not responding.",
+				AlertsAndDialogs.showAndWaitAlert(Alert.AlertType.ERROR, "Server Error", "Server not responding.",
 						"Disconnecting from server because it is not responding.");
 				mainWindowController.showLogin();
 			});

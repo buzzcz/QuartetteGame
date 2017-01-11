@@ -217,4 +217,18 @@ public class GameTableController implements Initializable {
 		history.add(info);
 		log.info(info);
 	}
+
+	/**
+	 * Removes opponent who lost from list.
+	 * @param name name of opponent who lost.
+	 */
+	void someoneLost(String name) {
+		for (Opponent o : opponents) {
+			if (o.getName().equals(name)) {
+				opponents.remove(o);
+				break;
+			}
+		}
+		history.add(String.format("%s lost.", name));
+	}
 }

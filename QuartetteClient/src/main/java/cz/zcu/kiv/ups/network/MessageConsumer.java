@@ -74,6 +74,7 @@ public class MessageConsumer implements ConsumerInterface {
 			case RECONNECT_ANSWER:
 				Platform.runLater(() -> mainWindowController.reconnectAnswer(message));
 				break;
+			case UNPARSEABLE:
 			default:
 				Platform.runLater(mainWindowController::showLogin);
 				break;
