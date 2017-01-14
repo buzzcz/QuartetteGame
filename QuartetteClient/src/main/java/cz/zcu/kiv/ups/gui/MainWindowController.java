@@ -112,7 +112,7 @@ public class MainWindowController implements Initializable {
 		String error = connection.open(hostname, port);
 		if (error == null) {
 			showMenu();
-			gameTableController.setReceivedKeepAlive(null);
+			gameTableController.setReceivedKeepAlive(LocalDateTime.now());
 			futures.add(scheduler.scheduleWithFixedDelay(consumer::consumeMessage, 50));
 			futures.add(scheduler.scheduleWithFixedDelay(sender::sendKeepAlive, 2500));
 			futures.add(scheduler.scheduleWithFixedDelay(checker::checkKeepAlive, 2500));
