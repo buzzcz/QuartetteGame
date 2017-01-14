@@ -136,7 +136,6 @@ void Game::processMessage(Message m) {
 			full = isFull();
 		}
 			if (full) {
-				std::lock_guard<std::mutex> lock(serverClientsMutex);
 				sendMoveAnswer(m, getPlayerByFd(fd));
 			}
 			break;
@@ -365,6 +364,7 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 			m3.sendMessage(from->getFd());
 			Message m4(SOMEONE_LOST, from->getName());
 			broadcast(m4, from);
+			std::lock_guard<std::mutex> lock(serverClientsMutex);
 			removePlayer(from, true);
 			printf("%s lost in game %s.\n", from->getName().c_str(), id.c_str());
 		}
@@ -383,7 +383,6 @@ void Game::sendMoveAnswer(Message m, Player *to) {
 	} else {
 		sendYourTurn(from);
 	}
-	return;
 }
 
 void Game::keepAlive() {
