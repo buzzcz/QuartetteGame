@@ -402,7 +402,6 @@ void Server::checkKeepAlives() {
 				}
 			}
 
-			printf("Checking keep-alive players.\n");
 			list<Game *> lg = games;
 			for (Game *g : lg) {
 				l = g->getPlayers();

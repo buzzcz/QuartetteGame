@@ -48,7 +48,6 @@ void Game::addPlayer(Player *p) {
 void Game::removePlayer(Player *p, bool backToServer) {
 	FD_CLR(p->getFd(), &clientSocks);
 	if (backToServer) {
-		std::lock_guard<std::mutex> lock(serverClientsMutex);
 		serverClients->push_back(p);
 		FD_SET(p->getFd(), serverClientsFdSet);
 	} else {
@@ -137,6 +136,7 @@ void Game::processMessage(Message m) {
 			full = isFull();
 		}
 			if (full) {
+				std::lock_guard<std::mutex> lock(serverClientsMutex);
 				sendMoveAnswer(m, getPlayerByFd(fd));
 			}
 			break;
@@ -147,6 +147,7 @@ void Game::processMessage(Message m) {
 			if (full) {
 				failGame(getPlayerByFd(fd), false);
 			} else {
+				std::lock_guard<std::mutex> lock(serverClientsMutex);
 				std::lock_guard<std::mutex> lock1(serverGamesMutex);
 				if (players.size() == 1) {
 					run = false;
@@ -181,6 +182,7 @@ void Game::setupGame() {
 			manageGame();
 		}
 	}
+	std::lock_guard<std::mutex> lock(serverClientsMutex);
 	std::lock_guard<std::mutex> lock1(serverGamesMutex);
 	endGame();
 }

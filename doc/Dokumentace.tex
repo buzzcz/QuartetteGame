@@ -18,7 +18,7 @@
 			\textsc{\large Katedra informatiky a~výpočetní techniky}
 			\vfill
 			\textsc{\LARGE Semestrální práce KIV/UPS}\\[0.2cm]
-			\Large{Síťová hra Oběšenec\\za použití protokolu UDP}
+			\Large{Síťová hra Kvarteto}
 			\vfill
 			Jaroslav Klaus\\
 			A13B0347P\\
@@ -183,7 +183,14 @@
 	Zde je popsána dekompozice, rozvrstvení, metoda paralelizace a další implementační záležitosti programů.
 	
 		\subsection{Server}
-		Server je rozdělen do čtyř hlavních částí. První část je zpracování požadavků klientů, kteří nejsou v žádné hře. Druhou částí je management hry a jejích klientů. Třetí část slouží k periodickému zasílání \uv{keep-alive} zpráv všem klientům na serveru. Konečně čtvrtá část slouží ke kontrole, zda jsou klienti dostupní (posílají \uv{keep-alive} zprávy), a k případnému ukončení spojení s těmi nedostupnými. Každá z těchto částí běží ve vlastním vlákně, přičemž každá hra má vlákno vlastní.
+		Server je rozdělen do čtyř hlavních částí. První část je zpracování požadavků klientů, kteří nejsou v žádné hře. Druhou částí je management hry a jejích klientů. Třetí část slouží k periodickému zasílání \uv{keep-alive} zpráv všem klientům na serveru. Konečně čtvrtá část slouží ke kontrole, zda jsou klienti dostupní (posílají \uv{keep-alive} zprávy), a k případnému ukončení spojení s těmi nedostupnými. Každá z těchto částí běží ve vlastním vlákně, přičemž každá hra má vlákno vlastní. UML diagram implementace je vyobrazen na obrázku \ref{Server}.
+		\begin{figure}[ht!]
+			\centering
+			\caption{Implementace serveru}
+			\label{Server}
+			\includegraphics[width=13cm]{img/Server.png}
+		\end{figure}
+	
 		
 			\subsubsection{Klienti mimo hru}
 			Tato část volá funkci \emph{select} s krátkým timeoutem nad sockety klientů mimo hru a serveru. Pokud se zjistí, že na některém z klientských socketů jsou data ke čtení, provede se jejich načtení a zpracování. Pokud se něco událo na socketu serveru, je přijato nové spojení s klientem. Typy zpráv, které budou zpracovány v této části jsou: 0, 1, 3, 5 a 18. Zde probíhá vytváření her, připojení klientů do her apod.
@@ -198,18 +205,24 @@
 			V tomto vlákně se prochází seznamy klientů mimo hry i ve hrách. U každého se kontroluje čas poslední přijaté zprávy \uv{keep-alive}. Pokud je tento čas starší než 5 sekund, nastaví se stav hráče jako neaktivní a je tak možné, aby klient požádal o navázání přerušené hry (pokud v nějaké byl). Pokud je čas starší než 25 sekund, je spojení s klientem ukončeno a případná hra ukončena z důvodu nedostupnosti hráče.
 		
 		\subsection{Klient}
-		Postup práce klienta je téměř identický jako ten na serveru. Liší se např. v tom, že zde existuje pouze jedno vlákno pro příjem a zpracování zpráv. Další vlákno slouží pro odesílání zpráv \uv{keep-alive}, jiné pro kontrolu dostupnosti serveru a poslední k ovládání GUI.
+		Postup práce klienta je téměř identický jako ten na serveru. Liší se např. v tom, že zde existuje pouze jedno vlákno pro příjem a zpracování zpráv. Další vlákno slouží pro odesílání zpráv \uv{keep-alive}, jiné pro kontrolu dostupnosti serveru a poslední k ovládání GUI. UML diagram implementace je na obrázku \ref{Client}.
+		\begin{figure}[ht!]
+			\centering
+			\caption{Implementace klienta}
+			\label{Client}
+			\includegraphics[width=13cm]{img/Client.png}
+		\end{figure}
 		
 	\section{Uživatelská příručka}
 		\subsection{Server}
-		Server je napsán v jazyce \emph{C++} v operačním systému Linux a je k němu vytvořen příslušný \emph{Makefile}, kterým je možné server pomocí nástroje \emph{make} jednoduše přeložit. K přeložení je potřebná knihovna \emph{pthread} pro možnost vytvoření a práce s vlákny a knhovna \emph{uuid} pro vytváření id her. Server se spouští se dvěma parametry, adresou pro naslouchání a portem, např.:\\
+		Server je napsán v jazyce \emph{C++} v operačním systému Linux a je k němu vytvořen příslušný \emph{Makefile}, kterým je možné server pomocí nástroje \emph{make} jednoduše přeložit. K přeložení je potřeba použít překladač \emph{g++} s podporou standardu \emph{c++11}, knihovnu \emph{pthread} pro možnost vytvoření a práce s vlákny a knihovnu \emph{uuid} (případně \emph{uuid-dev}) pro vytváření id her. Server se spouští se dvěma parametry, adresou pro naslouchání a portem, např.:\\
 		\texttt{./QuartetteServer INADDR\_ANY 10000}\\
 		Ukončení serveru je možné provést zasláním signálu \emph{SIGINT} (např. stisknutí Ctrl + C).
 	
 		\subsection{Klient}
-		Klient je napsán v jazyce \emph{Java} za použití \emph{JavaFX} a \emph{JDK 8} a fungovat by měl jak v OS Linux, tak Microsoft Windows. Pro jeho přeložení je potřeba \emph{JDK 8} nebo vyšší, pro spuštění by měl stačit \emph{JRE 8} nebo vyšší. Přiložen je soubor \emph{pom.xml} pro automatický překlad nástrojem \emph{maven}, který se provede např. příkazem:\\
+		Klient je napsán v jazyce \emph{Java} za použití \emph{JavaFX}, \emph{JDK 8} a \emph{Spring Boot Framework} a fungovat by měl jak v OS Linux, tak Microsoft Windows. Pro jeho přeložení je potřeba \emph{JDK 8} nebo vyšší a nástroj \emph{maven}, pro spuštění by měl stačit \emph{JRE 8} nebo vyšší. Přiložen je soubor \emph{pom.xml} pro automatický překlad nástrojem \emph{maven}, který se provede např. příkazem:\\
 		\texttt{mvn package}\\
-		Vytvoří se soubor \emph{QuartetteClient.jar}, který lze spustit např. příkazem:\\
+		Vytvoří se soubor \emph{target/QuartetteClient.jar}, který lze spustit příkazem:\\
 		\texttt{java -jar QuartetteClient.jar}\\
 		Je možné spustit klienta s parametry, které předvyplní daná pole, např. takto:\\
 		\texttt{java -jar QuartetteClient.jar -host localhost}\\
