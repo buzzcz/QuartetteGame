@@ -3,8 +3,8 @@
 void help(char *argv[]) {
 	printf("You need to specify 2 parameters. Usage:\n");
 	printf("%s address port\n", argv[0]);
-	printf("%s localhost 10000", argv[0]);
-	printf("%s inaddr_any 10000", argv[0]);
+	printf("%s localhost 10000\n", argv[0]);
+	printf("%s inaddr_any 10000\n", argv[0]);
 }
 
 int main(int argc, char *argv[]) {
