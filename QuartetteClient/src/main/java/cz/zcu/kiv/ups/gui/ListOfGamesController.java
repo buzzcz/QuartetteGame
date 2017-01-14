@@ -3,15 +3,13 @@ package cz.zcu.kiv.ups.gui;
 import cz.zcu.kiv.ups.dto.Game;
 import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.MessageType;
-import cz.zcu.kiv.ups.network.Connection;
+import cz.zcu.kiv.ups.network.NetworkInterface;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,7 @@ public class ListOfGamesController implements Initializable {
 	private MainWindowController mainWindowController;
 
 	@Autowired
-	private Connection connection;
+	private NetworkInterface connection;
 
 	/**
 	 * List of games.

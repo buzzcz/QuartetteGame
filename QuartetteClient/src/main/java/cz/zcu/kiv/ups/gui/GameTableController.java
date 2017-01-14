@@ -4,7 +4,7 @@ import cz.zcu.kiv.ups.dto.Card;
 import cz.zcu.kiv.ups.dto.Message;
 import cz.zcu.kiv.ups.dto.MessageType;
 import cz.zcu.kiv.ups.dto.Opponent;
-import cz.zcu.kiv.ups.network.Connection;
+import cz.zcu.kiv.ups.network.NetworkInterface;
 import cz.zcu.kiv.ups.utils.AlertsAndDialogs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +41,7 @@ public class GameTableController implements Initializable {
 	private MainWindowController mainWindowController;
 
 	@Autowired
-	private Connection connection;
+	private NetworkInterface connection;
 
 	/**
 	 * List of my cards.

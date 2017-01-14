@@ -20,7 +20,7 @@ public class MessageConsumer implements ConsumerInterface {
 	private MainWindowController mainWindowController;
 
 	@Autowired
-	private Connection connection;
+	private NetworkInterface connection;
 
 	@Override
 	public void consumeMessage() {

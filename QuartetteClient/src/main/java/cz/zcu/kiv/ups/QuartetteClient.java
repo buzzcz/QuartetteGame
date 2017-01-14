@@ -1,7 +1,7 @@
 package cz.zcu.kiv.ups;
 
 
-import cz.zcu.kiv.ups.network.Connection;
+import cz.zcu.kiv.ups.network.NetworkInterface;
 import cz.zcu.kiv.ups.utils.ParseCmdLine;
 import cz.zcu.kiv.ups.utils.SpringFxmlLoader;
 import javafx.application.Application;
@@ -49,7 +49,7 @@ public class QuartetteClient extends Application {
 		primaryStage.setOnCloseRequest(event -> {
 			ThreadPoolTaskScheduler scheduler = context.getBean(ThreadPoolTaskScheduler.class);
 			scheduler.shutdown();
-			Connection connection = context.getBean(Connection.class);
+			NetworkInterface connection = context.getBean(NetworkInterface.class);
 			connection.close();
 		});
 
