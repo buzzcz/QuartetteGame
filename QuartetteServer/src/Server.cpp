@@ -65,8 +65,7 @@ int Server::start(string address, uint16_t port) {
 
 	time(&Statistics::start);
 
-	std::thread(&Server::sendKeepAlives, this).detach();
-	std::thread(&Server::checkKeepAlives, this).detach();
+	std::thread(&Server::sendAndCheckKeepAlives, this).detach();
 
 	run = true;
 
@@ -362,34 +361,16 @@ void Server::keepAlive() {
 	}
 }
 
-void Server::sendKeepAlives() {
+void Server::sendAndCheckKeepAlives() {
 	Message m(KEEP_ALIVE, "");
 	while (run) {
 		{
 			std::lock_guard<std::mutex> lock(clientsMutex);
 			std::lock_guard<std::mutex> lock1(gamesMutex);
-			for (Player *p : clients) {
-				m.sendMessage(p->getFd());
-			}
-
-			for (Game *g : games) {
-				for (Player *p : g->getPlayers()) {
-					m.sendMessage(p->getFd());
-				}
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(2500));
-	}
-}
-
-void Server::checkKeepAlives() {
-	while (run) {
-		{
-			std::lock_guard<std::mutex> lock(clientsMutex);
-			std::lock_guard<std::mutex> lock1(gamesMutex);
-			printf("Checking keep-alive clients.\n");
+			printf("Sending and checking keep-alive clients.\n");
 			list<Player *> l = clients;
 			for (Player *p : l) {
+				m.sendMessage(p->getFd());
 				time_t now;
 				time(&now);
 				double diff = difftime(now, p->getLastReceivedKeepAlive());
@@ -406,6 +387,7 @@ void Server::checkKeepAlives() {
 			for (Game *g : lg) {
 				l = g->getPlayers();
 				for (Player *p : l) {
+					m.sendMessage(p->getFd());
 					time_t now;
 					time(&now);
 					double diff = difftime(now, p->getLastReceivedKeepAlive());

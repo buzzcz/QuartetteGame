@@ -169,7 +169,7 @@ class Server {
 	 * Checks times of last received keep-alives of all clients / players and either changes client's / player's status
 	 * or disconnects client / player.
 	 */
-	void checkKeepAlives();
+	void sendAndCheckKeepAlives();
 
 	/**
 	 * Prints statistics.
