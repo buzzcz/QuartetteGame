@@ -183,7 +183,7 @@
 	Zde je popsána dekompozice, rozvrstvení, metoda paralelizace a další implementační záležitosti programů.
 	
 		\subsection{Server}
-		Server je rozdělen do čtyř hlavních částí. První část je zpracování požadavků klientů, kteří nejsou v žádné hře. Druhou částí je management hry a jejích klientů. Třetí část slouží k periodickému zasílání \uv{keep-alive} zpráv všem klientům na serveru. Konečně čtvrtá část slouží ke kontrole, zda jsou klienti dostupní (posílají \uv{keep-alive} zprávy), a k případnému ukončení spojení s těmi nedostupnými. Každá z těchto částí běží ve vlastním vlákně, přičemž každá hra má vlákno vlastní. UML diagram implementace je vyobrazen na obrázku \ref{Server}.
+		Server je rozdělen do tří hlavních částí. První část je zpracování požadavků klientů, kteří nejsou v žádné hře. Druhou částí je management hry a jejích klientů. Třetí část slouží k periodickému zasílání \uv{keep-alive} zpráv všem klientům na serveru a ke kontrole, zda jsou klienti dostupní (posílají \uv{keep-alive} zprávy), a k případnému ukončení spojení s těmi nedostupnými. Každá z těchto částí běží ve vlastním vlákně, přičemž každá hra má vlákno vlastní. UML diagram implementace je vyobrazen na obrázku \ref{Server}.
 		\begin{figure}[ht!]
 			\centering
 			\caption{Implementace serveru}
